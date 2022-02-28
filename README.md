@@ -1,1 +1,1 @@
-# onallo-labor-mlkit
+# Önálló labor
