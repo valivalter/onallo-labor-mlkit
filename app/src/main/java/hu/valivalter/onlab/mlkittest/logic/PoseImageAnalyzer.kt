@@ -42,7 +42,8 @@ class PoseImageAnalyzer(val logic: ImageLabelerLogic, val infoScreen : PoseInfoS
 
 
         val localModel = LocalModel.Builder()
-            .setAssetFilePath("lite-model_on_device_vision_classifier_landmarks_classifier_europe_V1_1.tflite")
+            //.setAssetFilePath("lite-model_on_device_vision_classifier_landmarks_classifier_europe_V1_1.tflite")
+            .setAssetFilePath("birds.tflite")
             .build()
         val customImageLabelerOptions = CustomImageLabelerOptions.Builder(localModel)
             .setConfidenceThreshold(0.5f)
