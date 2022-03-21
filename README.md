@@ -20,3 +20,7 @@ Még az előző hétről maradt meg az a problémám, hogy a *PreviewView* sehog
 Ezután kiegészítettem az alkalmazást objektumfelismeréshez és -követéshez szükséges kódrészletekkel és osztályokkal. Ezek a telefon kameráját használva felismernek bizonyos objektumokat, majd különböző színű téglalapokkal jelzik az objektumok befoglaló téglalapjait, az ugyanahhoz az objektumhoz tartozó befoglaló doboz színe nem változik a kamera mozgatása során, ehhez szükség volt az ML Kit objektumkövető képességére is.
 
 A következő kiegészítés az ML Kitnek egy másik felhasználási lehetőségét tesztelte: letöltöttem TensorFlow Hubról egy TensorFlow Lite modellt, ami képes felismerni ismert európai látványosságokat, épületeket. Ezt beépítettem az alkalmazásba, így az folyamatosan kiírta a képernyő közepére, hogy éppen milyen látványosságot vél leginkább felismerni a kamera képén. Ezt sikeresen teszteltem is azzal, hogy a monitoromon megjelenítettem többek között a Buckingham-palotát és a Trevi-kutat, ezeket mind sikeresen felismerte az általam használt előre betanított hálózat.
+
+### 4-5. hét
+
+A [TensorFlow Lite Model Maker](https://www.tensorflow.org/lite/guide/model_maker) dokumentációját olvastam, leginkább a képosztályozásról szóló fejezeteket. Ezek felhasználásával készült el a *BirdClassification.ipynb* nevű fájl, ami egy Kaggle-ön talált képgyűjteménnyel tanít be egy neurális hálót madarak felismerésére. Alkalmazásban kipróbálva egy fizikai készüléken még nem működik, ez feltételezhetően a még nem megfelelően beállított metaadatoknak köszönhető.
