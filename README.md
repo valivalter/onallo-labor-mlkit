@@ -23,4 +23,4 @@ A következő kiegészítés az ML Kitnek egy másik felhasználási lehetőség
 
 ### 4-5. hét
 
-A [TensorFlow Lite Model Maker](https://www.tensorflow.org/lite/guide/model_maker) dokumentációját olvastam, leginkább a képosztályozásról szóló fejezeteket. Ezek felhasználásával készült el a *BirdClassification.ipynb* nevű fájl, ami egy Kaggle-ön talált képgyűjteménnyel tanít be egy neurális hálót madarak felismerésére. Alkalmazásban kipróbálva egy fizikai készüléken még nem működik, ez feltételezhetően a még nem megfelelően beállított metaadatoknak köszönhető.
+A [TensorFlow Lite Model Maker](https://www.tensorflow.org/lite/guide/model_maker) dokumentációját olvastam, leginkább a képosztályozásról szóló fejezeteket. Ezek felhasználásával készült el a *BirdClassification.ipynb* nevű fájl, ami egy [Kaggle-ön talált képgyűjteménnyel](https://www.kaggle.com/datasets/gpiosenka/100-bird-species) tanít be egy neurális hálót madarak felismerésére. Alkalmazásban kipróbálva egy fizikai készüléken még nem működik, ez feltételezhetően a még nem megfelelően beállított metaadatoknak köszönhető.
