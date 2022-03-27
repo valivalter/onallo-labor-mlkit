@@ -10,13 +10,14 @@ import com.google.mlkit.vision.label.ImageLabeling
 import com.google.mlkit.vision.label.custom.CustomImageLabelerOptions
 import com.google.mlkit.vision.objects.ObjectDetection
 import com.google.mlkit.vision.objects.ObjectDetector
+import com.google.mlkit.vision.objects.custom.CustomObjectDetectorOptions
 import com.google.mlkit.vision.objects.defaults.ObjectDetectorOptions
 import com.google.mlkit.vision.pose.PoseDetection
 import com.google.mlkit.vision.pose.PoseDetector
 import com.google.mlkit.vision.pose.PoseLandmark
 import com.google.mlkit.vision.pose.accurate.AccuratePoseDetectorOptions
 
-class PoseImageAnalyzer(val logic: ImageLabelerLogic, val infoScreen : PoseInfoScreen) : ImageAnalysis.Analyzer {
+class PoseImageAnalyzer(val logic: DetectionTrackingLogic, val infoScreen : PoseInfoScreen) : ImageAnalysis.Analyzer {
 
 
     private lateinit var poseDetector : PoseDetector
@@ -29,27 +30,29 @@ class PoseImageAnalyzer(val logic: ImageLabelerLogic, val infoScreen : PoseInfoS
         //    .build()
         //poseDetector = PoseDetection.getClient(poseOptions)
 
-
-
-        // Live detection and tracking
-        //val trackingOptions = ObjectDetectorOptions.Builder()
-        //    .setDetectorMode(ObjectDetectorOptions.STREAM_MODE)
-        //    .enableMultipleObjects()
-        //    .enableClassification()  // Optional
-        //    .build()
-        //objectTracker = ObjectDetection.getClient(trackingOptions)
-
-
-
         val localModel = LocalModel.Builder()
             //.setAssetFilePath("lite-model_on_device_vision_classifier_landmarks_classifier_europe_V1_1.tflite")
-            .setAssetFilePath("birds.tflite")
+            //.setAssetFilePath("birds.tflite")
+            .setAssetFilePath("chess-pieces.tflite")
             .build()
-        val customImageLabelerOptions = CustomImageLabelerOptions.Builder(localModel)
-            .setConfidenceThreshold(0.5f)
+
+        // Live detection and tracking
+        val trackingOptions = CustomObjectDetectorOptions.Builder(localModel)
+            .setDetectorMode(ObjectDetectorOptions.STREAM_MODE)
+            .enableMultipleObjects()
+            .enableClassification()  // Optional
+            .setClassificationConfidenceThreshold(0.05f)
+            .setMaxPerObjectLabelCount(3)
+            .build()
+
+        objectTracker = ObjectDetection.getClient(trackingOptions)
+
+
+        /*val customImageLabelerOptions = CustomImageLabelerOptions.Builder(localModel)
+            .setConfidenceThreshold(0.001f)
             .setMaxResultCount(5)
             .build()
-        imageLabeler = ImageLabeling.getClient(customImageLabelerOptions)
+        imageLabeler = ImageLabeling.getClient(customImageLabelerOptions)*/
     }
 
 
@@ -62,15 +65,16 @@ class PoseImageAnalyzer(val logic: ImageLabelerLogic, val infoScreen : PoseInfoS
                 imageProxy.imageInfo.rotationDegrees
             )
             //poseDetector.process(image)
-            //objectTracker.process(image)
-            imageLabeler.process(image)
+            objectTracker.process(image)
+            //imageLabeler.process(image)
                 .addOnSuccessListener { results ->
                     // Task completed successfully
                     //logic.updatePoseLandmarks(results.allPoseLandmarks)
 
-                    //logic.updateBoundingBoxes(results, imageProxy.width, imageProxy.height)
 
-                    logic.updateLabel(results)
+                    logic.updateBoundingBoxes(results, imageProxy.width, imageProxy.height)
+
+                    //logic.updateLabel(results)
                 }
                 .addOnFailureListener { e ->
                     infoScreen.colorInfo("{${e.toString()}")

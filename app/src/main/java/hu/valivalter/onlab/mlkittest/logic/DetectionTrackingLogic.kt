@@ -1,9 +1,11 @@
 package hu.valivalter.onlab.mlkittest.logic
 
+import android.content.Context
+import android.graphics.Point
 import android.graphics.RectF
-import android.view.View
+import android.view.Display
+import android.view.WindowManager
 import com.google.mlkit.vision.objects.DetectedObject
-import com.google.mlkit.vision.objects.defaults.PredefinedCategory
 
 class DetectionTrackingLogic(val infoScreen : PoseInfoScreen): Logic {
 
@@ -15,13 +17,21 @@ class DetectionTrackingLogic(val infoScreen : PoseInfoScreen): Logic {
 
         val boundingBoxes: MutableList<RectF> = mutableListOf()
         val trackingIds: MutableList<Int> = mutableListOf()
+        val labels: MutableList<String> = mutableListOf()
 
         for (detectedObject in detectedObjects) {
 
+
+            /*var wm = (WindowManager)context.getSystemService(Context.WINDOW_SERVICE)
+            var display = wm.getDefaultDisplay()
+            var size = Point()
+            display.getSize(size)
+            var width = size.x
+            var height = size.y*/
             //val scaleX = (preview.width*preview.scaleX) / imageWidth.toFloat()
             //val scaleY = (preview.height*preview.scaleY) / imageHeight.toFloat()
-            val scaleX = (1440) / imageWidth.toFloat()
-            val scaleY = (2560) / imageHeight.toFloat()
+            val scaleX = 1f//(1080) / imageWidth.toFloat()
+            val scaleY = 1f//(1920) / imageHeight.toFloat()
             val scaledLeft = scaleX * detectedObject.boundingBox.left
             val scaledTop = scaleY * detectedObject.boundingBox.top
             val scaledRight = scaleX * detectedObject.boundingBox.right
@@ -31,6 +41,10 @@ class DetectionTrackingLogic(val infoScreen : PoseInfoScreen): Logic {
             boundingBoxes.add(RectF(scaledLeft, scaledTop, scaledRight, scaledBottom))
             if (detectedObject.trackingId != null) {
                 trackingIds.add(detectedObject.trackingId!!)
+            }
+
+            if (detectedObject.labels.isNotEmpty()) {
+                labels.add(detectedObject.labels[0].text)
             }
 
             /*for (label in detectedObject.labels) {
@@ -55,10 +69,11 @@ class DetectionTrackingLogic(val infoScreen : PoseInfoScreen): Logic {
             }*/
         }
 
-        detectedListener?.onObjectsDetected(boundingBoxes, trackingIds)
+        infoScreen.colorInfo("${detectedObjects.size}")
+        detectedListener?.onObjectsDetected(boundingBoxes, trackingIds, labels)
     }
 
     interface DetectorListener {
-        fun onObjectsDetected(bounds: List<RectF>, trackingIds: List<Int>)
+        fun onObjectsDetected(bounds: List<RectF>, trackingIds: List<Int>, detectedObjects: MutableList<String>)
     }
 }

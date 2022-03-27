@@ -5,12 +5,10 @@ import android.app.Application
 import android.content.Context
 import android.graphics.RectF
 import android.speech.tts.TextToSpeech
-import android.view.View
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import hu.valivalter.onlab.mlkittest.logic.DetectionTrackingLogic
-import hu.valivalter.onlab.mlkittest.logic.ImageLabelerLogic
 import hu.valivalter.onlab.mlkittest.logic.PoseImageAnalyzer
 import hu.valivalter.onlab.mlkittest.logic.PoseInfoScreen
 
@@ -25,17 +23,17 @@ class MainViewModel(application : Application) : AndroidViewModel(application), 
     //val poseLogic = PoseLogic(this)
 
 
-    //val trackingLogic = DetectionTrackingLogic(this).apply {
-    //    this.detectedListener = object : DetectionTrackingLogic.DetectorListener {
-    //        override fun onObjectsDetected(bounds: List<RectF>, trackingIds: List<Int>) {
-    //            rectOverlay.post { rectOverlay.drawBounds(bounds, trackingIds) }
-    //        }
-    //    }
-    //}
+    val trackingLogic = DetectionTrackingLogic(this).apply {
+        this.detectedListener = object : DetectionTrackingLogic.DetectorListener {
+            override fun onObjectsDetected(bounds: List<RectF>, trackingIds: List<Int>, labels: MutableList<String>) {
+                rectOverlay.post { rectOverlay.drawBounds(bounds, trackingIds, labels) }
+            }
+        }
+    }
 
-    val imageLabelerLogic = ImageLabelerLogic(this)
+    //val imageLabelerLogic = ImageLabelerLogic(this)
 
-    val analiser = PoseImageAnalyzer(imageLabelerLogic, this)
+    val analiser = PoseImageAnalyzer(trackingLogic, this)
 
 
     override fun colorInfo(text: String) {

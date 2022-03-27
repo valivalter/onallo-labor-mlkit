@@ -98,7 +98,7 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         cameraProviderFuture.addListener(Runnable {
 
             val imageAnalysis = ImageAnalysis.Builder()
-                .setTargetResolution(Size(480, 360))
+                .setTargetResolution(Size(1080, 1920))
                 .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
                 .build()
 
