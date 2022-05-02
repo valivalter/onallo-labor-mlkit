@@ -1,6 +1,7 @@
 package hu.bme.aut.onlab.valivalter.chessanalyzer
 
 import android.Manifest
+import android.R.attr
 import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -18,19 +19,20 @@ import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import hu.bme.aut.onlab.valivalter.chessanalyzer.AnalyzerLogic.Analyzer
 import hu.bme.aut.onlab.valivalter.chessanalyzer.databinding.ActivityMainBinding
-import java.io.File
-import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.*
 import android.graphics.BitmapFactory
 import android.graphics.Matrix
 import android.widget.ImageButton
-import java.io.InputStream
+import android.R.attr.process
+import java.io.*
+
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
     private lateinit var chessboard: Chessboard
+    private lateinit var stockfishProcess: Process
 
     companion object{
         const val REQUEST_IMAGE_CAPTURE = 1
@@ -46,6 +48,76 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(LayoutInflater.from(this))
         setContentView(binding.root)
+
+        binding.btnAnalyze.setOnClickListener {
+            val path = applicationContext.applicationInfo.nativeLibraryDir + "/lib_stockfish.so"
+            val file = File(path)
+
+            try {
+                var command = "position fen ${chessboard.toFen()}\neval\nisready"
+                //var command = "isready"
+                command += "\n"
+
+                val ep: Process = stockfishProcess
+                if (ep != null) {
+                    ep.outputStream.write(command.toByteArray())
+                    ep.outputStream.flush()
+                }
+            }
+            catch (e: IOException) { }
+        }
+
+
+
+
+
+        val path = applicationContext.applicationInfo.nativeLibraryDir + "/lib_stockfish.so"
+        val file = File(path)
+
+        try {
+            stockfishProcess = Runtime.getRuntime().exec(file.path)
+
+            val outThread = Thread(Runnable {
+                val processOut = stockfishProcess ?: return@Runnable
+                val out = BufferedReader(InputStreamReader(processOut.inputStream))
+                var data: String?
+                try {
+                    while (out.readLine().also { data = it } != null) {
+
+                        Log.e("üzenet jött", data ?: "semmi")
+
+                        if (data != null) {
+                            if ("Final evaluation" in data!!) {
+                                var result = data!!
+                                runOnUiThread {
+                                    Toast.makeText(this, result, Toast.LENGTH_LONG).show()
+                                }
+                            }
+                        }
+
+                    }
+                } catch (e: IOException) { }
+            })
+
+            outThread.start()
+
+            // to give commands
+            var command = "uci" //or other command
+            command += "\n"
+
+            val ep: Process = stockfishProcess
+            if (ep != null) {
+                ep.outputStream.write(command.toByteArray())
+                ep.outputStream.flush()
+            }
+        }
+
+        catch (e: IOException) { }
+
+
+
+
+
 
         // Request camera permissions
         if (allPermissionsGranted()) {

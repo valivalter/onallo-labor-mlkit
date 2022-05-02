@@ -39,8 +39,14 @@ class Analyzer(private val activity: MainActivity, private val bitmap: Bitmap) {
                     .addOnSuccessListener { results ->
                         Log.e("$i $j", "Chessboardkl")
                         board.setTile(i, j, results[0].text.substring(0, 2))
+
+
+                        //activity.findViewById<ImageButton>(Chessboard.boardRIDs[i][j]).setImageBitmap(tile)
+
+
                         if (i == 7 && j == 7) {
                             board.print()
+                            Log.e("FEN", board.toFen())
                             showBoard(board)
                         }
                     }
@@ -67,6 +73,7 @@ class Analyzer(private val activity: MainActivity, private val bitmap: Bitmap) {
                     val newPiece = Chessboard.pieces[newIndex]
                     board.setTile(i, j, newPiece)
                     tile.setImageResource(Chessboard.mapStringsToResources[newPiece]!!)
+                    board.print()
                 }
                 if (piece != "em") {
                     tile.setImageResource(Chessboard.mapStringsToResources[piece]!!)

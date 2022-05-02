@@ -52,3 +52,13 @@ Végül elkezdtem írni egy új alkalmazást Chess Analyzer néven, ez futtatás
 ### 9-10. hét
 
 Folytattam a Chess Analyzer alkalmazás írását: megoldottam a prolémát, ami miatt hibát dobott az alkalmazás (túl kicsi volt a Bitmap, amit elemeztetni akartam a neurális hálóval, mivel mint kiderült számomra, az onActivityResult függvényben megkapott Intentből elérhető Bitmap nem a teljes fotót adja vissza, hanem csak egy kis felbontású változatot belőle). A teljes képet elmentve és használva már jól működött az alkalmazás, ezután a felhasználói felülettel kezdtem el foglalkozni. [Ebben a repository-ban](https://github.com/jj30/ChessPGNHelper/tree/master/app/src/main/java/bldg5/jj/pgnbase) találtam megfelelő XML fájlokat a sakkbábukhoz és a sakktáblához. Mostani állapotában az applikáció ugyanazt elvégzi, mint amit az előző hét utolsó bekezdésében leírtam, viszont már nem csak felépít egy sakktábla objektumot a memóriában, hanem kirajzolja a táblát a bábukkal együtt. Ezután az egyes mezőkre nyomva megváltoztathatjuk a rajtuk lévő bábukat, így lehet kijavítani a mesterséges intelligencia tévedéseit.
+
+### 11. hét
+
+Kijavítottam néhány kisebb meglévő hibát a felhasználói felülettel kapcsolatban, majd nekiálltam a Stockfish engine integrálásának, hogy ki lehessen értékelni az egyes állásokat az alkalmazásban. Ez sokkal több időt vett igénybe mint gondoltam, nem volt egyértelmű leírás sehol sem, hogy hogyan kell ezt elvégezni, két-három alkalommal is hosszabb időre elakadtam, de végül mindegyik akadályt sikerült leküzdeni. Egy natív C++ projektet hoztam létre StockfishforChessAnalyzer néven, ahova átmásoltam a Stockfish motor fájljait, ezután lebuildeltem a projektet, így aztán olyan futtatható állományokat kaptam, amiket a Chess Analyzer alkalmazás fel tud, gyakorlatilag egy bájtfolyamon keresztül lehet kommunikálni az alkalmazáson belül a Stockfish-sel, az UCI-nak (Universal Chess Interface) megfelelő módon. Most már van az appban egy (*Analyze*) gomb is, aminek hatására a Stockfish megkapja a programban tárolt sakktábla aktuális állapotát FEN (Forsyth–Edwards Notation) formátumban (ehhez írtam egy átalakító függvényt), az állás alapján pedig visszaadja, hogy melyik játékos áll éppen jobban, és hogy mennyivel.
+
+<p align="center">
+  <img src="app.jpg" width=50% >
+</p>
+
+Debugolás közben kiderült az is, hogy valami nem jó a kép feldarabolását végző kódban, ezért összevissza kerülnek feldolgozásra, jövőhétre ezt kellene orvosolni, valamint hatékonnyá tenni a detekciót.

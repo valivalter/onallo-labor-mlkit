@@ -21,7 +21,7 @@ class Chessboard {
         val pieces = arrayListOf("em", "wr", "wn", "wb", "wk", "wq", "wp", "br", "bn", "bb", "bk", "bq", "bp")
 
         var mapStringsToResources: HashMap<String, Int> = HashMap<String, Int>().also {
-            it["em"] = R.drawable.empty
+            it["em"] = android.R.color.transparent
             it["wr"] = R.drawable.white_rook
             it["wn"] = R.drawable.white_knight
             it["wb"] = R.drawable.white_bishop
@@ -54,5 +54,49 @@ class Chessboard {
             }
         }
         Log.e("CHESSBOARD", boardText)
+    }
+
+    fun toFen(): String {
+        var fen = ""
+        for (i in 0 until 8) {
+            var j = 0
+            var emptyTilesInRow = 0
+            var emptyLastTile = false
+            while (j < 8) {
+                when (board[i][j]) {
+                    "wr" -> fen += "R"
+                    "br" -> fen += "r"
+                    "wn" -> fen += "N"
+                    "bn" -> fen += "n"
+                    "wb" -> fen += "B"
+                    "bb" -> fen += "b"
+                    "wk" -> fen += "K"
+                    "bk" -> fen += "k"
+                    "wq" -> fen += "Q"
+                    "bq" -> fen += "q"
+                    "wp" -> fen += "P"
+                    "bp" -> fen += "p"
+                    else -> {
+                        emptyTilesInRow++
+                        emptyLastTile = true
+                    }
+                }
+                if ((!emptyLastTile && emptyTilesInRow > 0) || j == 7) {
+                    if (j == 7 && emptyLastTile) {
+                        fen += emptyTilesInRow
+                    }
+                    else {
+                        fen = fen.dropLast(1) + "$emptyTilesInRow" + fen.takeLast(1)
+                        emptyTilesInRow = 0
+                    }
+                }
+                emptyLastTile = false
+                j++
+            }
+            fen += "/"
+        }
+        fen = fen.dropLast(1)
+        fen += " w - - 0 1"
+        return fen
     }
 }

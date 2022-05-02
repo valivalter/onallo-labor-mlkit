@@ -33,6 +33,12 @@ android {
     buildFeatures {
         viewBinding true
     }
+
+    sourceSets {
+        main {
+            jniLibs.srcDirs = ['libs']
+        }
+    }
 }
 
 dependencies {
@@ -44,7 +50,8 @@ dependencies {
 
     implementation 'com.google.mlkit:image-labeling-custom:17.0.1'
 
-    
+    implementation fileTree(dir: "libs", include: ["*.jar", "*.so"])
+
     testImplementation 'junit:junit:4.+'
     androidTestImplementation 'androidx.test.ext:junit:1.1.3'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
