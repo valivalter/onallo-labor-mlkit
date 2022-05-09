@@ -62,3 +62,8 @@ Kijavítottam néhány kisebb meglévő hibát a felhasználói felülettel kapc
 </p>
 
 Debugolás közben kiderült az is, hogy valami nem jó a kép feldarabolását végző kódban, ezért összevissza kerülnek feldolgozásra, jövőhétre ezt kellene orvosolni, valamint hatékonnyá tenni a detekciót.
+
+### 12. hét
+
+Az előző héten észrevett, képfeldarabolással kapcsolatos hibát kijavítottam, ezután azzal kezdtem foglalkozni, hogy jobb legyen a felismerést végző neurális háló. Újratanítottam sokféle különböző beállítással, de a végeredmény mindig ugyanaz lett: Colabon a tesztképeket elvileg nagy pontossággal felismeri (bár a modellen hívott *evaluate* függvény rosszabb eredményt mutat), viszont az alkalmazásban kipróbálva már bőven nem kielégítő az eredmény. Jól azonosítja azokat a mezőket, amiken bábu áll, a bábu színét is nagyrészt eltalálja, de hogy pontosan milyen bábu van ott, azt már nem igazán tudja megállapítani, ezen sajnos minden igyekezetem ellenére sem sikerült javítani.
+Ezenkívül annyi változtatást eszközöltem, hogy választógombokkal meg lehet adni, hogy melyik színű játékos következik az adott állásnál, erre a kiértékeléshez van szükség, valamint az elemzésnél már a soron következő játékos optimális lépését is kiírja.

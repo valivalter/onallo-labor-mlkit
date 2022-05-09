@@ -1,4 +1,7 @@
 <resources>
     <string name="app_name">Chess Analyzer</string>
     <string name="analyze">Analyze</string>
+    <string name="next_player">Next Player</string>
+    <string name="white">White</string>
+    <string name="black">Black</string>
 </resources>

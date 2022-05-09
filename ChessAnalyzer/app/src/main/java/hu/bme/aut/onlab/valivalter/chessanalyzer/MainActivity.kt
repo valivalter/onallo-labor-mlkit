@@ -25,7 +25,14 @@ import android.graphics.BitmapFactory
 import android.graphics.Matrix
 import android.widget.ImageButton
 import android.R.attr.process
+import android.view.View
 import java.io.*
+import android.widget.RadioButton
+
+import android.widget.RadioGroup
+
+
+
 
 
 class MainActivity : AppCompatActivity() {
@@ -54,7 +61,7 @@ class MainActivity : AppCompatActivity() {
             val file = File(path)
 
             try {
-                var command = "position fen ${chessboard.toFen()}\neval\nisready"
+                var command = "position fen ${chessboard.toFen()}\neval\nisready\ngo movetime 5000"
                 //var command = "isready"
                 command += "\n"
 
@@ -67,9 +74,12 @@ class MainActivity : AppCompatActivity() {
             catch (e: IOException) { }
         }
 
-
-
-
+        binding.btngrpNextPlayer.setOnCheckedChangeListener { _, id ->
+            if (binding.btnWhite.id == id)
+                chessboard.setNextPlayer(Player.WHITE)
+            else
+                chessboard.setNextPlayer(Player.BLACK)
+        }
 
         val path = applicationContext.applicationInfo.nativeLibraryDir + "/lib_stockfish.so"
         val file = File(path)
@@ -88,6 +98,12 @@ class MainActivity : AppCompatActivity() {
 
                         if (data != null) {
                             if ("Final evaluation" in data!!) {
+                                var result = data!!
+                                runOnUiThread {
+                                    Toast.makeText(this, result, Toast.LENGTH_LONG).show()
+                                }
+                            }
+                            else if ("bestmove" in data!!) {
                                 var result = data!!
                                 runOnUiThread {
                                     Toast.makeText(this, result, Toast.LENGTH_LONG).show()

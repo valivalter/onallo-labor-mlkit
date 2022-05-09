@@ -7,10 +7,56 @@
     android:weightSum="16"
     xmlns:android="http://schemas.android.com/apk/res/android" >
 
-    <View
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="3.5" />
+        android:layout_weight="3.5">
+
+        <TextView
+            android:id="@+id/textView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/next_player"
+            android:textColor="@color/black"
+            android:textSize="30sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/guideline2"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideline2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.6" />
+
+        <RadioGroup
+            android:id="@+id/btngrpNextPlayer"
+            android:layout_width="wrap_content"
+            android:layout_height="94dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="@+id/guideline2"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <RadioButton
+                android:id="@+id/btnWhite"
+                android:checked="true"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/white"
+                android:textSize="20sp" />
+
+            <RadioButton
+                android:id="@+id/btnBlack"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/black"
+                android:textSize="20sp" />
+        </RadioGroup>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
 
     <LinearLayout
         android:id="@+id/tableMain"
@@ -32,6 +78,7 @@
                 android:layout_weight="1"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
+                android:scaleType="centerInside"
                 android:background="@drawable/light_square"
                 />
             <ImageButton
@@ -39,6 +86,7 @@
                 android:layout_weight="1"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
+                android:scaleType="centerInside"
                 android:background="@drawable/dark_square"
                  />
             <ImageButton
@@ -46,6 +94,7 @@
                 android:layout_weight="1"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
+                android:scaleType="centerInside"
                 android:background="@drawable/light_square"
                  />
             <ImageButton
@@ -53,6 +102,7 @@
                 android:layout_weight="1"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
+                android:scaleType="centerInside"
                 android:background="@drawable/dark_square"
                  />
             <ImageButton
@@ -60,6 +110,7 @@
                 android:layout_weight="1"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
+                android:scaleType="centerInside"
                 android:background="@drawable/light_square"
                  />
             <ImageButton
@@ -67,6 +118,7 @@
                 android:layout_weight="1"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
+                android:scaleType="centerInside"
                 android:background="@drawable/dark_square"
                  />
             <ImageButton
@@ -74,6 +126,7 @@
                 android:layout_weight="1"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
+                android:scaleType="centerInside"
                 android:background="@drawable/light_square"
                  />
             <ImageButton
@@ -81,6 +134,7 @@
                 android:layout_weight="1"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
+                android:scaleType="centerInside"
                 android:background="@drawable/dark_square"
                  />
         </LinearLayout>
@@ -97,6 +151,7 @@
                 android:layout_weight="1"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
+                android:scaleType="centerInside"
                 android:background="@drawable/dark_square"
                  />
             <ImageButton
@@ -104,6 +159,7 @@
                 android:layout_weight="1"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
+                android:scaleType="centerInside"
                 android:background="@drawable/light_square"
                  />
             <ImageButton
@@ -111,6 +167,7 @@
                 android:layout_weight="1"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
+                android:scaleType="centerInside"
                 android:background="@drawable/dark_square"
                  />
             <ImageButton
@@ -118,6 +175,7 @@
                 android:layout_weight="1"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
+                android:scaleType="centerInside"
                 android:background="@drawable/light_square"
                  />
             <ImageButton
@@ -125,6 +183,7 @@
                 android:layout_weight="1"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
+                android:scaleType="centerInside"
                 android:background="@drawable/dark_square"
                  />
             <ImageButton
@@ -132,6 +191,7 @@
                 android:layout_weight="1"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
+                android:scaleType="centerInside"
                 android:background="@drawable/light_square"
                  />
             <ImageButton
@@ -139,6 +199,7 @@
                 android:layout_weight="1"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
+                android:scaleType="centerInside"
                 android:background="@drawable/dark_square"
                  />
             <ImageButton
@@ -146,6 +207,7 @@
                 android:layout_weight="1"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
+                android:scaleType="centerInside"
                 android:background="@drawable/light_square"
                  />
         </LinearLayout>
@@ -162,6 +224,7 @@
                 android:layout_weight="1"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
+                android:scaleType="centerInside"
                 android:background="@drawable/light_square"
 
                 android:viewportHeight="45"/>
@@ -170,6 +233,7 @@
                 android:layout_weight="1"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
+                android:scaleType="centerInside"
                 android:background="@drawable/dark_square"
                  />
             <ImageButton
@@ -177,6 +241,7 @@
                 android:layout_weight="1"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
+                android:scaleType="centerInside"
                 android:background="@drawable/light_square"
                  />
             <ImageButton
@@ -184,6 +249,7 @@
                 android:layout_weight="1"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
+                android:scaleType="centerInside"
                 android:background="@drawable/dark_square"
                  />
             <ImageButton
@@ -191,6 +257,7 @@
                 android:layout_weight="1"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
+                android:scaleType="centerInside"
                 android:background="@drawable/light_square"
                  />
             <ImageButton
@@ -198,6 +265,7 @@
                 android:layout_weight="1"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
+                android:scaleType="centerInside"
                 android:background="@drawable/dark_square"
                  />
             <ImageButton
@@ -205,6 +273,7 @@
                 android:layout_weight="1"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
+                android:scaleType="centerInside"
                 android:background="@drawable/light_square"
                  />
             <ImageButton
@@ -212,6 +281,7 @@
                 android:layout_weight="1"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
+                android:scaleType="centerInside"
                 android:background="@drawable/dark_square"
                  />
         </LinearLayout>
@@ -228,6 +298,7 @@
                 android:layout_weight="1"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
+                android:scaleType="centerInside"
                 android:background="@drawable/dark_square"
 
                 android:viewportHeight="45"/>
@@ -236,6 +307,7 @@
                 android:layout_weight="1"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
+                android:scaleType="centerInside"
                 android:background="@drawable/light_square"
                  />
             <ImageButton
@@ -243,6 +315,7 @@
                 android:layout_weight="1"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
+                android:scaleType="centerInside"
                 android:background="@drawable/dark_square"
                  />
             <ImageButton
@@ -250,6 +323,7 @@
                 android:layout_weight="1"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
+                android:scaleType="centerInside"
                 android:background="@drawable/light_square"
                  />
             <ImageButton
@@ -257,6 +331,7 @@
                 android:layout_weight="1"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
+                android:scaleType="centerInside"
                 android:background="@drawable/dark_square"
                  />
             <ImageButton
@@ -264,6 +339,7 @@
                 android:layout_weight="1"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
+                android:scaleType="centerInside"
                 android:background="@drawable/light_square"
                  />
             <ImageButton
@@ -271,6 +347,7 @@
                 android:layout_weight="1"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
+                android:scaleType="centerInside"
                 android:background="@drawable/dark_square"
                  />
             <ImageButton
@@ -278,6 +355,7 @@
                 android:layout_weight="1"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
+                android:scaleType="centerInside"
                 android:background="@drawable/light_square"
                  />
         </LinearLayout>
@@ -294,6 +372,7 @@
                 android:layout_weight="1"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
+                android:scaleType="centerInside"
                 android:background="@drawable/light_square"
 
                 android:viewportHeight="45"/>
@@ -302,6 +381,7 @@
                 android:layout_weight="1"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
+                android:scaleType="centerInside"
                 android:background="@drawable/dark_square"
                  />
             <ImageButton
@@ -309,6 +389,7 @@
                 android:layout_weight="1"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
+                android:scaleType="centerInside"
                 android:background="@drawable/light_square"
                  />
             <ImageButton
@@ -316,6 +397,7 @@
                 android:layout_weight="1"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
+                android:scaleType="centerInside"
                 android:background="@drawable/dark_square"
                  />
             <ImageButton
@@ -323,6 +405,7 @@
                 android:layout_weight="1"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
+                android:scaleType="centerInside"
                 android:background="@drawable/light_square"
                  />
             <ImageButton
@@ -330,6 +413,7 @@
                 android:layout_weight="1"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
+                android:scaleType="centerInside"
                 android:background="@drawable/dark_square"
                  />
             <ImageButton
@@ -337,6 +421,7 @@
                 android:layout_weight="1"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
+                android:scaleType="centerInside"
                 android:background="@drawable/light_square"
                  />
             <ImageButton
@@ -344,6 +429,7 @@
                 android:layout_weight="1"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
+                android:scaleType="centerInside"
                 android:background="@drawable/dark_square"
                  />
         </LinearLayout>
@@ -360,6 +446,7 @@
                 android:layout_weight="1"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
+                android:scaleType="centerInside"
                 android:background="@drawable/dark_square"
                  />
             <ImageButton
@@ -367,6 +454,7 @@
                 android:layout_weight="1"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
+                android:scaleType="centerInside"
                 android:background="@drawable/light_square"
                  />
             <ImageButton
@@ -374,6 +462,7 @@
                 android:layout_weight="1"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
+                android:scaleType="centerInside"
                 android:background="@drawable/dark_square"
                  />
             <ImageButton
@@ -381,6 +470,7 @@
                 android:layout_weight="1"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
+                android:scaleType="centerInside"
                 android:background="@drawable/light_square"
                  />
             <ImageButton
@@ -388,6 +478,7 @@
                 android:layout_weight="1"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
+                android:scaleType="centerInside"
                 android:background="@drawable/dark_square"
                  />
             <ImageButton
@@ -395,6 +486,7 @@
                 android:layout_weight="1"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
+                android:scaleType="centerInside"
                 android:background="@drawable/light_square"
                  />
             <ImageButton
@@ -402,6 +494,7 @@
                 android:layout_weight="1"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
+                android:scaleType="centerInside"
                 android:background="@drawable/dark_square"
                  />
             <ImageButton
@@ -409,6 +502,7 @@
                 android:layout_weight="1"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
+                android:scaleType="centerInside"
                 android:background="@drawable/light_square"
                  />
         </LinearLayout>
@@ -425,6 +519,7 @@
                 android:layout_weight="1"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
+                android:scaleType="centerInside"
                 android:background="@drawable/light_square"
                  />
             <ImageButton
@@ -432,6 +527,7 @@
                 android:layout_weight="1"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
+                android:scaleType="centerInside"
                 android:background="@drawable/dark_square"
                  />
             <ImageButton
@@ -439,6 +535,7 @@
                 android:layout_weight="1"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
+                android:scaleType="centerInside"
                 android:background="@drawable/light_square"
                  />
 
@@ -447,6 +544,7 @@
                 android:layout_weight="1"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
+                android:scaleType="centerInside"
                 android:background="@drawable/dark_square"
                  />
             <ImageButton
@@ -454,6 +552,7 @@
                 android:layout_weight="1"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
+                android:scaleType="centerInside"
                 android:background="@drawable/light_square"
                  />
             <ImageButton
@@ -461,6 +560,7 @@
                 android:layout_weight="1"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
+                android:scaleType="centerInside"
                 android:background="@drawable/dark_square"
                  />
             <ImageButton
@@ -468,6 +568,7 @@
                 android:layout_weight="1"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
+                android:scaleType="centerInside"
                 android:background="@drawable/light_square"
                  />
             <ImageButton
@@ -475,6 +576,7 @@
                 android:layout_weight="1"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
+                android:scaleType="centerInside"
                 android:background="@drawable/dark_square"
                  />
         </LinearLayout>
@@ -491,6 +593,7 @@
                 android:layout_weight="1"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
+                android:scaleType="centerInside"
                 android:background="@drawable/dark_square"
                  />
             <ImageButton
@@ -498,6 +601,7 @@
                 android:layout_weight="1"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
+                android:scaleType="centerInside"
                 android:background="@drawable/light_square"
                  />
             <ImageButton
@@ -505,6 +609,7 @@
                 android:layout_weight="1"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
+                android:scaleType="centerInside"
                 android:background="@drawable/dark_square"
                  />
             <ImageButton
@@ -512,6 +617,7 @@
                 android:layout_weight="1"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
+                android:scaleType="centerInside"
                 android:background="@drawable/light_square"
                  />
             <ImageButton
@@ -519,6 +625,7 @@
                 android:layout_weight="1"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
+                android:scaleType="centerInside"
                 android:background="@drawable/dark_square"
                  />
             <ImageButton
@@ -526,6 +633,7 @@
                 android:layout_weight="1"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
+                android:scaleType="centerInside"
                 android:background="@drawable/light_square"
                  />
             <ImageButton
@@ -533,6 +641,7 @@
                 android:layout_weight="1"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
+                android:scaleType="centerInside"
                 android:background="@drawable/dark_square"
                  />
             <ImageButton
@@ -540,6 +649,7 @@
                 android:layout_weight="1"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
+                android:scaleType="centerInside"
                 android:background="@drawable/light_square" />
         </LinearLayout>
     </LinearLayout>
@@ -554,10 +664,13 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/analyze"
+            android:enabled="false"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
+
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 </LinearLayout>

@@ -3,10 +3,16 @@ package hu.bme.aut.onlab.valivalter.chessanalyzer
 import android.util.Log
 import java.util.HashMap
 
+enum class Player {
+    WHITE, BLACK
+}
+
 class Chessboard {
     private var board = Array(8) { Array(8) { "" } }
+    private var nextPlayer = Player.WHITE
 
     companion object {
+
         val boardRIDs = arrayOf(
             intArrayOf(R.id.row0col0, R.id.row0col1, R.id.row0col2, R.id.row0col3, R.id.row0col4, R.id.row0col5, R.id.row0col6, R.id.row0col7),
             intArrayOf(R.id.row1col0, R.id.row1col1, R.id.row1col2, R.id.row1col3, R.id.row1col4, R.id.row1col5, R.id.row1col6, R.id.row1col7),
@@ -43,6 +49,13 @@ class Chessboard {
 
     fun setTile(i: Int, j: Int, piece: String) {
         board[i][j] = piece
+    }
+
+    fun setNextPlayer(color: Player) {
+        if (color == Player.WHITE)
+            nextPlayer = Player.WHITE
+        else
+            nextPlayer = Player.BLACK
     }
 
     fun print() {
@@ -96,7 +109,12 @@ class Chessboard {
             fen += "/"
         }
         fen = fen.dropLast(1)
-        fen += " w - - 0 1"
+
+        if (nextPlayer == Player.WHITE)
+            fen += " w - - 0 1"
+        else
+            fen += " b - - 0 1"
+
         return fen
     }
 }
