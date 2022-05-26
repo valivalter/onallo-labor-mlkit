@@ -1,13 +1,9 @@
 # Önálló labor
 
-### ~~Madáretető Tensor Flow alapú automatikus felismeréssel és fotózással~~
+### Madáretető Tensor Flow alapú automatikus felismeréssel és fotózással
 
-~~A téma célja az Android MLKit és a TensorFLow megismerése egy példaalkalmazáson keresztül.
-Az alkalmazás célja, hogy egy (a fejlesztés során mobiltelefonnal szimulált) webkamerás Android egységgel felszerelt madáretető készítsünk, amely felismeri, ha madár szállt rá, azonosítja, és fotókat készít róla.~~
-
-## Sakkállás felismerése és kiértékelése
-
-A eredetileg felvett témám neve ellenére más projektet csináltam, a félév elején az ML Kittel ismerkedtem meg, a különböző lehetőségeit teszteltem, majd a 5-6. héten fogalmazódott meg bennem az ötlet, hogy sakkállást felismerő alkalmazást csinálhatnék, ami aztán elemzi a helyzetet és megállapítja melyik játékos áll jobban és mi lenne optimális esetben a következő lépés.
+A téma célja az Android MLKit és a TensorFLow megismerése egy példaalkalmazáson keresztül.
+Az alkalmazás célja, hogy egy (a fejlesztés során mobiltelefonnal szimulált) webkamerás Android egységgel felszerelt madáretető készítsünk, amely felismeri, ha madár szállt rá, azonosítja, és fotókat készít róla.
 
 ## Haladási napló
 
@@ -34,7 +30,7 @@ A célom egy madarakat beazonosító neurális háló betanítása volt TensorFl
 Kiderült, hogy csak azért nem működött előző héten az alkalmazásban a madarak beazonosítása, mert túl magasra volt állítva a magabiztossági küszöb (*confidence threshold*), ezt lejjebbvéve már működött is a program. Ezután átírtam az alkalmazást, hogy ezt a neurális hálót ne képosztályozáshoz használja, hanem objektumfelismeréshez és -követéshez, valamint hogy helyesen jelenítse meg a felismert objektumok körülvevő téglalapjait, és ki is írja, hogy milyen madárnak véli felismerni az adott képrészletet. Tesztelésképpen egymás mellé bevágtam 16-szor ugyanazt a képet egy cifra récéről, hogy megtudjam azt, hogy hány objektumot tud egyszerre detektálni az alkalmazás.
 
 <p align="center">
-  <img src="baikal-teals.jpg" width=50% >
+  <img src="baikal-teals.jpg" width=30% >
 </p>
 
 5-nél többet sehogyan sem tud felismerni az alkalmazás, ez a szám az ML Kit korlátja.
@@ -62,7 +58,7 @@ Folytattam a Chess Analyzer alkalmazás írását: megoldottam a prolémát, ami
 Kijavítottam néhány kisebb meglévő hibát a felhasználói felülettel kapcsolatban, majd nekiálltam a Stockfish engine integrálásának, hogy ki lehessen értékelni az egyes állásokat az alkalmazásban. Ez sokkal több időt vett igénybe mint gondoltam, nem volt egyértelmű leírás sehol sem, hogy hogyan kell ezt elvégezni, két-három alkalommal is hosszabb időre elakadtam, de végül mindegyik akadályt sikerült leküzdeni. Egy natív C++ projektet hoztam létre StockfishforChessAnalyzer néven, ahova átmásoltam a Stockfish motor fájljait, ezután lebuildeltem a projektet, így aztán olyan futtatható állományokat kaptam, amiket a Chess Analyzer alkalmazás fel tud, gyakorlatilag egy bájtfolyamon keresztül lehet kommunikálni az alkalmazáson belül a Stockfish-sel, az UCI-nak (Universal Chess Interface) megfelelő módon. Most már van az appban egy (*Analyze*) gomb is, aminek hatására a Stockfish megkapja a programban tárolt sakktábla aktuális állapotát FEN (Forsyth–Edwards Notation) formátumban (ehhez írtam egy átalakító függvényt), az állás alapján pedig visszaadja, hogy melyik játékos áll éppen jobban, és hogy mennyivel.
 
 <p align="center">
-  <img src="app.jpg" width=50% >
+  <img src="app.jpg" width=30% >
 </p>
 
 Debugolás közben kiderült az is, hogy valami nem jó a kép feldarabolását végző kódban, ezért összevissza kerülnek feldolgozásra, jövőhétre ezt kellene orvosolni, valamint hatékonnyá tenni a detekciót.
@@ -78,7 +74,6 @@ Ezenkívül annyi változtatást eszközöltem, hogy választógombokkal meg leh
 Hozzáadtam az alkalmazáshoz egy új módot, ami folyamatosan elemzi a kamerától kapott képet és kiírja egy fájlba a beazonosított állást FEN (Forsyth–Edwards Notation) formátumban, ha az előző azonosított álláshoz képest történt változás. Készítettem egy főmenüt, ahol a két meglévő mód közül lehet választani, illetve az alkalmazás kinézetét véglegesítettem, a kódot és az architektúrát javítottam. Az alkalmazás ikonjának forrása a [Freepik](https://www.flaticon.com/free-icons/chess).
 
 <p align="center">
-<img src="mainmenu.jpg" width="250" style="padding: 10px;">
+<img src="mainmenu.jpg" width="250" style="padding: 10px 30px;">
+<img src="analyzing.gif" width="250" style="padding: 10px 30px;">
 </p>
-
-https://user-images.githubusercontent.com/78809357/170532819-4082ed0e-924c-46a3-a086-d9139bdd94f1.mp4
