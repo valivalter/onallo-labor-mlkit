@@ -67,3 +67,13 @@ Debugolás közben kiderült az is, hogy valami nem jó a kép feldarabolását 
 
 Az előző héten észrevett, képfeldarabolással kapcsolatos hibát kijavítottam, ezután azzal kezdtem foglalkozni, hogy jobb legyen a felismerést végző neurális háló. Újratanítottam sokféle különböző beállítással, de a végeredmény mindig ugyanaz lett: Colabon a tesztképeket elvileg nagy pontossággal felismeri (bár a modellen hívott *evaluate* függvény rosszabb eredményt mutat), viszont az alkalmazásban kipróbálva már bőven nem kielégítő az eredmény. Jól azonosítja azokat a mezőket, amiken bábu áll, a bábu színét is nagyrészt eltalálja, de hogy pontosan milyen bábu van ott, azt már nem igazán tudja megállapítani, ezen sajnos minden igyekezetem ellenére sem sikerült javítani.
 Ezenkívül annyi változtatást eszközöltem, hogy választógombokkal meg lehet adni, hogy melyik színű játékos következik az adott állásnál, erre a kiértékeléshez van szükség, valamint az elemzésnél már a soron következő játékos optimális lépését is kiírja.
+
+### 13-14. hét
+
+Újratanítottam a neurális hálózatot, majd teszteltem a hatékonyságát, ekkor derült ki, hogy a felismerés jól működik, csak nem a saját otthoni sakk-készletemmel, mert nem hasonlít eléggé arra a készletre, amivel betanítottam. Emiatt vettem olyan sakkbábukat, amik ugyanúgy néztek ki, innentől már sokkal jobban működött a felismerés.
+Hozzáadtam az alkalmazáshoz egy új módot, ami folyamatosan elemzi a kamerától kapott képet és kiírja egy fájlba a beazonosított állást FEN (Forsyth–Edwards Notation) formátumban, ha az előző azonosított álláshoz képest történt változás. Készítettem egy főmenüt, ahol a két meglévő mód közül lehet választani, illetve az alkalmazás kinézetét véglegesítettem, a kódot és az architektúrát javítottam. Az alkalmazás ikonjának forrása a [Freepik](https://www.flaticon.com/free-icons/chess).
+
+<p align="center">
+<img src="mainmenu.jpg" width="250" style="padding: 10px 30px;">
+<video src="analyzing.mp4" width="250" style="padding: 10px 30px;">
+</p>

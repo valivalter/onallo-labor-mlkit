@@ -1,7 +1,10 @@
 <resources>
     <string name="app_name">Chess Analyzer</string>
     <string name="analyze">Analyze</string>
-    <string name="next_player">Next Player</string>
+    <string name="next_player">Next player</string>
     <string name="white">White</string>
     <string name="black">Black</string>
+    <string name="analyzing">Analyzing</string>
+    <string name="analyze_photo">Analyze photo</string>
+    <string name="record_game">Record game</string>
 </resources>

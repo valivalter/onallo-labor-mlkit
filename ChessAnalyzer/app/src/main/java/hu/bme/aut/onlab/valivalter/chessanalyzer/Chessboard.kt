@@ -66,7 +66,7 @@ class Chessboard {
                 boardText += "[${board[i][j]}] "
             }
         }
-        Log.e("CHESSBOARD", boardText)
+        Log.i("Chessboard", boardText)
     }
 
     fun toFen(): String {
