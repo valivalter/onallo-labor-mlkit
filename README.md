@@ -74,6 +74,6 @@ Ezenkívül annyi változtatást eszközöltem, hogy választógombokkal meg leh
 Hozzáadtam az alkalmazáshoz egy új módot, ami folyamatosan elemzi a kamerától kapott képet és kiírja egy fájlba a beazonosított állást FEN (Forsyth–Edwards Notation) formátumban, ha az előző azonosított álláshoz képest történt változás. Készítettem egy főmenüt, ahol a két meglévő mód közül lehet választani, illetve az alkalmazás kinézetét véglegesítettem, a kódot és az architektúrát javítottam. Az alkalmazás ikonjának forrása a [Freepik](https://www.flaticon.com/free-icons/chess).
 
 <p align="center">
-<img src="mainmenu.jpg" width="30%" style="padding: 10px 30px;">
-<img src="analyzing.gif" width="30%" style="padding: 10px 30px;">
+<img src="mainmenu.jpg" width="30%">
+<img src="analyzing.gif" width="30%">
 </p>
