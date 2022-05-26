@@ -1,9 +1,13 @@
 # Önálló labor
 
-### Madáretető Tensor Flow alapú automatikus felismeréssel és fotózással
+### ~~Madáretető Tensor Flow alapú automatikus felismeréssel és fotózással~~
 
-A téma célja az Android MLKit és a TensorFLow megismerése egy példaalkalmazáson keresztül.
-Az alkalmazás célja, hogy egy (a fejlesztés során mobiltelefonnal szimulált) webkamerás Android egységgel felszerelt madáretető készítsünk, amely felismeri, ha madár szállt rá, azonosítja, és fotókat készít róla.
+~~A téma célja az Android MLKit és a TensorFLow megismerése egy példaalkalmazáson keresztül.
+Az alkalmazás célja, hogy egy (a fejlesztés során mobiltelefonnal szimulált) webkamerás Android egységgel felszerelt madáretető készítsünk, amely felismeri, ha madár szállt rá, azonosítja, és fotókat készít róla.~~
+
+## Sakkállás felismerése és kiértékelése
+
+A eredetileg felvett témám neve ellenére más projektet csináltam, a félév elején az ML Kittel ismerkedtem meg, a különböző lehetőségeit teszteltem, majd a 5-6. héten fogalmazódott meg bennem az ötlet, hogy sakkállást felismerő alkalmazást csinálhatnék, ami aztán elemzi a helyzetet és megállapítja melyik játékos áll jobban és mi lenne optimális esetben a következő lépés.
 
 ## Haladási napló
 
@@ -74,6 +78,7 @@ Ezenkívül annyi változtatást eszközöltem, hogy választógombokkal meg leh
 Hozzáadtam az alkalmazáshoz egy új módot, ami folyamatosan elemzi a kamerától kapott képet és kiírja egy fájlba a beazonosított állást FEN (Forsyth–Edwards Notation) formátumban, ha az előző azonosított álláshoz képest történt változás. Készítettem egy főmenüt, ahol a két meglévő mód közül lehet választani, illetve az alkalmazás kinézetét véglegesítettem, a kódot és az architektúrát javítottam. Az alkalmazás ikonjának forrása a [Freepik](https://www.flaticon.com/free-icons/chess).
 
 <p align="center">
-<img src="mainmenu.jpg" width="250" style="padding: 10px 30px;">
-<video src="analyzing.mp4" width="250" style="padding: 10px 30px;">
+<img src="mainmenu.jpg" width="250" style="padding: 10px;">
 </p>
+
+https://user-images.githubusercontent.com/78809357/170532819-4082ed0e-924c-46a3-a086-d9139bdd94f1.mp4
