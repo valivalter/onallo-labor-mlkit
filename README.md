@@ -1,9 +1,6 @@
 # Önálló labor
 
-### Madáretető Tensor Flow alapú automatikus felismeréssel és fotózással
-
-A téma célja az Android MLKit és a TensorFLow megismerése egy példaalkalmazáson keresztül.
-Az alkalmazás célja, hogy egy (a fejlesztés során mobiltelefonnal szimulált) webkamerás Android egységgel felszerelt madáretető készítsünk, amely felismeri, ha madár szállt rá, azonosítja, és fotókat készít róla.
+### Sakkállás-felismerő Android alkalmazás
 
 ## Haladási napló
 
