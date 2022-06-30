@@ -1,6 +1,4 @@
-# Önálló labor
-
-### Sakkállás-felismerő Android alkalmazás
+# Önálló labor - Sakkállás-felismerő Android alkalmazás
 
 ## Haladási napló
 
