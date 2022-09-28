@@ -5,27 +5,33 @@ import androidx.camera.core.ImageProxy
 
 import android.graphics.Bitmap
 import android.os.Environment
-import androidx.camera.view.PreviewView
-import hu.bme.aut.onlab.valivalter.chessanalyzer.AnalyzerLogic.AnalysisCompletedListener
+import hu.bme.aut.onlab.valivalter.chessanalyzer.AnalyzerLogic.RecognitionCompletedListener
 import hu.bme.aut.onlab.valivalter.chessanalyzer.AnalyzerLogic.Analyzer
 import java.io.File
 import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.*
+import android.graphics.BitmapFactory
+import hu.bme.aut.onlab.valivalter.chessanalyzer.Stockfish.AnalysisCompletedListener
+import hu.bme.aut.onlab.valivalter.chessanalyzer.Stockfish.MODE
+import hu.bme.aut.onlab.valivalter.chessanalyzer.Stockfish.StockfishApplication
 
-class Recorder(private val activity: RecordActivity) : ImageAnalysis.Analyzer, AnalysisCompletedListener {
+
+class Recorder(private val activity: RecordActivity) : ImageAnalysis.Analyzer, RecognitionCompletedListener, AnalysisCompletedListener {
 
     private val analyzer: Analyzer = Analyzer()
-    private var chessboard = Chessboard()
+    private var currentChessboard: Chessboard? = null
+    private lateinit var game: Game
+    private var stepCounter = 0
     private var fileName: String? = null
 
     private lateinit var imageProxy: ImageProxy
 
+    private var counter = 0
+
     @androidx.camera.core.ExperimentalGetImage
     override fun analyze(imageProxy: ImageProxy) {
-        val currentTimestamp = System.currentTimeMillis()
-
-        val mediaImage = imageProxy.image
+        /*val mediaImage = imageProxy.image
         if (mediaImage != null) {
             val bitmap = activity.findViewById<PreviewView>(R.id.viewFinder).bitmap
             if (bitmap != null) {
@@ -37,17 +43,52 @@ class Recorder(private val activity: RecordActivity) : ImageAnalysis.Analyzer, A
             mediaImage.close()
             // intentionally not closing imageProxy
             this.imageProxy = imageProxy
+        }*/
+        var bitmap = BitmapFactory.decodeResource(activity.resources, R.drawable.sakktabla)
+        when (counter) {
+            0 -> bitmap = BitmapFactory.decodeResource(activity.resources, R.drawable.sakktabla)
+            1 -> bitmap = BitmapFactory.decodeResource(activity.resources, R.drawable.sakktabla01)
+            2 -> bitmap = BitmapFactory.decodeResource(activity.resources, R.drawable.sakktabla02)
+            3 -> bitmap = BitmapFactory.decodeResource(activity.resources, R.drawable.sakktabla03)
+            4 -> bitmap = BitmapFactory.decodeResource(activity.resources, R.drawable.sakktabla04)
+            5 -> bitmap = BitmapFactory.decodeResource(activity.resources, R.drawable.sakktabla05)
+            6 -> bitmap = BitmapFactory.decodeResource(activity.resources, R.drawable.sakktabla06)
+            7 -> bitmap = BitmapFactory.decodeResource(activity.resources, R.drawable.sakktabla07)
         }
+        val resizedBitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.width)
+        analyzer.analyze(resizedBitmap, this)
+
+        counter++
+        this.imageProxy = imageProxy
     }
 
-    override fun onCompletion(board: Chessboard) {
+    override fun onRecognitionCompleted(board: Chessboard) {
         if (fileName == null) {
             fileName = "game_${SimpleDateFormat("yyyyMMdd_HHmmss").format(Date())}.txt"
         }
-        if (chessboard.toFen() != board.toFen()) {
-            chessboard = board
-            writeFile(fileName!!, "${chessboard.toFen().dropLast(10)}\n")
-            // drops the constant " w - - 0 1" string
+        if (currentChessboard == null) {
+            currentChessboard = board
+            game = Game(board)
+            //writeFile(fileName!!, "${currentChessboard!!.toFen().dropLast(10)}\n")
+        }
+        else {
+            if (!currentChessboard!!.equals(board) && currentChessboard!!.isDifferenceOneMove(board)) {
+                currentChessboard = board
+
+                try {
+                    var command = "position fen ${board.toFen()}\neval\nisready\ngo movetime 8000\n"
+                    StockfishApplication.runCommandWithListener(command, MODE.RECORDER, this)
+
+
+
+
+
+
+                }
+                catch (e: IOException) {
+                    e.printStackTrace()
+                }
+            }
         }
         imageProxy.close()
     }
@@ -59,5 +100,23 @@ class Recorder(private val activity: RecordActivity) : ImageAnalysis.Analyzer, A
         } catch (e: IOException) {
             e.printStackTrace()
         }
+    }
+
+    override fun onAnalysisCompleted(result: String) {
+        if (game.states.size <= stepCounter) {
+            if (currentChessboard!!.nextPlayer == Player.BLACK) {
+                game.states.add(Round(blackStep = Step(currentChessboard!!, Analysis(result))))
+            }
+            else if (currentChessboard!!.nextPlayer == Player.WHITE) {
+                game.states.add(Round(whiteStep = Step(currentChessboard!!, Analysis(result))))
+            }
+        }
+        else {
+            // mindenképp fekete lépett, ha már megfelelő méretű volt a game.state lista
+            game.states[game.states.size].blackStep = Step(currentChessboard!!, Analysis(result))
+        }
+
+        //writeFile(fileName!!, "${currentChessboard!!.getLastMoveSan(board)}\n")
+        // drops the constant " w - - 0 1" string
     }
 }

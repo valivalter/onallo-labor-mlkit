@@ -27,7 +27,7 @@ class Analyzer {
         imageLabeler = ImageLabeling.getClient(customImageLabelerOptions)
     }
 
-    fun analyze(bitmap: Bitmap, listener: AnalysisCompletedListener) {
+    fun analyze(bitmap: Bitmap, listener: RecognitionCompletedListener) {
         val board = Chessboard()
         val tileWidth = bitmap.width / 8
 
@@ -50,7 +50,7 @@ class Analyzer {
                         if (i == 7 && j == 7) {
                             board.print()
                             Log.i("FEN", board.toFen())
-                            listener.onCompletion(board)
+                            listener.onRecognitionCompleted(board)
                         }
                     }
                     .addOnFailureListener { e ->

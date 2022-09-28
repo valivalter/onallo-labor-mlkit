@@ -2,15 +2,31 @@ package hu.bme.aut.onlab.valivalter.chessanalyzer.Stockfish
 
 import android.app.Application
 import android.os.Handler
-import android.widget.Toast
 import java.io.BufferedReader
 import java.io.File
 import java.io.IOException
 import java.io.InputStreamReader
 
+enum class MODE {
+    ANALYZER,
+    RECORDER
+}
+
 class StockfishApplication : Application() {
     companion object {
         lateinit var stockfishProcess: Process
+        lateinit var mode: MODE
+        lateinit var listener: AnalysisCompletedListener
+
+        fun runCommandWithListener(command: String, mode: MODE, listener: AnalysisCompletedListener) {
+            this.mode = mode
+            this.listener = listener
+            val ep: Process = stockfishProcess
+            if (ep != null) {
+                ep.outputStream.write(command.toByteArray())
+                ep.outputStream.flush()
+            }
+        }
 
         fun runCommand(command: String) {
             val ep: Process = stockfishProcess
@@ -19,6 +35,8 @@ class StockfishApplication : Application() {
                 ep.outputStream.flush()
             }
         }
+
+
     }
 
     override fun onCreate() {
@@ -42,29 +60,43 @@ class StockfishApplication : Application() {
                                 val resultString = "${results[8]} ${results[9]} ${results[10]}"
                                 //                    score               which color
 
-                                val handler = Handler(mainLooper)
-                                handler.post {
-                                    Toast.makeText(this, resultString, Toast.LENGTH_LONG).show()
+                                if (mode == MODE.ANALYZER) {
+                                    val handler = Handler(mainLooper)
+                                    handler.post {
+                                        listener.onAnalysisCompleted(resultString)
+                                    }
+                                }
+                                else if (mode == MODE.RECORDER) {
+                                    val handler = Handler(mainLooper)
+                                    handler.post {
+                                        listener.onAnalysisCompleted(resultString)
+                                    }
                                 }
                             }
                             else if ("bestmove" in data!!) {
                                 val results = data!!.split(" ")
                                 val resultString = "Best move: ${results[1]}\nResponse: ${results[3]}"
 
-                                val handler = Handler(mainLooper)
-                                handler.post {
-                                    Toast.makeText(this, resultString, Toast.LENGTH_LONG).show()
+                                if (mode == MODE.ANALYZER) {
+                                    val handler = Handler(mainLooper)
+                                    handler.post {
+                                        listener.onAnalysisCompleted(resultString)
+                                    }
                                 }
                             }
                         }
                     }
                 }
-                catch (e: IOException) { }
+                catch (e: IOException) {
+                    e.printStackTrace()
+                }
             })
 
             outThread.start()
             runCommand("uci\n")
         }
-        catch (e: IOException) { }
+        catch (e: IOException) {
+            e.printStackTrace()
+        }
     }
 }

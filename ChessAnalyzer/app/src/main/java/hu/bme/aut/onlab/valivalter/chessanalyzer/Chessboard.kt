@@ -9,7 +9,7 @@ enum class Player {
 
 class Chessboard {
     private var board = Array(8) { Array(8) { "" } }
-    private var nextPlayer = Player.WHITE
+    var nextPlayer = Player.WHITE
 
     companion object {
 
@@ -51,12 +51,12 @@ class Chessboard {
         board[i][j] = piece
     }
 
-    fun setNextPlayer(color: Player) {
+    /*fun setNextPlayer(color: Player) {
         if (color == Player.WHITE)
             nextPlayer = Player.WHITE
         else
             nextPlayer = Player.BLACK
-    }
+    }*/
 
     fun print() {
         var boardText = ""
@@ -67,6 +67,10 @@ class Chessboard {
             }
         }
         Log.i("Chessboard", boardText)
+    }
+
+    fun indicesToSquare(i: Int, j: Int): String {
+        return "abcdefgh"[j] + "${8-i}"
     }
 
     fun toFen(): String {
@@ -110,11 +114,74 @@ class Chessboard {
         }
         fen = fen.dropLast(1)
 
+        // castling availability cannot be determined, because we can never be sure that the rook was not moved before
+        // en passant target square cannot be determined as well
+        // halfmove and fullmove number cannot be determined as well
         if (nextPlayer == Player.WHITE)
             fen += " w - - 0 1"
         else
             fen += " b - - 0 1"
 
         return fen
+    }
+
+    fun equals(other: Chessboard): Boolean {
+        var equals = true
+        for (i in 0 until 8) {
+            for (j in 0 until 8) {
+                if (board[i][j] != other.getTile(i, j))
+                    equals = false
+            }
+        }
+        return equals
+    }
+
+    fun isDifferenceOneMove(other: Chessboard): Boolean {
+        var differences = 0
+        for (i in 0 until 8) {
+            for (j in 0 until 8) {
+                if (board[i][j] != other.getTile(i, j))
+                    differences++
+            }
+        }
+
+        return differences == 2
+    }
+
+    fun getLastMoveSan(other: Chessboard): String {
+        var fromTile: Pair<Int, Int>? = null
+        var toTile: Pair<Int, Int>? = null
+        for (i in 0 until 8) {
+            for (j in 0 until 8) {
+                if (board[i][j] != other.getTile(i, j)) {
+                    if (other.getTile(i, j) == "em")
+                        fromTile = Pair(i, j)
+                    else {
+                        toTile = Pair(i, j)
+                    }
+                }
+            }
+        }
+
+        var san = ""
+        if (fromTile != null && toTile != null) {
+            when (other.getTile(toTile.first, toTile.second)) {
+                "wr", "br" -> san += "R"
+                "wn", "bn" -> san += "N"
+                "wb", "bb" -> san += "B"
+                "wk", "bk" -> san += "K"
+                "wq", "bq" -> san += "Q"
+                // "wp", "bp" -> pgn += "P"  usually not used in PGN notation
+            }
+            if (board[toTile.first][toTile.second] != "em") {
+                if (other.getTile(toTile.first, toTile.second) == "wp" ||
+                    other.getTile(toTile.first, toTile.second) == "bp") {
+                    san += indicesToSquare(fromTile.first, fromTile.second)[0]
+                }
+                san += "x"
+            }
+            san += indicesToSquare(toTile.first, toTile.second)
+        }
+        return san
     }
 }

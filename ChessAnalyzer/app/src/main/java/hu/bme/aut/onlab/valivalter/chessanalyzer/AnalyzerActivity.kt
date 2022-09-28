@@ -19,11 +19,14 @@ import android.graphics.BitmapFactory
 import android.graphics.Matrix
 import android.view.View
 import android.widget.ImageButton
-import hu.bme.aut.onlab.valivalter.chessanalyzer.AnalyzerLogic.AnalysisCompletedListener
+import android.widget.Toast
+import hu.bme.aut.onlab.valivalter.chessanalyzer.AnalyzerLogic.RecognitionCompletedListener
+import hu.bme.aut.onlab.valivalter.chessanalyzer.Stockfish.AnalysisCompletedListener
+import hu.bme.aut.onlab.valivalter.chessanalyzer.Stockfish.MODE
 import hu.bme.aut.onlab.valivalter.chessanalyzer.Stockfish.StockfishApplication
 import java.io.*
 
-class AnalyzerActivity : AppCompatActivity(), AnalysisCompletedListener {
+class AnalyzerActivity : AppCompatActivity(), RecognitionCompletedListener, AnalysisCompletedListener {
 
     private lateinit var binding: ActivityAnalyzerBinding
     //private val analyzer = Analyzer(this) // if you want to see the analyzed images on the tiles 1/3
@@ -42,7 +45,7 @@ class AnalyzerActivity : AppCompatActivity(), AnalysisCompletedListener {
         binding.btnAnalyze.setOnClickListener {
             try {
                 var command = "position fen ${chessboard.toFen()}\neval\nisready\ngo movetime 8000\n"
-                StockfishApplication.runCommand(command)
+                StockfishApplication.runCommandWithListener(command, MODE.ANALYZER, this)
             }
             catch (e: IOException) {
                 e.printStackTrace()
@@ -51,9 +54,9 @@ class AnalyzerActivity : AppCompatActivity(), AnalysisCompletedListener {
 
         binding.btngrpNextPlayer.setOnCheckedChangeListener { _, id ->
             if (binding.btnWhite.id == id)
-                chessboard.setNextPlayer(Player.WHITE)
+                chessboard.nextPlayer = Player.WHITE
             else
-                chessboard.setNextPlayer(Player.BLACK)
+                chessboard.nextPlayer = Player.BLACK
         }
 
         startCamera()
@@ -125,7 +128,7 @@ class AnalyzerActivity : AppCompatActivity(), AnalysisCompletedListener {
         }
     }
 
-    override fun onCompletion(board: Chessboard) {
+    override fun onRecognitionCompleted(board: Chessboard) {
         chessboard = board
         for (i in 0 until 8) {
             for (j in 0 until 8) {
@@ -151,5 +154,9 @@ class AnalyzerActivity : AppCompatActivity(), AnalysisCompletedListener {
         binding.btnBlack.isEnabled = true
         binding.btnWhite.isEnabled = true
         binding.loadingPanel.visibility = View.INVISIBLE
+    }
+
+    override fun onAnalysisCompleted(result: String) {
+        Toast.makeText(this, result, Toast.LENGTH_LONG).show()
     }
 }

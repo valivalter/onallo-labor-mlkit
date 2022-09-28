@@ -1,6 +1,8 @@
-# Önálló labor - Sakkállás-felismerő Android alkalmazás
+# Önálló labor és szakdolgozat - Gépi látáson alapuló sakkelemző alkalmazás
 
 ## Haladási napló
+
+## 2021/22/2
 
 ### 2. hét
 
@@ -72,3 +74,25 @@ Hozzáadtam az alkalmazáshoz egy új módot, ami folyamatosan elemzi a kamerát
 <img src="mainmenu.jpg" width="350" style="padding: 10px 30px;">
 <img src="analyzing.gif" width="350" style="padding: 10px 30px;">
 </p>
+
+## 2022/23/1
+
+## Tervezett funkciók
+* A sakkjátszmák standard lejegyzését alkalmazni Recorder módban (standard algebraic notation)
+* A neurális háló javítása
+* Szabványos, játékokban előforduló rajzolt sakkbábuk felismerése
+* Automatikus sakktábla-detekció
+* Az analyzer mód továbbfejlesztése, a Stockfish motor jobb kihasználása
+* Dizájn javítása
+
+### 2-3. hét
+
+A sakktáblát reprezentáló osztályt kiegészítettem egyéb függvényekkel, amelyek például megállapítják, hogy két sakktábla állása teljesen ugyanaz-e, illetve hogy csak egy lépésnyi különbség van-e a két állás között. Szintén egy újabb függvényt írtam a legutóbb megtett lépés megfelelő formátumba (standard algebraic notation) való konvertálására.
+Ez utóbbit használom fel az alkalmazás játszmát rögzítő módjában.
+Ezenkívül hozzáadtam a projekthez új osztályokat:
+* Analysis - egy sakkmotoros elemzés eredményét tartalmazza
+* Step - egy sakktábla-állapotot kapcsol össze egy elemzés eredményével
+* Round - tartalmaz két egymásutáni lépést, egyet a világos, egyet pedig a sötét játékostól
+* Game - Egy sakkjátszma összes lépéséért felelős osztály
+
+Ezenkívül egy új interfészt is létrehoztam, ami a Stockfish-sel történő kommunnikálást hivatott megkönnyíteni (AnalysisCompletedListener); a korábbiakban ezen a néven futó függvényt pedig átneveztem RecognitionCompletedListenerre.
