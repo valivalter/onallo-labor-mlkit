@@ -60,13 +60,7 @@ class StockfishApplication : Application() {
                                 val resultString = "${results[8]} ${results[9]} ${results[10]}"
                                 //                    score               which color
 
-                                if (mode == MODE.ANALYZER) {
-                                    val handler = Handler(mainLooper)
-                                    handler.post {
-                                        listener.onAnalysisCompleted(resultString)
-                                    }
-                                }
-                                else if (mode == MODE.RECORDER) {
+                                if (mode == MODE.ANALYZER || mode == MODE.RECORDER) {
                                     val handler = Handler(mainLooper)
                                     handler.post {
                                         listener.onAnalysisCompleted(resultString)

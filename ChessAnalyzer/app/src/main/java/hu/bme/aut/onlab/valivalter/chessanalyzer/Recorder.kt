@@ -12,6 +12,8 @@ import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.*
 import android.graphics.BitmapFactory
+import android.widget.Toast
+import androidx.core.graphics.rotationMatrix
 import hu.bme.aut.onlab.valivalter.chessanalyzer.Stockfish.AnalysisCompletedListener
 import hu.bme.aut.onlab.valivalter.chessanalyzer.Stockfish.MODE
 import hu.bme.aut.onlab.valivalter.chessanalyzer.Stockfish.StockfishApplication
@@ -76,7 +78,7 @@ class Recorder(private val activity: RecordActivity) : ImageAnalysis.Analyzer, R
                 currentChessboard = board
 
                 try {
-                    var command = "position fen ${board.toFen()}\neval\nisready\ngo movetime 8000\n"
+                    var command = "position fen ${board.toFen()}\neval\nisready\ngo movetime 4000\n"
                     StockfishApplication.runCommandWithListener(command, MODE.RECORDER, this)
 
 
@@ -103,18 +105,42 @@ class Recorder(private val activity: RecordActivity) : ImageAnalysis.Analyzer, R
     }
 
     override fun onAnalysisCompleted(result: String) {
-        if (game.states.size <= stepCounter) {
+        var formattedResult = result
+        if (formattedResult.endsWith("(white side)")) {
+            if (formattedResult[0].equals("-")) {
+                formattedResult = formattedResult.replaceFirst('-', '+')
+            }
+            formattedResult = formattedResult.replace(" (white side)", "⬜")
+        }
+        else if (formattedResult.endsWith("(black side)")) {
+            if (formattedResult[0].equals("-")) {
+                formattedResult = formattedResult.replaceFirst('-', '+')
+            }
+            formattedResult = formattedResult.replace(" (black side)", "⬛")
+        }
+
+        if (game.rounds.size <= stepCounter) {
             if (currentChessboard!!.nextPlayer == Player.BLACK) {
-                game.states.add(Round(blackStep = Step(currentChessboard!!, Analysis(result))))
+                game.rounds.add(Round(blackStep = Step(currentChessboard!!, Analysis(formattedResult))))
+                stepCounter++
             }
             else if (currentChessboard!!.nextPlayer == Player.WHITE) {
-                game.states.add(Round(whiteStep = Step(currentChessboard!!, Analysis(result))))
+                game.rounds.add(Round(whiteStep = Step(currentChessboard!!, Analysis(formattedResult))))
             }
         }
         else {
             // mindenképp fekete lépett, ha már megfelelő méretű volt a game.state lista
-            game.states[game.states.size].blackStep = Step(currentChessboard!!, Analysis(result))
+            game.rounds[game.rounds.size-1].blackStep = Step(currentChessboard!!, Analysis(formattedResult))
+            stepCounter++
         }
+
+        val roundStrings = game.toString().split("\n")
+        Toast.makeText(activity.applicationContext, roundStrings[roundStrings.size-2], Toast.LENGTH_LONG).show()
+
+        ///////////////// TESZTELÉSRE /////////////////////
+        //if (stepCounter == 3) {
+        //    val kaki = game.toString()
+        //}
 
         //writeFile(fileName!!, "${currentChessboard!!.getLastMoveSan(board)}\n")
         // drops the constant " w - - 0 1" string

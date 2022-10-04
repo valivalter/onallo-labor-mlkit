@@ -98,7 +98,7 @@ class Chessboard {
                         emptyLastTile = true
                     }
                 }
-                if ((!emptyLastTile && emptyTilesInRow > 0) || j == 7) {
+                if ((!emptyLastTile && emptyTilesInRow > 0) || (j == 7 && emptyTilesInRow > 0)) {
                     if (j == 7 && emptyLastTile) {
                         fen += emptyTilesInRow
                     }
@@ -114,7 +114,9 @@ class Chessboard {
         }
         fen = fen.dropLast(1)
 
+        // a sima egy fotó alapján analizálás esetén
         // castling availability cannot be determined, because we can never be sure that the rook was not moved before
+        // (még az alaphelyzetben sem, hiszen mi van, ha már lépett egyet a huszár kifele, aztán a bástya, aztán fordított sorrendben visszaléptek és újra alaphelyzet)
         // en passant target square cannot be determined as well
         // halfmove and fullmove number cannot be determined as well
         if (nextPlayer == Player.WHITE)
@@ -126,14 +128,13 @@ class Chessboard {
     }
 
     fun equals(other: Chessboard): Boolean {
-        var equals = true
         for (i in 0 until 8) {
             for (j in 0 until 8) {
                 if (board[i][j] != other.getTile(i, j))
-                    equals = false
+                    return false
             }
         }
-        return equals
+        return true
     }
 
     fun isDifferenceOneMove(other: Chessboard): Boolean {
@@ -148,13 +149,13 @@ class Chessboard {
         return differences == 2
     }
 
-    fun getLastMoveSan(other: Chessboard): String {
+    fun getLastMoveSan(previous: Chessboard): String {
         var fromTile: Pair<Int, Int>? = null
         var toTile: Pair<Int, Int>? = null
         for (i in 0 until 8) {
             for (j in 0 until 8) {
-                if (board[i][j] != other.getTile(i, j)) {
-                    if (other.getTile(i, j) == "em")
+                if (board[i][j] != previous.getTile(i, j)) {
+                    if (previous.getTile(i, j) != "em" && board[i][j] == "em")
                         fromTile = Pair(i, j)
                     else {
                         toTile = Pair(i, j)
@@ -165,7 +166,7 @@ class Chessboard {
 
         var san = ""
         if (fromTile != null && toTile != null) {
-            when (other.getTile(toTile.first, toTile.second)) {
+            when (previous.getTile(fromTile.first, fromTile.second)) {
                 "wr", "br" -> san += "R"
                 "wn", "bn" -> san += "N"
                 "wb", "bb" -> san += "B"
@@ -173,9 +174,9 @@ class Chessboard {
                 "wq", "bq" -> san += "Q"
                 // "wp", "bp" -> pgn += "P"  usually not used in PGN notation
             }
-            if (board[toTile.first][toTile.second] != "em") {
-                if (other.getTile(toTile.first, toTile.second) == "wp" ||
-                    other.getTile(toTile.first, toTile.second) == "bp") {
+            if (previous.getTile(toTile.first, toTile.second) != "em") {
+                if (previous.getTile(fromTile.first, fromTile.second) == "wp" ||
+                    previous.getTile(fromTile.first, fromTile.second) == "bp") {
                     san += indicesToSquare(fromTile.first, fromTile.second)[0]
                 }
                 san += "x"
