@@ -57,8 +57,10 @@ class StockfishApplication : Application() {
                         if (data != null) {
                             if ("Final evaluation" in data!!) {
                                 val results = data!!.split(" ")
-                                val resultString = "${results[8]} ${results[9]} ${results[10]}"
+                                var resultString = "${results[8]} ${results[9]} ${results[10]}"
                                 //                    score               which color
+
+                                resultString = formatResult(resultString)
 
                                 if (mode == MODE.ANALYZER || mode == MODE.RECORDER) {
                                     val handler = Handler(mainLooper)
@@ -92,5 +94,23 @@ class StockfishApplication : Application() {
         catch (e: IOException) {
             e.printStackTrace()
         }
+    }
+
+    private fun formatResult(result: String): String {
+        var formattedResult = result
+        if (formattedResult.endsWith("(white side)")) {
+            if (formattedResult[0].equals("-")) {
+                formattedResult = formattedResult.replaceFirst('-', '+')
+            }
+            formattedResult = formattedResult.replace(" (white side)", "⬜")
+        }
+        else if (formattedResult.endsWith("(black side)")) {
+            if (formattedResult[0].equals("-")) {
+                formattedResult = formattedResult.replaceFirst('-', '+')
+            }
+            formattedResult = formattedResult.replace(" (black side)", "⬛")
+        }
+
+        return formattedResult
     }
 }

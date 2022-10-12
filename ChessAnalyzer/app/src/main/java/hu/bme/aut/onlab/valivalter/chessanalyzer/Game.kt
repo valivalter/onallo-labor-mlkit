@@ -4,7 +4,7 @@ import android.util.Log
 import java.util.HashMap
 import kotlin.math.round
 
-data class Analysis(val result: String)
+data class Analysis(val result: String, var bestMove: String? = null)
 
 data class Step(val chessboard: Chessboard, val analysis: Analysis)
 
@@ -12,6 +12,22 @@ data class Round(var whiteStep: Step? = null, var blackStep: Step? = null)
 
 class Game(private val initialState: Chessboard) {
     var rounds: MutableList<Round> = mutableListOf()
+
+    fun getLastStep(): String {
+        val lastRound = rounds.last()
+        if (lastRound.blackStep == null) {
+            if (rounds.size == 1) {
+                return "White: ${lastRound.whiteStep!!.chessboard.getLastMoveSan(initialState)} (${lastRound.whiteStep!!.analysis.result})"
+            }
+            else {
+                val secondToLastRound = rounds[rounds.size - 2]
+                return "White: ${lastRound.whiteStep!!.chessboard.getLastMoveSan(secondToLastRound.blackStep!!.chessboard)} (${lastRound.whiteStep!!.analysis.result})"
+            }
+        }
+        else {
+            return "Black: ${lastRound.blackStep!!.chessboard.getLastMoveSan(lastRound.whiteStep!!.chessboard)} (${lastRound.blackStep!!.analysis.result})"
+        }
+    }
 
     override fun toString(): String {
         var string = ""

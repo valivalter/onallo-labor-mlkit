@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/tvTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Analysis result"
+        android:textSize="35sp"
+        android:layout_gravity="center"/>
+
+    <TextView
+        android:id="@+id/tvStockfishResult"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Stockfish result:"
+        android:textSize="17sp"
+        android:layout_gravity="center"/>
+
+    <TextView
+        android:id="@+id/tvBestMove"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Best move:"
+        android:textSize="17sp"
+        android:layout_gravity="center"/>
+
+    <TextView
+        android:id="@+id/tvTopGame"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Top game in this position"
+        android:textSize="17sp"
+        android:layout_gravity="center"/>
+
+    <TextView
+        android:id="@+id/tvDate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Date"
+        android:textSize="17sp"
+        android:layout_gravity="center"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:weightSum="2">
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_weight="1">
+
+            <TextView
+                android:id="@+id/tvPlayerWhite"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Carlsen"
+                android:textSize="17sp"
+                android:layout_gravity="center"/>
+
+            <TextView
+                android:id="@+id/tvPlayerWhiteRating"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="2800"
+                android:textSize="17sp"
+                android:layout_gravity="center"/>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_weight="1">
+
+            <TextView
+                android:id="@+id/tvPlayerBlack"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Carlsen"
+                android:textSize="17sp"
+                android:layout_gravity="center"/>
+
+            <TextView
+                android:id="@+id/tvPlayerBlackRating"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="2800"
+                android:textSize="17sp"
+                android:layout_gravity="center"/>
+
+        </LinearLayout>
+    </LinearLayout>
+</LinearLayout>

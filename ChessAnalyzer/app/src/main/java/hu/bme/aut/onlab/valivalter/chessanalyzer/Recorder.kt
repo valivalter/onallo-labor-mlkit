@@ -105,42 +105,27 @@ class Recorder(private val activity: RecordActivity) : ImageAnalysis.Analyzer, R
     }
 
     override fun onAnalysisCompleted(result: String) {
-        var formattedResult = result
-        if (formattedResult.endsWith("(white side)")) {
-            if (formattedResult[0].equals("-")) {
-                formattedResult = formattedResult.replaceFirst('-', '+')
-            }
-            formattedResult = formattedResult.replace(" (white side)", "⬜")
-        }
-        else if (formattedResult.endsWith("(black side)")) {
-            if (formattedResult[0].equals("-")) {
-                formattedResult = formattedResult.replaceFirst('-', '+')
-            }
-            formattedResult = formattedResult.replace(" (black side)", "⬛")
-        }
-
         if (game.rounds.size <= stepCounter) {
             if (currentChessboard!!.nextPlayer == Player.BLACK) {
-                game.rounds.add(Round(blackStep = Step(currentChessboard!!, Analysis(formattedResult))))
+                game.rounds.add(Round(blackStep = Step(currentChessboard!!, Analysis(result))))
                 stepCounter++
             }
             else if (currentChessboard!!.nextPlayer == Player.WHITE) {
-                game.rounds.add(Round(whiteStep = Step(currentChessboard!!, Analysis(formattedResult))))
+                game.rounds.add(Round(whiteStep = Step(currentChessboard!!, Analysis(result))))
             }
         }
         else {
             // mindenképp fekete lépett, ha már megfelelő méretű volt a game.state lista
-            game.rounds[game.rounds.size-1].blackStep = Step(currentChessboard!!, Analysis(formattedResult))
+            game.rounds[game.rounds.size-1].blackStep = Step(currentChessboard!!, Analysis(result))
             stepCounter++
         }
 
-        val roundStrings = game.toString().split("\n")
-        Toast.makeText(activity.applicationContext, roundStrings[roundStrings.size-2], Toast.LENGTH_LONG).show()
+        Toast.makeText(activity.applicationContext, game.getLastStep(), Toast.LENGTH_LONG).show()
 
         ///////////////// TESZTELÉSRE /////////////////////
-        //if (stepCounter == 3) {
-        //    val kaki = game.toString()
-        //}
+        if (stepCounter == 3) {
+            val gameString = game.toString()
+        }
 
         //writeFile(fileName!!, "${currentChessboard!!.getLastMoveSan(board)}\n")
         // drops the constant " w - - 0 1" string

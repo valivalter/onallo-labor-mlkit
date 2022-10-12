@@ -20,10 +20,18 @@ import android.graphics.Matrix
 import android.view.View
 import android.widget.ImageButton
 import android.widget.Toast
+import com.afollestad.materialdialogs.MaterialDialog
+import com.afollestad.materialdialogs.customview.customView
+import com.github.mikephil.charting.data.PieData
+import com.github.mikephil.charting.data.PieDataSet
+import com.github.mikephil.charting.data.PieEntry
+import com.github.mikephil.charting.utils.ColorTemplate
 import hu.bme.aut.onlab.valivalter.chessanalyzer.AnalyzerLogic.RecognitionCompletedListener
+import hu.bme.aut.onlab.valivalter.chessanalyzer.Network.LichessInteractor
 import hu.bme.aut.onlab.valivalter.chessanalyzer.Stockfish.AnalysisCompletedListener
 import hu.bme.aut.onlab.valivalter.chessanalyzer.Stockfish.MODE
 import hu.bme.aut.onlab.valivalter.chessanalyzer.Stockfish.StockfishApplication
+import hu.bme.aut.onlab.valivalter.chessanalyzer.databinding.AnalysisResultBinding
 import java.io.*
 
 class AnalyzerActivity : AppCompatActivity(), RecognitionCompletedListener, AnalysisCompletedListener {
@@ -32,6 +40,12 @@ class AnalyzerActivity : AppCompatActivity(), RecognitionCompletedListener, Anal
     //private val analyzer = Analyzer(this) // if you want to see the analyzed images on the tiles 1/3
     private val analyzer = Analyzer()
     private var chessboard = Chessboard()
+    private lateinit var analysis: Analysis
+    private lateinit var positionInfo: PositionInfo
+    private val lichessInteractor = LichessInteractor()
+
+    private var positionInfoReady = false
+    private var stockfishAnalysisReady = false
 
     companion object{
         const val REQUEST_IMAGE_CAPTURE = 1
@@ -43,6 +57,9 @@ class AnalyzerActivity : AppCompatActivity(), RecognitionCompletedListener, Anal
         setContentView(binding.root)
 
         binding.btnAnalyze.setOnClickListener {
+            val allFens = chessboard.getAllPossibleFens()
+            lichessInteractor.getInfos(allFens, this::onGetPositionInfo, this::showError)
+
             try {
                 var command = "position fen ${chessboard.toFen()}\neval\nisready\ngo movetime 8000\n"
                 StockfishApplication.runCommandWithListener(command, MODE.ANALYZER, this)
@@ -60,6 +77,31 @@ class AnalyzerActivity : AppCompatActivity(), RecognitionCompletedListener, Anal
         }
 
         startCamera()
+    }
+
+    private fun onGetPositionInfo(positionInfos: List<PositionInfo>) {
+        var white = 0
+        var draws = 0
+        var black = 0
+        var topgames = mutableListOf<TopGame>()
+        var opening: Opening? = null
+
+        for (positionInfo in positionInfos) {
+            white += positionInfo.white
+            draws += positionInfo.draws
+            black += positionInfo.black
+            topgames.addAll(positionInfo.topGames)
+            opening = positionInfo.opening
+        }
+
+        positionInfo = PositionInfo(white, draws, black, topgames, opening)
+        positionInfoReady = true
+        tryOpenDialog()
+
+    }
+
+    private fun showError(e: Throwable) {
+        e.printStackTrace()
     }
 
     private lateinit var photoURI: Uri
@@ -154,9 +196,64 @@ class AnalyzerActivity : AppCompatActivity(), RecognitionCompletedListener, Anal
         binding.btnBlack.isEnabled = true
         binding.btnWhite.isEnabled = true
         binding.loadingPanel.visibility = View.INVISIBLE
+
+        // for testing
+        //chessboard.setDefaultPosition()
     }
 
     override fun onAnalysisCompleted(result: String) {
         Toast.makeText(this, result, Toast.LENGTH_LONG).show()
+
+        if ("Best move" !in result) {
+            analysis = Analysis(result)
+        }
+        else {
+            analysis.bestMove = result
+
+            stockfishAnalysisReady = true
+            tryOpenDialog()
+        }
+    }
+
+    private fun tryOpenDialog() {
+        if (positionInfoReady && stockfishAnalysisReady) {
+            var dialogBinding = AnalysisResultBinding.inflate(LayoutInflater.from(this))
+
+            if (positionInfo.opening != null) {
+                dialogBinding.tvTitle.text = "${positionInfo.opening!!.name} opening"
+            }
+            dialogBinding.tvStockfishResult.text = "Stockfish result: ${analysis.result}"
+            dialogBinding.tvBestMove.text = analysis.bestMove
+            //dialogBinding.tvWhite.text = "White wins: ${positionInfo.white}"
+            //dialogBinding.tvBlack.text = "Black wins: ${positionInfo.black}"
+            //dialogBinding.tvDraws.text = "Draws: ${positionInfo.draws}"
+
+            /*val entries = listOf(
+                PieEntry(positionInfo.white.toFloat(), "White wins"),
+                PieEntry(positionInfo.black.toFloat(), "Black wins"),
+                PieEntry(positionInfo.draws.toFloat(), "Draws")
+            )
+            val dataSet = PieDataSet(entries, "Winner stats")
+            dataSet.colors = ColorTemplate.MATERIAL_COLORS.toList()
+            val data = PieData(dataSet)
+            dialogBinding.pieMatches.data = data
+            dialogBinding.pieMatches.invalidate()*/
+
+            dialogBinding.tvDate.text = "(${positionInfo.topGames[0].month})"
+            dialogBinding.tvPlayerWhite.text = "${positionInfo.topGames[0].white.name}⬜"
+            dialogBinding.tvPlayerWhiteRating.text = positionInfo.topGames[0].white.rating.toString()
+            dialogBinding.tvPlayerBlack.text = "${positionInfo.topGames[0].black.name}⬛"
+            dialogBinding.tvPlayerBlackRating.text = positionInfo.topGames[0].black.rating.toString()
+            //if (positionInfo.topGames[0].winner != null) {
+            //
+            //}
+
+            MaterialDialog(this).show {
+                customView(view = dialogBinding.root, scrollable = true)
+            }
+
+            positionInfoReady = false
+            stockfishAnalysisReady = false
+        }
     }
 }

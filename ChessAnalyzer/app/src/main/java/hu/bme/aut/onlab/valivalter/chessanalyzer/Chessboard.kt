@@ -41,6 +41,13 @@ class Chessboard {
             it["bq"] = R.drawable.black_queen
             it["bp"] = R.drawable.black_pawn
         }
+
+        val castlingAvailabilityPossibilities = listOf(
+            "KQkq", "KQk", "KQq", "KQ",
+            "Kkq", "Kk", "Kq", "K",
+            "Qkq", "Qk", "Qq", "Q",
+            "kq", "k", "q", "-"
+        )
     }
 
     fun getTile(i: Int, j: Int): String {
@@ -127,6 +134,40 @@ class Chessboard {
         return fen
     }
 
+    fun getAllPossibleFens(): MutableList<String> {
+        var castlingAvailabilities = Chessboard.castlingAvailabilityPossibilities
+        if (board[0][4] != "bk") {
+            castlingAvailabilities = castlingAvailabilities.filter { "k" !in it && "q" !in it }
+        }
+        else {
+            if (board[0][0] != "br") {
+                castlingAvailabilities = castlingAvailabilities.filter { "q" !in it }
+            }
+            if (board[0][7] != "br") {
+                castlingAvailabilities = castlingAvailabilities.filter { "k" !in it }
+            }
+        }
+
+        if (board[7][4] != "wk") {
+            castlingAvailabilities = castlingAvailabilities.filter { "K" !in it && "Q" !in it }
+        }
+        else {
+            if (board[7][0] != "wr") {
+                castlingAvailabilities = castlingAvailabilities.filter { "Q" !in it }
+            }
+            if (board[7][7] != "wr") {
+                castlingAvailabilities = castlingAvailabilities.filter { "K" !in it }
+            }
+        }
+
+        var fens = mutableListOf<String>()
+        for (castling in castlingAvailabilities) {
+            fens.add(this.toFen().dropLast(7) + castling + " - 0 1")
+        }
+
+        return fens
+    }
+
     fun equals(other: Chessboard): Boolean {
         for (i in 0 until 8) {
             for (j in 0 until 8) {
@@ -184,5 +225,31 @@ class Chessboard {
             san += indicesToSquare(toTile.first, toTile.second)
         }
         return san
+    }
+
+    // for testing
+    fun setDefaultPosition() {
+        board[0][0] = "br"
+        board[0][1] = "bn"
+        board[0][2] = "bb"
+        board[0][3] = "bq"
+        board[0][4] = "bk"
+        board[0][5] = "bb"
+        board[0][6] = "bn"
+        board[0][7] = "br"
+        for (j in 0 until 8) {
+            board[1][j] = "bp"
+        }
+        for (j in 0 until 8) {
+            board[6][j] = "wp"
+        }
+        board[7][0] = "wr"
+        board[7][1] = "wn"
+        board[7][2] = "wb"
+        board[7][3] = "wq"
+        board[7][4] = "wk"
+        board[7][5] = "wb"
+        board[7][6] = "wn"
+        board[7][7] = "wr"
     }
 }
