@@ -5,18 +5,18 @@ import androidx.camera.core.ImageProxy
 
 import android.graphics.Bitmap
 import android.os.Environment
-import hu.bme.aut.onlab.valivalter.chessanalyzer.AnalyzerLogic.RecognitionCompletedListener
-import hu.bme.aut.onlab.valivalter.chessanalyzer.AnalyzerLogic.Analyzer
+import hu.bme.aut.onlab.valivalter.chessanalyzer.analyzerlogic.RecognitionCompletedListener
+import hu.bme.aut.onlab.valivalter.chessanalyzer.analyzerlogic.Analyzer
 import java.io.File
 import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.*
 import android.graphics.BitmapFactory
 import android.widget.Toast
-import androidx.core.graphics.rotationMatrix
-import hu.bme.aut.onlab.valivalter.chessanalyzer.Stockfish.AnalysisCompletedListener
-import hu.bme.aut.onlab.valivalter.chessanalyzer.Stockfish.MODE
-import hu.bme.aut.onlab.valivalter.chessanalyzer.Stockfish.StockfishApplication
+import hu.bme.aut.onlab.valivalter.chessanalyzer.model.*
+import hu.bme.aut.onlab.valivalter.chessanalyzer.stockfish.AnalysisCompletedListener
+import hu.bme.aut.onlab.valivalter.chessanalyzer.stockfish.MODE
+import hu.bme.aut.onlab.valivalter.chessanalyzer.stockfish.StockfishApplication
 
 
 class Recorder(private val activity: RecordActivity) : ImageAnalysis.Analyzer, RecognitionCompletedListener, AnalysisCompletedListener {

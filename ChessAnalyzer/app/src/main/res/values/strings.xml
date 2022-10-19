@@ -5,6 +5,6 @@
     <string name="white">White</string>
     <string name="black">Black</string>
     <string name="analyzing">Recognizing pieces</string>
-    <string name="analyze_photo">Analyze photo</string>
+    <string name="analyze_photo">Analyze image</string>
     <string name="record_game">Record game</string>
 </resources>

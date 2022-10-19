@@ -1,4 +1,4 @@
-package hu.bme.aut.onlab.valivalter.chessanalyzer
+package hu.bme.aut.onlab.valivalter.chessanalyzer.model
 
 data class PositionInfo(
     val white: Int,
@@ -12,7 +12,7 @@ data class TopGame(
     val winner: String?,
     val black: TopPlayer,
     val white: TopPlayer,
-    val month: String
+    val month: String?
 )
 
 class TopPlayer(

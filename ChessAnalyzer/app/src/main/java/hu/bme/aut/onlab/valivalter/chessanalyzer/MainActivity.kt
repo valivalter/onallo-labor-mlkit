@@ -21,6 +21,10 @@ class MainActivity : AppCompatActivity() {
             Manifest.permission.CAMERA,
             Manifest.permission.WRITE_EXTERNAL_STORAGE,
             Manifest.permission.READ_EXTERNAL_STORAGE)
+
+        const val MODE = "MODE"
+        const val TAKE_PHOTO = "TAKE_PHOTO"
+        const val PICK_IMAGE = "PICK_IMAGE"
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -28,8 +32,16 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(LayoutInflater.from(this))
         setContentView(binding.root)
 
-        binding.btnAnalyzer.setOnClickListener {
-            startActivity(Intent(this, AnalyzerActivity::class.java))
+        binding.btnTakePhoto.setOnClickListener {
+            val intent = Intent(this, AnalyzerActivity::class.java)
+            intent.putExtra(MODE, TAKE_PHOTO)
+            startActivity(intent)
+        }
+
+        binding.btnAnalyzeImage.setOnClickListener {
+            val intent = Intent(this, AnalyzerActivity::class.java)
+            intent.putExtra(MODE, PICK_IMAGE)
+            startActivity(intent)
         }
 
         binding.btnRecorder.setOnClickListener {

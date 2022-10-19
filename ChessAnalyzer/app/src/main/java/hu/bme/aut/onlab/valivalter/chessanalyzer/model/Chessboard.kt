@@ -1,6 +1,7 @@
-package hu.bme.aut.onlab.valivalter.chessanalyzer
+package hu.bme.aut.onlab.valivalter.chessanalyzer.model
 
 import android.util.Log
+import hu.bme.aut.onlab.valivalter.chessanalyzer.R
 import java.util.HashMap
 
 enum class Player {

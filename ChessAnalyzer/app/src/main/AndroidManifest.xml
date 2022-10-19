@@ -11,7 +11,7 @@
         android:required="true" />
 
     <application
-        android:name=".Stockfish.StockfishApplication"
+        android:name=".stockfish.StockfishApplication"
         android:allowBackup="true"
         android:extractNativeLibs="true"
         android:icon="@mipmap/ic_launcher"

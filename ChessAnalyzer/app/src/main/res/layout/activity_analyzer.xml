@@ -23,7 +23,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/next_player"
-                android:textColor="@color/black"
                 android:textSize="30sp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toStartOf="@+id/guideline2"
@@ -694,7 +693,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:alpha="0.8"
-        android:background="#000000"
+        android:background="@color/almost_white"
         android:gravity="center">
 
         <androidx.constraintlayout.widget.ConstraintLayout
@@ -719,7 +718,6 @@
                 android:layout_centerInParent="true"
                 android:fontFamily="@font/averia_serif_libre"
                 android:text="@string/analyzing"
-                android:textColor="@color/white"
                 android:textSize="20sp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"

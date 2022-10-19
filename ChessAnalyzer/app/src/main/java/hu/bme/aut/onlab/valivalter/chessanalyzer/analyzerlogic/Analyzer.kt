@@ -1,4 +1,4 @@
-package hu.bme.aut.onlab.valivalter.chessanalyzer.AnalyzerLogic
+package hu.bme.aut.onlab.valivalter.chessanalyzer.analyzerlogic
 
 import android.graphics.Bitmap
 import android.util.Log
@@ -7,7 +7,7 @@ import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.label.ImageLabeler
 import com.google.mlkit.vision.label.ImageLabeling
 import com.google.mlkit.vision.label.custom.CustomImageLabelerOptions
-import hu.bme.aut.onlab.valivalter.chessanalyzer.Chessboard
+import hu.bme.aut.onlab.valivalter.chessanalyzer.model.Chessboard
 
 class Analyzer {
 // class Analyzer(private val activity: AnalyzerActivity) {

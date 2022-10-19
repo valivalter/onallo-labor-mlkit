@@ -2,13 +2,13 @@
     <!-- Base application theme. -->
     <style name="Theme.ChessAnalyzer" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <!-- Primary brand color. -->
-        <item name="colorPrimary">@color/green_light</item>
-        <item name="colorPrimaryVariant">@color/green_dark</item>
-        <item name="colorOnPrimary">@color/white</item>
+        <item name="colorPrimary">@color/almost_black</item>
+        <item name="colorPrimaryVariant">@color/dark_gray</item>
+        <item name="colorOnPrimary">@color/almost_white</item>
         <!-- Secondary brand color. -->
-        <item name="colorSecondary">@color/green_light</item>
-        <item name="colorSecondaryVariant">@color/green_dark</item>
-        <item name="colorOnSecondary">@color/white</item>
+        <item name="colorSecondary">@color/almost_black</item>
+        <item name="colorSecondaryVariant">@color/dark_gray</item>
+        <item name="colorOnSecondary">@color/almost_white</item>
         <!-- Status bar color. -->
         <item name="android:statusBarColor" tools:targetApi="l">?attr/colorPrimaryVariant</item>
         <!-- Customize your theme here. -->
@@ -16,6 +16,7 @@
     </style>
 
     <style name="DefaultText" parent="Widget.MaterialComponents.TextView">
+        <item name="android:textColor">@color/almost_black</item>
         <item name="fontFamily">@font/averia_serif_libre</item>
     </style>
 </resources>

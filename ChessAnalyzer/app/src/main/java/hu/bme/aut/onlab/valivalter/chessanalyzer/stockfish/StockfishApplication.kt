@@ -1,4 +1,4 @@
-package hu.bme.aut.onlab.valivalter.chessanalyzer.Stockfish
+package hu.bme.aut.onlab.valivalter.chessanalyzer.stockfish
 
 import android.app.Application
 import android.os.Handler

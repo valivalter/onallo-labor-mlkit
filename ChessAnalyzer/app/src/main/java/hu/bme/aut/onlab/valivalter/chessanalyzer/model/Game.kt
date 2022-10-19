@@ -1,4 +1,4 @@
-package hu.bme.aut.onlab.valivalter.chessanalyzer
+package hu.bme.aut.onlab.valivalter.chessanalyzer.model
 
 import android.util.Log
 import java.util.HashMap

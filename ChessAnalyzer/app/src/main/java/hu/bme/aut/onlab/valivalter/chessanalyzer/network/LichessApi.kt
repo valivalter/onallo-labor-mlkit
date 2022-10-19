@@ -1,9 +1,8 @@
-package hu.bme.aut.onlab.valivalter.chessanalyzer.Network
+package hu.bme.aut.onlab.valivalter.chessanalyzer.network
 
-import hu.bme.aut.onlab.valivalter.chessanalyzer.PositionInfo
+import hu.bme.aut.onlab.valivalter.chessanalyzer.model.PositionInfo
 import retrofit2.Call
 import retrofit2.http.GET
-import retrofit2.http.Path
 import retrofit2.http.Query
 
 interface LichessApi {
