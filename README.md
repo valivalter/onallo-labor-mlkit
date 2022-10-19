@@ -96,3 +96,24 @@ Ezenkívül hozzáadtam a projekthez új osztályokat:
 * Game - Egy sakkjátszma összes lépéséért felelős osztály
 
 Ezenkívül egy új interfészt is létrehoztam, ami a Stockfish-sel történő kommunnikálást hivatott megkönnyíteni (AnalysisCompletedListener); a korábbiakban ezen a néven futó függvényt pedig átneveztem RecognitionCompletedListenerre.
+
+### 4. hét
+
+Előző héten nem maradt lehetőségem arra, hogy leteszteljem a megírt, SAN-ba (Standard Algebraic Notation) konvertáló függvényt, így ezt bepótoltam. Rengeteg apró hibába ütköztem, amelyek javítása, majd a helyesség folytonos újbóli ellenőrzése jóval több időt vett igénybe, mint amennyire számítottam előtte. Az alábbi ábrán látható, hogy egy példa bemenet-sorozatra milyen leírás jön létre az alkalmazásban Recorder módban.
+
+<p align="center">
+  <img src="san.png">
+</p>
+
+### 5. hét
+
+Ezen a héten az Analyzer mód bővítésének álltam neki, ehhez először is egy megfelelő API-t próbáltam keresni, amiből egyszerűen kinyerhető például, hogy egy adott sakkállás mikor és mely nagymesterek játszmája közben fordult már elő korábban. A célnak legmegfelelőbbnek a [Lichess API](https://lichess.org/api#tag/Opening-Explorer)-t találtam, ennek segítségével azt is megtudhatjuk, hogy - amennyiben van - mi a neve az adott állásnak, és hogy hányszor szerepel az adott állás az adatbázisukban, illetve ezekhez a játszmákhoz milyen végeredmények társulnak (hányszor nyert a fehér, hányszor nyert a fekete, hányszor lett döntetlen). Az API-val való kommunikációhoz létrehoztam a LichessApi interfészt és a LichessInteractor osztályt, valamint a PositionInfo osztályt a kinyert adatok tárolásához.
+Egy kellemetlen velejárója az API-nak, hogy a sáncolási szabályok miatt legrosszabb esetben akár 16 hívást is kell kezdeményezni egyetlen álláshoz, de ez szerencsére nem rontja le érezhetően az alkalmazás teljesítményét.
+
+A kapott plusz adatok felhasználói felületen való megjelenésén is elkezdtem dolgozni, ez viszont jelenleg is csak félkész állapotban van.
+
+### 6. hét
+
+A főmenüben elhelyeztem egy harmadik gombot, ami így lehetővé teszi, hogy ne csak fotózni lehessen egy képet és azt elemeztetni a Stockfish-sel, hanem tetszőleges képet is meg tudjunk nyitni a galériából választva.
+
+Ezenkívül befejeztem az előző héten még csak félkész állapotig jutó megjelenítését az API-ról nyert adatoknak, illetve megváltoztattam az egész alkalmazás színeit, dizájnját: lásd a demónál majd. (TODO screenshot)
