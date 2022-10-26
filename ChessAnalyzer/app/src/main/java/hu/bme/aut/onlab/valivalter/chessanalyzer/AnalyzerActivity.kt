@@ -20,7 +20,6 @@ import android.graphics.Matrix
 import android.graphics.Typeface
 import android.view.View
 import android.widget.ImageButton
-import android.widget.Toast
 import androidx.core.content.ContextCompat
 import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.customview.customView
@@ -37,8 +36,8 @@ import hu.bme.aut.onlab.valivalter.chessanalyzer.databinding.AnalysisResultBindi
 import hu.bme.aut.onlab.valivalter.chessanalyzer.model.*
 import java.io.*
 import com.github.mikephil.charting.formatter.ValueFormatter
-
-
+import hu.bme.aut.onlab.valivalter.chessanalyzer.databinding.AnalysisResultNoInfoBinding
+import hu.bme.aut.onlab.valivalter.chessanalyzer.databinding.PiecePickerBinding
 
 
 class AnalyzerActivity : AppCompatActivity(), RecognitionCompletedListener, AnalysisCompletedListener {
@@ -67,9 +66,6 @@ class AnalyzerActivity : AppCompatActivity(), RecognitionCompletedListener, Anal
         setContentView(binding.root)
 
         binding.btnAnalyze.setOnClickListener {
-            binding.btnAnalyze.isEnabled = false
-            binding.btnBlack.isEnabled = false
-            binding.btnWhite.isEnabled = false
             binding.tvAnalyzing.text = "Analyzing"
             binding.loadingPanel.visibility = View.VISIBLE
 
@@ -95,6 +91,11 @@ class AnalyzerActivity : AppCompatActivity(), RecognitionCompletedListener, Anal
         when (intent.getStringExtra(MainActivity.MODE)) {
             MainActivity.TAKE_PHOTO -> startCamera()
             MainActivity.PICK_IMAGE -> openImageSelector()
+            MainActivity.SANDBOX    -> {
+                val board = Chessboard()
+                board.setDefaultPosition()
+                onRecognitionCompleted(board)
+            }
         }
     }
 
@@ -228,7 +229,38 @@ class AnalyzerActivity : AppCompatActivity(), RecognitionCompletedListener, Anal
                 val piece = board.getTile(i, j)
                 val tile = findViewById<ImageButton>(Chessboard.boardRIDs[i][j])
                 tile.setOnClickListener {
-                    val actualPiece = board.getTile(i, j)
+
+                    val piecePickerDialog = MaterialDialog(this)
+                    val piecePickerBinding = PiecePickerBinding.inflate(LayoutInflater.from(this))
+
+                    val imageViewToPieceCode = mapOf(
+                        piecePickerBinding.ivWhitePawn to "wp",
+                        piecePickerBinding.ivWhiteKnight to "wn",
+                        piecePickerBinding.ivWhiteBishop to "wb",
+                        piecePickerBinding.ivWhiteRook to "wr",
+                        piecePickerBinding.ivWhiteQueen to "wq",
+                        piecePickerBinding.ivWhiteKing to "wk",
+                        piecePickerBinding.ivBlackPawn to "bp",
+                        piecePickerBinding.ivBlackKnight to "bn",
+                        piecePickerBinding.ivBlackBishop to "bb",
+                        piecePickerBinding.ivBlackRook to "br",
+                        piecePickerBinding.ivBlackQueen to "bq",
+                        piecePickerBinding.ivBlackKing to "bk",
+                    )
+
+                    imageViewToPieceCode.forEach { entry ->
+                        entry.key.setOnClickListener {
+                            board.setTile(i, j, entry.value)
+                            tile.setImageResource(Chessboard.mapStringsToResources[entry.value]!!)
+                            piecePickerDialog.dismiss()
+                        }
+                    }
+
+                    piecePickerDialog.show {
+                        customView(view = piecePickerBinding.root, scrollable = true)
+                    }
+
+                    /*val actualPiece = board.getTile(i, j)
                     var newIndex = Chessboard.pieces.indexOf(actualPiece) + 1
                     if (newIndex == Chessboard.pieces.size) {
                         newIndex = 0
@@ -236,92 +268,92 @@ class AnalyzerActivity : AppCompatActivity(), RecognitionCompletedListener, Anal
                     val newPiece = Chessboard.pieces[newIndex]
                     board.setTile(i, j, newPiece)
                     tile.setImageResource(Chessboard.mapStringsToResources[newPiece]!!)
-                    board.print()
+                    board.print()*/
                 }
                 if (piece != "em") {
                     tile.setImageResource(Chessboard.mapStringsToResources[piece]!!)
                 }
             }
         }
-        binding.btnAnalyze.isEnabled = true
-        binding.btnBlack.isEnabled = true
-        binding.btnWhite.isEnabled = true
         binding.loadingPanel.visibility = View.INVISIBLE
     }
 
-    override fun onAnalysisCompleted(result: String) {
-        Toast.makeText(this, result, Toast.LENGTH_LONG).show()
-
-        if ("Best move" !in result) {
-            analysis = Analysis(result)
-        }
-        else {
-            analysis.bestMove = result
-
-            stockfishAnalysisReady = true
-            tryOpenDialog()
-        }
+    override fun onAnalysisCompleted(analysis: Analysis) {
+        this.analysis = analysis
+        stockfishAnalysisReady = true
+        tryOpenDialog()
     }
 
     private fun tryOpenDialog() {
         if (positionInfoReady && stockfishAnalysisReady) {
 
-            binding.btnAnalyze.isEnabled = true
-            binding.btnBlack.isEnabled = true
-            binding.btnWhite.isEnabled = true
-            binding.loadingPanel.visibility = View.INVISIBLE
+            binding.loadingPanel.visibility = View.GONE
 
-            var dialogBinding = AnalysisResultBinding.inflate(LayoutInflater.from(this))
+            // then there aren't any matches in the Lichess database
+            if (positionInfo.white == 0 && positionInfo.black == 0 && positionInfo.draws == 0) {
+                val dialogBinding = AnalysisResultNoInfoBinding.inflate(LayoutInflater.from(this))
 
-            if (positionInfo.opening != null) {
-                dialogBinding.tvTitle.text = "${positionInfo.opening!!.name} opening"
-            }
-            dialogBinding.tvStockfishResult.text = "Stockfish result: ${analysis.result}"
-            dialogBinding.tvBestMove.text = analysis.bestMove
+                dialogBinding.tvStockfishResultNoInfo.text = "Stockfish result: ${analysis.result}"
+                dialogBinding.tvBestMoveNoInfo.text = "Best move: ${analysis.bestMove}"
+                dialogBinding.tvBestResponseNoInfo.text = "Best response: ${analysis.bestResponse}"
 
-
-            val entries = listOf(
-                PieEntry(positionInfo.white.toFloat(), "White won"),
-                PieEntry(positionInfo.black.toFloat(), "Black won"),
-                PieEntry(positionInfo.draws.toFloat(), "Draw")
-            )
-            val dataSet = PieDataSet(entries, null)
-
-            val formatter: ValueFormatter = object : ValueFormatter() {
-                override fun getFormattedValue(value: Float): String {
-                    return value.toInt().toString()
+                MaterialDialog(this).show {
+                    customView(view = dialogBinding.root, scrollable = true)
                 }
             }
+            else {
+                val dialogBinding = AnalysisResultBinding.inflate(LayoutInflater.from(this))
 
-            dataSet.colors = ColorTemplate.LIBERTY_COLORS.toList()//listOf(
+                if (positionInfo.opening != null) {
+                    dialogBinding.tvTitle.text = "${positionInfo.opening!!.name}"
+                }
+
+                val entries = listOf(
+                    PieEntry(positionInfo.white.toFloat(), "White won"),
+                    PieEntry(positionInfo.black.toFloat(), "Black won"),
+                    PieEntry(positionInfo.draws.toFloat(), "Draw")
+                )
+                val dataSet = PieDataSet(entries, null)
+
+                val formatter: ValueFormatter = object : ValueFormatter() {
+                    override fun getFormattedValue(value: Float): String {
+                        return value.toInt().toString()
+                    }
+                }
+
+                dataSet.colors = ColorTemplate.LIBERTY_COLORS.toList()//listOf(
                 //ContextCompat.getColor(this, R.color.white),
                 //ContextCompat.getColor(this, R.color.black),
                 //ContextCompat.getColor(this, R.color.brown_light))
-            val data = PieData(dataSet)
-            data.setValueTextSize(15F)
-            data.setValueFormatter(formatter)
-            //data.setValueTextColor(ContextCompat.getColor(this, R.color.teal_700))
-            dialogBinding.pieMatches.data = data
-            dialogBinding.pieMatches.description.isEnabled = false
-            //dialogBinding.pieMatches.legend.isWordWrapEnabled = true
-            //dialogBinding.pieMatches.legend.textSize = 15F
-            dialogBinding.pieMatches.legend.isEnabled = false
-            dialogBinding.pieMatches.setEntryLabelColor(ContextCompat.getColor(this, R.color.black))
-            dialogBinding.pieMatches.invalidate()
+                val data = PieData(dataSet)
+                data.setValueTextSize(15F)
+                data.setValueFormatter(formatter)
+                //data.setValueTextColor(ContextCompat.getColor(this, R.color.teal_700))
+                dialogBinding.pieMatches.data = data
+                dialogBinding.pieMatches.description.isEnabled = false
+                //dialogBinding.pieMatches.legend.isWordWrapEnabled = true
+                //dialogBinding.pieMatches.legend.textSize = 15F
+                dialogBinding.pieMatches.legend.isEnabled = false
+                dialogBinding.pieMatches.setEntryLabelColor(ContextCompat.getColor(this, R.color.black))
+                dialogBinding.pieMatches.invalidate()
 
-            if (positionInfo.topGames.size > 0) {
-                dialogBinding.tvDate.text = "(${positionInfo.topGames[0].month})"
-                dialogBinding.tvPlayerWhite.text = "⬜${positionInfo.topGames[0].white.name} (${positionInfo.topGames[0].white.rating})"
-                dialogBinding.tvPlayerBlack.text = "⬛${positionInfo.topGames[0].black.name} (${positionInfo.topGames[0].black.rating})"
-                when (positionInfo.topGames[0].winner) {
-                    "white" -> dialogBinding.tvPlayerWhite.setTypeface(null, Typeface.BOLD)
-                    "black" ->dialogBinding.tvPlayerBlack.setTypeface(null, Typeface.BOLD)
+                if (positionInfo.topGames.size > 0) {
+                    dialogBinding.tvDate.text = "(${positionInfo.topGames[0].month})"
+                    dialogBinding.tvPlayerWhite.text = "⬜${positionInfo.topGames[0].white.name} (${positionInfo.topGames[0].white.rating})"
+                    dialogBinding.tvPlayerBlack.text = "⬛${positionInfo.topGames[0].black.name} (${positionInfo.topGames[0].black.rating})"
+                    when (positionInfo.topGames[0].winner) {
+                        "white" -> dialogBinding.tvPlayerWhite.setTypeface(null, Typeface.BOLD)
+                        "black" ->dialogBinding.tvPlayerBlack.setTypeface(null, Typeface.BOLD)
+                    }
                 }
-            }
 
+                dialogBinding.tvStockfishResult.text = "Stockfish result: ${analysis.result}"
+                dialogBinding.tvBestMove.text = "Best move: ${analysis.bestMove}"
+                dialogBinding.tvBestResponse.text = "Best response: ${analysis.bestResponse}"
 
-            MaterialDialog(this).show {
-                customView(view = dialogBinding.root, scrollable = true)
+                MaterialDialog(this).show {
+                    customView(view = dialogBinding.root, scrollable = true)
+                }
             }
 
             positionInfoReady = false

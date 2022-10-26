@@ -2,6 +2,7 @@ package hu.bme.aut.onlab.valivalter.chessanalyzer.stockfish
 
 import android.app.Application
 import android.os.Handler
+import hu.bme.aut.onlab.valivalter.chessanalyzer.model.Analysis
 import java.io.BufferedReader
 import java.io.File
 import java.io.IOException
@@ -13,10 +14,12 @@ enum class MODE {
 }
 
 class StockfishApplication : Application() {
+
     companion object {
         lateinit var stockfishProcess: Process
         lateinit var mode: MODE
         lateinit var listener: AnalysisCompletedListener
+        var analysis: Analysis? = null
 
         fun runCommandWithListener(command: String, mode: MODE, listener: AnalysisCompletedListener) {
             this.mode = mode
@@ -56,27 +59,38 @@ class StockfishApplication : Application() {
                     while (out.readLine().also { data = it } != null) {
                         if (data != null) {
                             if ("Final evaluation" in data!!) {
-                                val results = data!!.split(" ")
-                                var resultString = "${results[8]} ${results[9]} ${results[10]}"
+                                var result = data!!.split(" ")[8]
+                                //var resultString = "${results[8]} ${results[9]} ${results[10]}"
                                 //                    score               which color
 
-                                resultString = formatResult(resultString)
+                                if (result[0].equals('-')) {
+                                    result = result.replaceFirst('-', '+') + "⬛"
+                                }
+                                else {
+                                    result += "⬜"
+                                }
 
-                                if (mode == MODE.ANALYZER || mode == MODE.RECORDER) {
+                                analysis = Analysis(result)
+
+                                if (mode == MODE.RECORDER) {
                                     val handler = Handler(mainLooper)
                                     handler.post {
-                                        listener.onAnalysisCompleted(resultString)
+                                        listener.onAnalysisCompleted(analysis!!)
                                     }
                                 }
                             }
                             else if ("bestmove" in data!!) {
                                 val results = data!!.split(" ")
-                                val resultString = "Best move: ${results[1]}\nResponse: ${results[3]}"
 
-                                if (mode == MODE.ANALYZER) {
-                                    val handler = Handler(mainLooper)
-                                    handler.post {
-                                        listener.onAnalysisCompleted(resultString)
+                                if (analysis != null) {
+                                    analysis!!.bestMove = results[1]
+                                    analysis!!.bestResponse = results[3]
+
+                                    if (mode == MODE.ANALYZER) {
+                                        val handler = Handler(mainLooper)
+                                        handler.post {
+                                            listener.onAnalysisCompleted(analysis!!)
+                                        }
                                     }
                                 }
                             }
@@ -94,23 +108,5 @@ class StockfishApplication : Application() {
         catch (e: IOException) {
             e.printStackTrace()
         }
-    }
-
-    private fun formatResult(result: String): String {
-        var formattedResult = result
-        if (formattedResult.endsWith("(white side)")) {
-            if (formattedResult[0].equals("-")) {
-                formattedResult = formattedResult.replaceFirst('-', '+')
-            }
-            formattedResult = formattedResult.replace(" (white side)", "⬜")
-        }
-        else if (formattedResult.endsWith("(black side)")) {
-            if (formattedResult[0].equals("-")) {
-                formattedResult = formattedResult.replaceFirst('-', '+')
-            }
-            formattedResult = formattedResult.replace(" (black side)", "⬛")
-        }
-
-        return formattedResult
     }
 }

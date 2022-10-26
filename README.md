@@ -55,7 +55,7 @@ Folytattam a Chess Analyzer alkalmazás írását: megoldottam a prolémát, ami
 Kijavítottam néhány kisebb meglévő hibát a felhasználói felülettel kapcsolatban, majd nekiálltam a Stockfish engine integrálásának, hogy ki lehessen értékelni az egyes állásokat az alkalmazásban. Ez sokkal több időt vett igénybe mint gondoltam, nem volt egyértelmű leírás sehol sem, hogy hogyan kell ezt elvégezni, két-három alkalommal is hosszabb időre elakadtam, de végül mindegyik akadályt sikerült leküzdeni. Egy natív C++ projektet hoztam létre StockfishforChessAnalyzer néven, ahova átmásoltam a Stockfish motor fájljait, ezután lebuildeltem a projektet, így aztán olyan futtatható állományokat kaptam, amiket a Chess Analyzer alkalmazás fel tud, gyakorlatilag egy bájtfolyamon keresztül lehet kommunikálni az alkalmazáson belül a Stockfish-sel, az UCI-nak (Universal Chess Interface) megfelelő módon. Most már van az appban egy (*Analyze*) gomb is, aminek hatására a Stockfish megkapja a programban tárolt sakktábla aktuális állapotát FEN (Forsyth–Edwards Notation) formátumban (ehhez írtam egy átalakító függvényt), az állás alapján pedig visszaadja, hogy melyik játékos áll éppen jobban, és hogy mennyivel.
 
 <p align="center">
-  <img src="app.jpg" width=30% >
+  <img src="screenshots\app.jpg" width=30% >
 </p>
 
 Debugolás közben kiderült az is, hogy valami nem jó a kép feldarabolását végző kódban, ezért összevissza kerülnek feldolgozásra, jövőhétre ezt kellene orvosolni, valamint hatékonnyá tenni a detekciót.
@@ -71,8 +71,8 @@ Ezenkívül annyi változtatást eszközöltem, hogy választógombokkal meg leh
 Hozzáadtam az alkalmazáshoz egy új módot, ami folyamatosan elemzi a kamerától kapott képet és kiírja egy fájlba a beazonosított állást FEN (Forsyth–Edwards Notation) formátumban, ha az előző azonosított álláshoz képest történt változás. Készítettem egy főmenüt, ahol a két meglévő mód közül lehet választani, illetve az alkalmazás kinézetét véglegesítettem, a kódot és az architektúrát javítottam. Az alkalmazás ikonjának forrása a [Freepik](https://www.flaticon.com/free-icons/chess).
 
 <p align="center">
-<img src="mainmenu.jpg" width="350" style="padding: 10px 30px;">
-<img src="analyzing.gif" width="350" style="padding: 10px 30px;">
+<img src="screenshots\mainmenu.jpg" width="350" style="padding: 10px 30px;">
+<img src="screenshots\analyzing.gif" width="350" style="padding: 10px 30px;">
 </p>
 
 ## 2022/23/1
@@ -80,7 +80,7 @@ Hozzáadtam az alkalmazáshoz egy új módot, ami folyamatosan elemzi a kamerát
 ## Tervezett funkciók
 * A sakkjátszmák standard lejegyzését alkalmazni Recorder módban (standard algebraic notation)
 * A neurális háló javítása
-* Szabványos, játékokban előforduló rajzolt sakkbábuk felismerése
+* ~~Szabványos, játékokban előforduló rajzolt sakkbábuk felismerése~~
 * Automatikus sakktábla-detekció
 * Az analyzer mód továbbfejlesztése, a Stockfish motor jobb kihasználása
 * Dizájn javítása
@@ -116,4 +116,25 @@ A kapott plusz adatok felhasználói felületen való megjelenésén is elkezdte
 
 A főmenüben elhelyeztem egy harmadik gombot, ami így lehetővé teszi, hogy ne csak fotózni lehessen egy képet és azt elemeztetni a Stockfish-sel, hanem tetszőleges képet is meg tudjunk nyitni a galériából választva.
 
-Ezenkívül befejeztem az előző héten még csak félkész állapotig jutó megjelenítését az API-ról nyert adatoknak, illetve megváltoztattam az egész alkalmazás színeit, dizájnját: lásd a demónál majd. (TODO screenshot)
+Ezenkívül befejeztem az előző héten még csak félkész állapotig jutó megjelenítését az API-ról nyert adatoknak, illetve megváltoztattam az egész alkalmazás színeit, dizájnját.
+
+### 7. hét
+
+Hozzáadtam a főmenühöz egy negyedik gombot is - ez a *Sandbox* mód, amire nyomva rögtön egy alaphelyzetben lévő sakktábla jelenik meg, vagyis ebben a módban semmiféle bábuazonosítás nem történik.
+
+Az egyes mezők bábuit mostantól nem a mezők megfelelő számú megnyomásával lehet állítani, hanem ehelyett minden mező megnyomásakor egy dialógus jelenik meg az összes különböző bábuval, az itt választott bábu fog az eredendően megnyomott mezőre kerülni.
+
+Ezenkívül javítottam a végső analízist megjelenítő dialóguson is, illetve amennyiben nincs a Lichess adatbázisában egy játszma sem az adott pozícióval, akkor egy egyszerűsített dialógus jelenik meg csak a Stockfish által visszaadott eredményekkel.
+
+<p align="center">
+<img src="screenshots\mainmenu2.jpg" width="30%" style="padding: 10px;">
+<img src="screenshots\chessboard.jpg" width="30%" style="padding: 10px;">
+<img src="screenshots\analysis.jpg" width="30%" style="padding: 10px;">
+</p>
+
+Egyéb elvégzett kisebb-nagyobb javítások, fejlesztések:
+* Az Analysis osztály kiegészítése a *bestResponse* attribútummal
+* A Stockfish eredményeit most már minden azokat használó osztály az Analysis osztály egy példányaként kapja meg, az eredmény mindig pozitív előjelű, és látni lehet mellette, hogy melyik színű játékosnak van előnye
+* Felesleges toast üzenetek törlése
+* Már nem nyomhatóak meg a sakktábla mezői, amíg az *Analyzing* felirat van előtérben
+* Az *Analyze* gomb megnyomása után bekövetkező kisebb képernyő-fagyás kiiktatása

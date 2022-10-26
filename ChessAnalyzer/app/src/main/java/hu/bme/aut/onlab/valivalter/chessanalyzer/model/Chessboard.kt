@@ -241,6 +241,11 @@ class Chessboard {
         for (j in 0 until 8) {
             board[1][j] = "bp"
         }
+        for (i in 2 until 6) {
+            for (j in 0 until 8) {
+                board[i][j] = "em"
+            }
+        }
         for (j in 0 until 8) {
             board[6][j] = "wp"
         }

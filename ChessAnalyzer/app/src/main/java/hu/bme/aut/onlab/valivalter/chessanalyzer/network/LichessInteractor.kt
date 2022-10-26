@@ -42,8 +42,8 @@ class LichessInteractor {
         }
 
         if (fens.size > 0) {
-            val getPositionInfoRequest = lichessApi.getPositionInfo(fens.removeAt(0))
             thread {
+                val getPositionInfoRequest = lichessApi.getPositionInfo(fens.removeAt(0))
                 try {
                     val response = getPositionInfoRequest.execute().body()!!
                     getInfos(fens, onSuccess, onError, response)

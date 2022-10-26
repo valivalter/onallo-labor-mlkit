@@ -25,12 +25,19 @@ class MainActivity : AppCompatActivity() {
         const val MODE = "MODE"
         const val TAKE_PHOTO = "TAKE_PHOTO"
         const val PICK_IMAGE = "PICK_IMAGE"
+        const val SANDBOX = "SANDBOX"
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(LayoutInflater.from(this))
         setContentView(binding.root)
+
+        binding.btnSandbox.setOnClickListener {
+            val intent = Intent(this, AnalyzerActivity::class.java)
+            intent.putExtra(MODE, SANDBOX)
+            startActivity(intent)
+        }
 
         binding.btnTakePhoto.setOnClickListener {
             val intent = Intent(this, AnalyzerActivity::class.java)

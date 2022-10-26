@@ -12,8 +12,10 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center"
-        android:text="Analysis result"
-        android:textSize="35sp"
+        android:text="Analysis"
+        android:textSize="45sp"
+        android:background="@color/almost_black"
+        android:textColor="@color/almost_white"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -22,23 +24,43 @@
         android:id="@+id/tvStockfishResult"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"
         android:text="Stockfish result:"
         android:textSize="17sp"
         android:layout_marginTop="25dp"
-        app:layout_constraintStart_toStartOf="@+id/guideline4"
+        app:layout_constraintStart_toStartOf="@+id/guideline"
         app:layout_constraintTop_toBottomOf="@+id/tvTitle" />
 
     <TextView
         android:id="@+id/tvBestMove"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"
         android:text="Best move:"
         android:textSize="17sp"
         android:layout_marginTop="5dp"
-        app:layout_constraintStart_toStartOf="@+id/guideline4"
+        app:layout_constraintStart_toStartOf="@+id/guideline"
         app:layout_constraintTop_toBottomOf="@+id/tvStockfishResult" />
+
+    <TextView
+        android:id="@+id/tvBestResponse"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Best response:"
+        android:textSize="17sp"
+        android:layout_marginTop="5dp"
+        app:layout_constraintStart_toStartOf="@+id/guideline"
+        app:layout_constraintTop_toBottomOf="@+id/tvBestMove" />
+
+    <View
+        android:id="@+id/dividerOutcomes"
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:background="@color/almost_black"
+        android:layout_marginTop="15dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginEnd="10dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tvBestResponse" />
 
     <TextView
         android:id="@+id/tvOutcomes"
@@ -46,11 +68,11 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:text="Outcomes of this position:"
-        android:textSize="17sp"
-        android:layout_marginTop="20dp"
+        android:textSize="20sp"
+        android:layout_marginTop="15dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tvBestMove" />
+        app:layout_constraintTop_toBottomOf="@+id/dividerOutcomes" />
 
     <com.github.mikephil.charting.charts.PieChart
         android:id="@+id/pieMatches"
@@ -62,17 +84,29 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tvOutcomes" />
 
+    <View
+        android:id="@+id/dividerTopGames"
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:background="@color/almost_black"
+        android:layout_marginTop="15dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginEnd="10dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/pieMatches" />
+
     <TextView
         android:id="@+id/tvTopGame"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:text="Top game in this position:"
-        android:textSize="17sp"
-        android:layout_marginTop="30dp"
+        android:textSize="20sp"
+        android:layout_marginTop="15dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/pieMatches" />
+        app:layout_constraintTop_toBottomOf="@+id/dividerTopGames" />
 
     <TextView
         android:id="@+id/tvDate"
@@ -80,7 +114,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:text="Date"
-        android:textSize="17sp"
+        android:textSize="18sp"
         android:layout_marginTop="5dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -91,9 +125,8 @@
         android:id="@+id/tvPlayerWhite"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"
         android:text="Carlsen"
-        android:textSize="17sp"
+        android:textSize="15sp"
         android:layout_marginTop="15dp"
         android:layout_marginStart="35dp"
         app:layout_constraintStart_toStartOf="parent"
@@ -103,9 +136,8 @@
         android:id="@+id/tvPlayerBlack"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"
         android:text="Carlsen"
-        android:textSize="17sp"
+        android:textSize="15sp"
         android:layout_marginTop="7dp"
         android:layout_marginStart="35dp"
         app:layout_constraintStart_toStartOf="parent"
@@ -113,7 +145,7 @@
 
 
     <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/guideline4"
+        android:id="@+id/guideline"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical"

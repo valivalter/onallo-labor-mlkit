@@ -104,19 +104,19 @@ class Recorder(private val activity: RecordActivity) : ImageAnalysis.Analyzer, R
         }
     }
 
-    override fun onAnalysisCompleted(result: String) {
+    override fun onAnalysisCompleted(analysis: Analysis) {
         if (game.rounds.size <= stepCounter) {
             if (currentChessboard!!.nextPlayer == Player.BLACK) {
-                game.rounds.add(Round(blackStep = Step(currentChessboard!!, Analysis(result))))
+                game.rounds.add(Round(blackStep = Step(currentChessboard!!, analysis)))
                 stepCounter++
             }
             else if (currentChessboard!!.nextPlayer == Player.WHITE) {
-                game.rounds.add(Round(whiteStep = Step(currentChessboard!!, Analysis(result))))
+                game.rounds.add(Round(whiteStep = Step(currentChessboard!!, analysis)))
             }
         }
         else {
             // mindenképp fekete lépett, ha már megfelelő méretű volt a game.state lista
-            game.rounds[game.rounds.size-1].blackStep = Step(currentChessboard!!, Analysis(result))
+            game.rounds[game.rounds.size-1].blackStep = Step(currentChessboard!!, analysis)
             stepCounter++
         }
 
