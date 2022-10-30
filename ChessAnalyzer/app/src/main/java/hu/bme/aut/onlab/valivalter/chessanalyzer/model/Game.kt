@@ -4,7 +4,7 @@ import android.util.Log
 import java.util.HashMap
 import kotlin.math.round
 
-data class Analysis(val result: String, var bestMove: String? = null, var bestResponse: String? = null)
+data class Analysis(var result: String, var bestMove: String? = null, var bestResponse: String? = null)
 
 data class Step(val chessboard: Chessboard, val analysis: Analysis)
 

@@ -7,4 +7,7 @@
     <string name="analyzing">Recognizing pieces</string>
     <string name="analyze_photo">Analyze image</string>
     <string name="record_game">Record game</string>
+
+    <string name="network_error_title">Network error</string>
+    <string name="network_error_message">Check your connection!</string>
 </resources>

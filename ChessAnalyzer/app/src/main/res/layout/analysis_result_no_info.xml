@@ -27,7 +27,7 @@
         android:text="Stockfish result:"
         android:textSize="17sp"
         android:layout_marginTop="25dp"
-        app:layout_constraintStart_toStartOf="@+id/guideline4"
+        app:layout_constraintStart_toStartOf="@+id/glResultNoInfo"
         app:layout_constraintTop_toBottomOf="@+id/tvTitleNoInfo" />
 
     <TextView
@@ -37,7 +37,7 @@
         android:text="Best move:"
         android:textSize="17sp"
         android:layout_marginTop="5dp"
-        app:layout_constraintStart_toStartOf="@+id/guideline4"
+        app:layout_constraintStart_toStartOf="@+id/glResultNoInfo"
         app:layout_constraintTop_toBottomOf="@+id/tvStockfishResultNoInfo" />
 
     <TextView
@@ -47,12 +47,36 @@
         android:text="Best response:"
         android:textSize="17sp"
         android:layout_marginTop="5dp"
-        app:layout_constraintStart_toStartOf="@+id/guideline4"
+        app:layout_constraintStart_toStartOf="@+id/glResultNoInfo"
         app:layout_constraintTop_toBottomOf="@+id/tvBestMoveNoInfo" />
 
+    <View
+        android:id="@+id/dividerNoInfo"
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:background="@color/almost_black"
+        android:layout_marginTop="15dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginEnd="10dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tvBestResponseNoInfo" />
+
+    <TextView
+        android:id="@+id/tvNoInfo"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="This position is not present in the Masters database"
+        android:textSize="17sp"
+        android:layout_marginTop="15dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/dividerNoInfo" />
+    <!--2 million games of players with FIDE +2200 from 1952 to 2016-->
 
     <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/guideline4"
+        android:id="@+id/glResultNoInfo"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical"

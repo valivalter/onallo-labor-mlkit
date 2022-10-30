@@ -1,5 +1,6 @@
 package hu.bme.aut.onlab.valivalter.chessanalyzer.network
 
+import android.app.Activity
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import hu.bme.aut.onlab.valivalter.chessanalyzer.model.PositionInfo
@@ -8,7 +9,7 @@ import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
 import kotlin.concurrent.thread
 
-class LichessInteractor {
+class LichessInteractor(val activity: Activity) {
 
     private val lichessApi: LichessApi
     private var positionInfos = mutableListOf<PositionInfo>()
@@ -49,13 +50,17 @@ class LichessInteractor {
                     getInfos(fens, onSuccess, onError, response)
                 } catch (e: Exception) {
                     e.printStackTrace()
-                    onError(e)
+                    if (!activity.isDestroyed && !activity.isFinishing) {
+                        activity.runOnUiThread { onError(e) }
+                    }
                 }
             }
         }
         else {
             val infos = resetPositionInfos()
-            onSuccess(infos)
+            if (!activity.isDestroyed && !activity.isFinishing) {
+                activity.runOnUiThread { onSuccess(infos) }
+            }
         }
     }
 }

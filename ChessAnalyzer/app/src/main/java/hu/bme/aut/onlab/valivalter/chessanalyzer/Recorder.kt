@@ -80,12 +80,6 @@ class Recorder(private val activity: RecordActivity) : ImageAnalysis.Analyzer, R
                 try {
                     var command = "position fen ${board.toFen()}\neval\nisready\ngo movetime 4000\n"
                     StockfishApplication.runCommandWithListener(command, MODE.RECORDER, this)
-
-
-
-
-
-
                 }
                 catch (e: IOException) {
                     e.printStackTrace()
@@ -129,5 +123,9 @@ class Recorder(private val activity: RecordActivity) : ImageAnalysis.Analyzer, R
 
         //writeFile(fileName!!, "${currentChessboard!!.getLastMoveSan(board)}\n")
         // drops the constant " w - - 0 1" string
+    }
+
+    override fun onInvalidFen() {
+        TODO("Not yet implemented")
     }
 }
