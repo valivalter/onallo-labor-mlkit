@@ -10,10 +10,40 @@ import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import hu.bme.aut.onlab.valivalter.chessanalyzer.databinding.ActivityMainBinding
+import org.opencv.android.BaseLoaderCallback
+import org.opencv.android.LoaderCallbackInterface
+import org.opencv.android.OpenCVLoader
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
+    private var ocvLoader: BaseLoaderCallback = object : BaseLoaderCallback(this) {
+        override fun onManagerConnected(status: Int) {
+            when (status) {
+                LoaderCallbackInterface.SUCCESS -> {
+                    // we are happy
+                }
+                else -> {
+                    binding.btnTakePhoto.isEnabled = false
+                    binding.btnAnalyzeImage.isEnabled = false
+                    binding.btnRecorder.isEnabled = false
+                    super.onManagerConnected(status)
+                }
+            }
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (!OpenCVLoader.initDebug()) {
+            // OpenCv has some problems while loading ... so inicializálom a managerrel
+            OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION_3_3_0, this, ocvLoader)
+        } else {
+            // Success OpenCV loading
+            ocvLoader.onManagerConnected(LoaderCallbackInterface.SUCCESS)
+        }
+    }
+
 
     companion object {
         private const val REQUEST_CODE_PERMISSIONS = 11

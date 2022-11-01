@@ -59,6 +59,16 @@ class Chessboard {
         board[i][j] = piece
     }
 
+    fun rotate() {
+        val newBoard = Array(8) { Array(8) { "" } }
+        for (i in 0..7) {
+            for (j in 7 downTo 0) {
+                newBoard[i][7-j] = this.board[j][i]
+            }
+        }
+        board = newBoard
+    }
+
     /*fun setNextPlayer(color: Player) {
         if (color == Player.WHITE)
             nextPlayer = Player.WHITE

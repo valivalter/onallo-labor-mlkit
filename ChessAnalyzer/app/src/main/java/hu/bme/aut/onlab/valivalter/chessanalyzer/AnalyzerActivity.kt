@@ -3,39 +3,50 @@ package hu.bme.aut.onlab.valivalter.chessanalyzer
 import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.graphics.Matrix
+import android.graphics.Typeface
 import android.net.Uri
-import androidx.appcompat.app.AppCompatActivity
+import android.opengl.Visibility
 import android.os.Bundle
 import android.os.Environment
 import android.provider.MediaStore
 import android.util.Log
-import android.view.LayoutInflater
-import androidx.core.content.FileProvider
-import hu.bme.aut.onlab.valivalter.chessanalyzer.analyzerlogic.Analyzer
-import java.text.SimpleDateFormat
-import java.util.*
-import android.graphics.BitmapFactory
-import android.graphics.Matrix
-import android.graphics.Typeface
 import android.util.TypedValue
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import android.widget.ImageButton
+import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.core.content.FileProvider
 import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.customview.customView
 import com.github.mikephil.charting.data.PieData
 import com.github.mikephil.charting.data.PieDataSet
 import com.github.mikephil.charting.data.PieEntry
+import com.github.mikephil.charting.formatter.ValueFormatter
 import com.github.mikephil.charting.utils.ColorTemplate
+import hu.bme.aut.onlab.valivalter.chessanalyzer.analyzerlogic.Analyzer
 import hu.bme.aut.onlab.valivalter.chessanalyzer.analyzerlogic.RecognitionCompletedListener
+import hu.bme.aut.onlab.valivalter.chessanalyzer.chessboarddetector.findBoard
+import hu.bme.aut.onlab.valivalter.chessanalyzer.databinding.*
+import hu.bme.aut.onlab.valivalter.chessanalyzer.model.*
 import hu.bme.aut.onlab.valivalter.chessanalyzer.network.LichessInteractor
 import hu.bme.aut.onlab.valivalter.chessanalyzer.stockfish.AnalysisCompletedListener
 import hu.bme.aut.onlab.valivalter.chessanalyzer.stockfish.MODE
 import hu.bme.aut.onlab.valivalter.chessanalyzer.stockfish.StockfishApplication
-import hu.bme.aut.onlab.valivalter.chessanalyzer.model.*
+import org.opencv.android.Utils
+import org.opencv.core.*
+import org.opencv.imgproc.Imgproc
 import java.io.*
-import com.github.mikephil.charting.formatter.ValueFormatter
-import hu.bme.aut.onlab.valivalter.chessanalyzer.databinding.*
+import java.text.SimpleDateFormat
+import java.util.*
+import kotlin.concurrent.thread
+import kotlin.math.cos
+import kotlin.math.pow
+import kotlin.math.sin
 
 
 class AnalyzerActivity : AppCompatActivity(), RecognitionCompletedListener, AnalysisCompletedListener {
@@ -83,10 +94,20 @@ class AnalyzerActivity : AppCompatActivity(), RecognitionCompletedListener, Anal
                 chessboard.nextPlayer = Player.BLACK
         }
 
+        binding.btnRotate.setOnClickListener {
+            chessboard.rotate()
+            onRecognitionCompleted(chessboard)
+        }
+
         when (intent.getStringExtra(MainActivity.MODE)) {
             MainActivity.TAKE_PHOTO -> startCamera()
             MainActivity.PICK_IMAGE -> openImageSelector()
             MainActivity.SANDBOX    -> {
+                binding.dividerRotate.visibility = View.GONE
+                binding.tvRotate.visibility = View.GONE
+                binding.btnRotate.visibility = View.GONE
+                binding.btnBlack.layoutParams.height = ViewGroup.LayoutParams.WRAP_CONTENT
+                binding.btnWhite.layoutParams.height = ViewGroup.LayoutParams.WRAP_CONTENT
                 val board = Chessboard()
                 board.setDefaultPosition()
                 onRecognitionCompleted(board)
@@ -157,13 +178,24 @@ class AnalyzerActivity : AppCompatActivity(), RecognitionCompletedListener, Anal
                 val imageBitmap = BitmapFactory.decodeStream(inputStream)
                 inputStream?.close()
 
-                val matrix = Matrix()
-                matrix.postRotate(90F)
-                val rotatedImg = Bitmap.createBitmap(imageBitmap, 0, 0, imageBitmap.width, imageBitmap.height, matrix, true)
-                imageBitmap.recycle()
-                val resizedBitmap = Bitmap.createBitmap(rotatedImg, 0, 0, rotatedImg.width, rotatedImg.width)
+                thread {
+                    var boardBitmap = findBoard(imageBitmap)
+                    if (boardBitmap != null) {
+                        val matrix = Matrix()
+                        matrix.postRotate(90F)
+                        boardBitmap = Bitmap.createBitmap(boardBitmap, 0, 0, boardBitmap.width, boardBitmap.height, matrix, true)
+                        imageBitmap.recycle()
+                        //val resizedBitmap = Bitmap.createBitmap(rotatedImg, 0, 0, rotatedImg.width, rotatedImg.width)
 
-                analyzer.analyze(resizedBitmap, this)
+                        analyzer.analyze(boardBitmap, this)
+                    }
+                    else {
+                        runOnUiThread {
+                            Toast.makeText(this, "Couldn't detect a chessboard", Toast.LENGTH_LONG).show()
+                            finish()
+                        }
+                    }
+                }
             } catch (e: IOException) {
                 e.printStackTrace()
             }
@@ -176,21 +208,38 @@ class AnalyzerActivity : AppCompatActivity(), RecognitionCompletedListener, Anal
                     try {
                         val contentResolver = applicationContext.contentResolver
                         val inputStream: InputStream? = contentResolver.openInputStream(it)
-                        val imageBitmap = BitmapFactory.decodeStream(inputStream)
+                        var imageBitmap = BitmapFactory.decodeStream(inputStream)
                         inputStream?.close()
 
-                        val resizedBitmap: Bitmap
-                        if (imageBitmap.width > imageBitmap.height) {
-                            val matrix = Matrix()
-                            matrix.postRotate(90F)
-                            val rotatedImg = Bitmap.createBitmap(imageBitmap, 0, 0, imageBitmap.width, imageBitmap.height, matrix, true)
-                            imageBitmap.recycle()
-                            resizedBitmap = Bitmap.createBitmap(rotatedImg, 0, 0, rotatedImg.width, rotatedImg.width)
+                        thread {
+                            var boardBitmap = findBoard(imageBitmap)
+                            if (boardBitmap != null) {
+                                if (imageBitmap.width > imageBitmap.height) {
+                                    val matrix = Matrix()
+                                    matrix.postRotate(90F)
+                                    boardBitmap = Bitmap.createBitmap(boardBitmap!!, 0, 0, boardBitmap!!.width, boardBitmap!!.height, matrix, true)
+                                }
+                                analyzer.analyze(boardBitmap!!, this)
+                                /*val resizedBitmap: Bitmap
+                                if (imageBitmap.width > imageBitmap.height) {
+                                    val matrix = Matrix()
+                                    matrix.postRotate(90F)
+                                    val rotatedImg = Bitmap.createBitmap(imageBitmap, 0, 0, imageBitmap.width, imageBitmap.height, matrix, true)
+                                    imageBitmap.recycle()
+                                    resizedBitmap = Bitmap.createBitmap(rotatedImg, 0, 0, rotatedImg.width, rotatedImg.width)
+                                }
+                                else {
+                                    resizedBitmap = Bitmap.createBitmap(imageBitmap, 0, 0, imageBitmap.width, imageBitmap.width)
+                                }
+                                //analyzer.analyze(resizedBitmap, this)*/
+                            }
+                            else {
+                                runOnUiThread {
+                                    Toast.makeText(this, "Couldn't detect a chessboard", Toast.LENGTH_LONG).show()
+                                    finish()
+                                }
+                            }
                         }
-                        else {
-                            resizedBitmap = Bitmap.createBitmap(imageBitmap, 0, 0, imageBitmap.width, imageBitmap.width)
-                        }
-                        analyzer.analyze(resizedBitmap, this)
                     } catch (e: IOException) {
                         e.printStackTrace()
                     }
@@ -251,9 +300,7 @@ class AnalyzerActivity : AppCompatActivity(), RecognitionCompletedListener, Anal
                     tile.setImageResource(Chessboard.mapStringsToResources[newPiece]!!)
                     board.print()*/
                 }
-                if (piece != "em") {
-                    tile.setImageResource(Chessboard.mapStringsToResources[piece]!!)
-                }
+                tile.setImageResource(Chessboard.mapStringsToResources[piece]!!)
             }
         }
         binding.loadingPanel.visibility = View.INVISIBLE
