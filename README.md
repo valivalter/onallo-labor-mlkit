@@ -138,3 +138,43 @@ Egyéb elvégzett kisebb-nagyobb javítások, fejlesztések:
 * Felesleges toast üzenetek törlése
 * Már nem nyomhatóak meg a sakktábla mezői, amíg az *Analyzing* felirat van előtérben
 * Az *Analyze* gomb megnyomása után bekövetkező kisebb képernyő-fagyás kiiktatása
+
+### 8. hét
+
+Elvégzett fejlesztések, hibajavítások:
+* Az egyes mezőket most már üresre is lehet állítani (<a href="https://www.flaticon.com/free-icons/empty" title="empty icons">Empty icons created by Dreamstale - Flaticon</a>)
+* onInvalidFen függvény hozzáadása az AnalysisCompletedListenerhez, ez az analizálós módban megjelenít egy dialógust, ami jelzi, hogy invalid a megadott állás
+* Megfelelően kezelve van az internetkapcsolat hiánya is dialógussal
+* Használható marad az alkalmazás egy invalid sakkállás megadása után is
+* Felismeri a sakkot és a mattot is, ettől függően más elemzés jelenik meg
+* Az Activityből kilépéskor jelentkező hibák javítása
+* Néhány kisebb dizájnt érintő módosítás
+* A sakktáblát elforgató gomb hozzáadása az Activityhez - szükség lehet rá, ha a sakktábla 90, 180, vagy 270 fokkal elforgatva lett lefotózva (<a href="https://www.flaticon.com/free-icons/reload" title="reload icons">Reload icons created by Royyan Wijaya - Flaticon</a>)
+
+De a legnagyobb módosítás egyértelműen az automatikus sakktábla-detekció hozzáadása volt, ehhez integráltam az OpenCV-t az alkalmazásba, majd a felismeréshez a következő lépéseket alkalmaztam, ezekhez írtam függvényeket:
+1. A kapott kép fekete-fehérré konvertálása
+2. Elmosódás hozzáadása
+3. Canny éldetektáló algoritmus
+4. Vonalak felismerése Hough transzformációval
+5. A vonalak metszéspontjainak meghatározása
+6. A metszéspontok klaszterezése
+7. A sakktábla sarokpontjainak meghatározása
+8. Perspektivikus hajlítás és vágás
+
+<p align="center">
+<img src="screenshots\board_detection_0_original.png" width="30%" style="padding: 6px;">
+<img src="screenshots\board_detection_1_black_and_white.png" width="30%" style="padding: 6px;">
+<img src="screenshots\board_detection_2_blur.png" width="30%" style="padding: 6px;">
+</p>
+
+<p align="center">
+<img src="screenshots\board_detection_3_canny.png" width="30%" style="padding: 6px;">
+<img src="screenshots\board_detection_4_hough.png" width="30%" style="padding: 6px;">
+<img src="screenshots\board_detection_5_intersections.png" width="30%" style="padding: 6px;">
+</p>
+
+<p align="center">
+<img src="screenshots\board_detection_6_cluster_centers.png" width="30%" style="padding: 6px;">
+<img src="screenshots\board_detection_7_corners.png" width="30%" style="padding: 6px;">
+<img src="screenshots\board_detection_8_result.png" width="30%" style="padding: 6px;">
+</p>
