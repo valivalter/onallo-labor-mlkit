@@ -178,3 +178,12 @@ De a legnagyobb módosítás egyértelműen az automatikus sakktábla-detekció 
 <img src="screenshots\board_detection_7_corners.png" width="30%" style="padding: 6px;">
 <img src="screenshots\board_detection_8_result.png" width="30%" style="padding: 6px;">
 </p>
+
+### 9. hét
+
+Elvégzett fejlesztések, hibajavítások:
+
+* Recorder módban hozzáadtam egy gombot, aminek a megnyomásával lehet jelezni a játszma végét, ezután pedig megosztani a megtett lépéseket szöveges formában tetszőleges platformon.
+* A bábuk felismerésének javítása a sakk szabályainak felhasználsával: például maximum (gyakorlatilag) csak 2-2 bástya lehet mindkét játékosnál, vagy éppen minimum és maximum 1 királya van a fehér és a fekete játékosnak is.
+* A sakktábladetekció javítása, a nem a sakktáblához tatozó egyenesek kiszűrése dőlésszög és a többi egyenestől való távolság alapján, illetve a tábla sarkait előállító algoritmus javítása.
+* A főmenü és az alkalmazás színeinek minimális változtatása
