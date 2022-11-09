@@ -4,24 +4,27 @@ import android.graphics.Bitmap
 import org.opencv.android.Utils
 import org.opencv.core.*
 import org.opencv.imgproc.Imgproc
-import kotlin.math.cos
-import kotlin.math.pow
-import kotlin.math.sin
+import kotlin.math.*
 
 
-fun findBoard(originalBitmap: Bitmap): Bitmap? {
+fun findBoard(originalBitmap: Bitmap): Pair<Bitmap, Bitmap>? {
     val originalMat = Mat()
     Utils.bitmapToMat(originalBitmap, originalMat)
     try {
         val blackAndWhite = toBlackAndWhite(originalMat)
         val blur = blur(blackAndWhite.first)
         val cannyEdges = canny(blur.first)
-        val houghLines = houghLines(cannyEdges.first)
-        val intersections = getIntersections(houghLines.first, houghLines.third)
-        val clusterCenters = getClusterCenters(intersections.first, houghLines.third)
-        val chessboardCorners = getChessboardCorners(clusterCenters.first, houghLines.third, originalBitmap)
+        val houghLines = getChessboardLines(cannyEdges.first)
+
+        val horizontalLineAnglesMode = houghLines.first.first.groupingBy {
+            (it.second*100).toInt()
+        }.eachCount().maxByOrNull { it.value }!!.key/100.0
+
+        val intersections = getIntersections(houghLines.first.first, houghLines.first.second, houghLines.third)
+        val tileCorners = getTileCorners(intersections.first, houghLines.third)
+        val chessboardCorners = getChessboardCorners(tileCorners.first, houghLines.third, originalBitmap, horizontalLineAnglesMode)
         val chessboard = warpAndCropImage(chessboardCorners.first, originalMat)
-        return chessboard
+        return Pair(chessboardCorners.second, chessboard)
     }
     catch (throwable: Throwable) {
         return null
@@ -55,16 +58,20 @@ fun canny(mat: Mat): Pair<Mat, Bitmap> {
     return Pair(cannyEdgesMat, cannyEdgesBitmap)
 }
 
-fun houghLines(mat: Mat): Triple<Mat, Bitmap, Mat> {
+fun getChessboardLines(mat: Mat): Triple<Pair<MutableList<Pair<Double, Double>>, MutableList<Pair<Double, Double>>>, Bitmap, Mat> {
     // this will be used for the bitmap, it has to be converted to colored mat
     val houghLinesMat = Mat()
     Imgproc.cvtColor(mat, houghLinesMat, Imgproc.COLOR_GRAY2BGR)
 
     val lines = Mat()
     Imgproc.HoughLines(mat, lines, 1.0, 3.14/180, 150)
-    for (x in 0 until lines.rows()) {
-        val rho = lines[x, 0][0]
-        val theta = lines[x, 0][1]
+    var (horizontalLines, verticalLines) = getHorizontalAndVerticalLines(lines)
+    horizontalLines = removeWrongLines(horizontalLines)
+    verticalLines = removeWrongLines(verticalLines)
+
+    for (line in horizontalLines) {
+        val rho = line.first
+        val theta = line.second
         val a = cos(theta)
         val b = sin(theta)
         val x0 = a * rho
@@ -75,16 +82,126 @@ fun houghLines(mat: Mat): Triple<Mat, Bitmap, Mat> {
         //val l: DoubleArray = lines.get(x, 0)
         //Imgproc.line(edgesmegminden, Point(l[0], l[1]), Point(l[2], l[3]), Scalar(0.0, 0.0, 255.0), 3, Imgproc.LINE_AA, 0)
     }
+    for (line in verticalLines) {
+        val rho = line.first
+        val theta = line.second
+        val a = cos(theta)
+        val b = sin(theta)
+        val x0 = a * rho
+        val y0 = b * rho
+        val pt1 = Point(Math.round(x0 + 10000 * -b).toDouble(), Math.round(y0 + 10000 * a).toDouble())
+        val pt2 = Point(Math.round(x0 - 10000 * -b).toDouble(), Math.round(y0 - 10000 * a).toDouble())
+        Imgproc.line(houghLinesMat, pt1, pt2, Scalar(0.0, 0.0, 255.0), 3, Imgproc.LINE_AA, 0)
+        //val l: DoubleArray = lines.get(x, 0)
+        //Imgproc.line(edgesmegminden, Point(l[0], l[1]), Point(l[2], l[3]), Scalar(0.0, 0.0, 255.0), 3, Imgproc.LINE_AA, 0)
+    }
+
     val houghLinesBitmap = matToBitmap(houghLinesMat)
-    return Triple(lines, houghLinesBitmap, houghLinesMat)
+    return Triple(Pair(horizontalLines, verticalLines), houghLinesBitmap, houghLinesMat)
 }
 
-fun getIntersections(lines: Mat, linesImageMat: Mat): Pair<MutableList<Point>, Bitmap> {
-    val intersectionsImageMat = linesImageMat.clone()
+fun getHorizontalAndVerticalLines(lines: Mat): Pair<MutableList<Pair<Double, Double>>, MutableList<Pair<Double, Double>>> {
+    val verticalLines: MutableList<Pair<Double, Double>> = mutableListOf()
+    val horizontalLines: MutableList<Pair<Double, Double>> = mutableListOf()
 
-    val horizontalAndVerticalLines = getHorizontalAndVerticalLines(lines)
-    val horizontalLines = horizontalAndVerticalLines.first
-    val verticalLines = horizontalAndVerticalLines.second
+    for (x in 0 until lines.rows()) {
+        val distance = lines[x, 0][0]
+        val angle = lines[x, 0][1]
+        if (angle < 0.25*Math.PI || angle > 0.75*Math.PI) {
+            verticalLines.add(Pair(distance, angle))
+        }
+        else {
+            horizontalLines.add(Pair(distance, angle))
+        }
+    }
+
+    return Pair(horizontalLines, verticalLines)
+}
+
+fun removeWrongLines(lines: MutableList<Pair<Double, Double>>): MutableList<Pair<Double, Double>> {
+    val anglesMode = lines.groupingBy {
+        (it.second*100).toInt()
+    }.eachCount().maxByOrNull { it.value }!!.key/100.0
+
+    // branches because of the the fact that 0 radian == pi radian
+    if (anglesMode > 3.09) {
+        val diff = anglesMode - 3.09
+        lines.removeIf {
+            abs(it.second - anglesMode) > 0.05 && it.second > diff
+        }
+    }
+    else if (anglesMode < 0.05) {
+        val diff = 0.05 - anglesMode
+        lines.removeIf {
+            abs(it.second - anglesMode) > 0.05 && it.second < 3.14 - diff
+        }
+    }
+    else {
+        lines.removeIf {
+            abs(it.second - anglesMode) > 0.05
+        }
+    }
+
+
+    lines.sortBy {
+        it.first
+    }
+
+    var remainingOutliers = true
+    while (remainingOutliers) {
+        remainingOutliers = false
+
+        val lineClusterCenters = getLineClusters(lines)
+
+        val Line4 = lineClusterCenters[3]
+        val Line5 = lineClusterCenters[4]
+        val Line6 = lineClusterCenters[5]
+        // not the actual tile length, just a projection of it
+        val tileLength = ((Line5 - Line4) + (Line6 - Line5))/2
+
+        val largestDistance = lines.last().first
+        if ((lineClusterCenters[lineClusterCenters.size-1] - lineClusterCenters[lineClusterCenters.size-2]) > 1.5*tileLength) {
+            lines.removeIf {
+                abs(it.first - largestDistance) < tileLength
+            }
+            remainingOutliers = true
+        }
+
+        val smallestDistance = lines[0].first
+        if ((lineClusterCenters[1] - lineClusterCenters[0]) > 1.5*tileLength) {
+            lines.removeIf {
+                abs(it.first - smallestDistance) < tileLength
+            }
+            remainingOutliers = true
+        }
+    }
+    return lines
+}
+
+fun getLineClusters(lines: MutableList<Pair<Double, Double>>): MutableList<Double> {
+    val lineDistances = mutableListOf<Point>()
+    for (line in lines) {
+        lineDistances.add(Point(line.first, 0.0))
+    }
+
+    val lineDistancesMat = org.opencv.utils.Converters.vector_Point_to_Mat(lineDistances, CvType.CV_32F)
+    val lineClusterCentersMat = Mat()
+    Core.kmeans(lineDistancesMat, 9, Mat(), TermCriteria(), 5, Core.KMEANS_PP_CENTERS, lineClusterCentersMat)
+
+    val lineClusterCenters = mutableListOf<Double>()
+    for (i in 0 until lineClusterCentersMat.rows()) {
+        lineClusterCenters.add(lineClusterCentersMat[i, 0][0])
+    }
+
+    lineClusterCenters.sortBy { it }
+    return lineClusterCenters
+}
+
+
+fun getIntersections(horizontalLines: MutableList<Pair<Double, Double>>,
+                     verticalLines: MutableList<Pair<Double, Double>>,
+                     linesImageMat: Mat): Pair<MutableList<Point>, Bitmap> {
+    val intersectionsImageMat = linesImageMat.clone()
 
     val points = mutableListOf<Point>()
     for (i in 0 until horizontalLines.size) {
@@ -106,23 +223,7 @@ fun getIntersections(lines: Mat, linesImageMat: Mat): Pair<MutableList<Point>, B
     return Pair(points, intersectionsBitmap)
 }
 
-fun getHorizontalAndVerticalLines(lines: Mat): Pair<MutableList<Pair<Double, Double>>, MutableList<Pair<Double, Double>>> {
-    val verticalLines: MutableList<Pair<Double, Double>> = mutableListOf()
-    val horizontalLines: MutableList<Pair<Double, Double>> = mutableListOf()
-    for (x in 0 until lines.rows()) {
-        val distance = lines[x, 0][0]
-        val angle = lines[x, 0][1]
-        if (angle < 0.25*3.14 || angle > 0.75*3.14) {
-            verticalLines.add(Pair(distance, angle))
-        }
-        else {
-            horizontalLines.add(Pair(distance, angle))
-        }
-    }
-    return Pair(horizontalLines, verticalLines)
-}
-
-fun getClusterCenters(points: MutableList<Point>, linesImageMat: Mat): Pair<Mat, Bitmap> {
+fun getTileCorners(points: MutableList<Point>, linesImageMat: Mat): Pair<Mat, Bitmap> {
     val clustersImageMat = linesImageMat.clone()
 
     val pointsMat = org.opencv.utils.Converters.vector_Point_to_Mat(points, CvType.CV_32F)
@@ -138,20 +239,67 @@ fun getClusterCenters(points: MutableList<Point>, linesImageMat: Mat): Pair<Mat,
     return Pair(centers, clustersBitmap)
 }
 
-fun getChessboardCorners(centers: Mat, linesImageMat: Mat, originalBitmap: Bitmap): Pair<MutableList<Point>, Bitmap> {
+fun getChessboardCorners(tileCorners: Mat, linesImageMat: Mat, originalBitmap: Bitmap, horizontalLineAnglesMode: Double): Pair<MutableList<Point>, Bitmap> {
     val cornersImageMat = linesImageMat.clone()
 
     val cornerPoints = mutableListOf<Point>()
-    cornerPoints.add(getClosestPoint(Point(0.0, 0.0), centers))
-    cornerPoints.add(getClosestPoint(Point(0.0, originalBitmap.height.toDouble()), centers))
-    cornerPoints.add(getClosestPoint(Point(originalBitmap.width.toDouble(), 0.0), centers))
-    cornerPoints.add(getClosestPoint(Point(originalBitmap.width.toDouble(), originalBitmap.height.toDouble()), centers))
+
+    // if the board is tilted enough
+    if (horizontalLineAnglesMode < (7.0/16.0) * Math.PI || horizontalLineAnglesMode > (9.0/16.0) * Math.PI) {
+        var minXPoint = Point(tileCorners[0, 0][0], tileCorners[0, 1][0])
+        var maxXPoint = Point(tileCorners[0, 0][0], tileCorners[0, 1][0])
+        var minYPoint = Point(tileCorners[0, 0][0], tileCorners[0, 1][0])
+        var maxYPoint = Point(tileCorners[0, 0][0], tileCorners[0, 1][0])
+        for (i in 0 until tileCorners.rows()) {
+            val x = tileCorners[i, 0][0]
+            val y = tileCorners[i, 1][0]
+            if (x < minXPoint.x) { minXPoint = Point(x, y) }
+            if (x > maxXPoint.x) { maxXPoint = Point(x, y) }
+            if (y < minYPoint.y) { minYPoint = Point(x, y) }
+            if (y > maxYPoint.y) { maxYPoint = Point(x, y) }
+        }
+        /*if (minYPoint.x == maxXPoint.x && minYPoint.y == maxXPoint.y) {
+        minYPoint.x = minXPoint.x
+        }
+        if (minXPoint.x == maxYPoint.x && minXPoint.y == maxYPoint.y) {
+            maxYPoint.x = maxXPoint.x
+        }*/
+        cornerPoints.add(minYPoint)
+        cornerPoints.add(maxXPoint)
+        cornerPoints.add(minXPoint)
+        cornerPoints.add(maxYPoint)
+    }
+    else {
+        cornerPoints.add(getClosestPoint(Point(0.0, 0.0), tileCorners))
+        cornerPoints.add(getClosestPoint(Point(0.0, originalBitmap.height.toDouble()), tileCorners))
+        cornerPoints.add(getClosestPoint(Point(originalBitmap.width.toDouble(), 0.0), tileCorners))
+        cornerPoints.add(getClosestPoint(Point(originalBitmap.width.toDouble(), originalBitmap.height.toDouble()), tileCorners))
+    }
+
+
+
+    val boardCenter = Point((cornerPoints[0].x + cornerPoints[1].x + cornerPoints[2].x + cornerPoints[3].x)/4,
+                            (cornerPoints[0].y + cornerPoints[1].y + cornerPoints[2].y + cornerPoints[3].y)/4)
+    for (i in 0 until 4) {
+        for (j in 0 until 4) {
+            val d1 = getDistance(boardCenter, cornerPoints[i])
+            val d2 = getDistance(boardCenter, cornerPoints[j])
+            if (abs(d1 - d2) > 0.1 * d1) {
+                throw Exception("Cannot detect chessboard!")
+            }
+        }
+    }
+
+
     cornerPoints.forEach {
-        val point = Point(it.x, it.y)
-        Imgproc.line(cornersImageMat, point, point, Scalar(255.0, 0.0, 0.0), 20, Imgproc.LINE_AA, 0)
+        Imgproc.line(cornersImageMat, it, it, Scalar(255.0, 0.0, 0.0), 20, Imgproc.LINE_AA, 0)
     }
     val cornersBitmap = matToBitmap(cornersImageMat)
     return Pair(cornerPoints, cornersBitmap)
+}
+
+fun getDistance(p1: Point, p2: Point): Double {
+    return sqrt((p1.x - p2.x).pow(2) + (p1.y - p2.y).pow(2))
 }
 
 fun getClosestPoint(point: Point, points: Mat): Point {

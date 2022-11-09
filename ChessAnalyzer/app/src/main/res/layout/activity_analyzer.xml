@@ -170,6 +170,29 @@
 
     </RelativeLayout>
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:weightSum="2"
+        android:orientation="vertical">
+
+        <ImageView
+            android:id="@+id/ivCorners"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:src="@drawable/md_transparent">
+        </ImageView>
+        <ImageView
+            android:id="@+id/ivCropped"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:src="@drawable/md_transparent">
+        </ImageView>
+
+    </LinearLayout>
+
 </FrameLayout>
 
 

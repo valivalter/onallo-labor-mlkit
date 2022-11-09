@@ -53,7 +53,7 @@ class AnalyzerActivity : AppCompatActivity(), RecognitionCompletedListener, Anal
 
     private lateinit var binding: ActivityAnalyzerBinding
     //private val analyzer = Analyzer(this) // if you want to see the analyzed images on the tiles 1/3
-    private val analyzer = Analyzer()
+    private val analyzer = Analyzer(this)
     private var chessboard = Chessboard()
     private lateinit var analysis: Analysis
     private lateinit var positionInfo: PositionInfo
@@ -179,15 +179,22 @@ class AnalyzerActivity : AppCompatActivity(), RecognitionCompletedListener, Anal
                 inputStream?.close()
 
                 thread {
-                    var boardBitmap = findBoard(imageBitmap)
-                    if (boardBitmap != null) {
+                    val board = findBoard(imageBitmap)!!
+
+                    if (board != null) {
+                        val cornersBitmap = board.first
+                        var boardBitmap = board.second
+                        runOnUiThread {
+                            binding.ivCorners.setImageBitmap(cornersBitmap)
+                            binding.ivCropped.setImageBitmap(boardBitmap)
+                        }
                         val matrix = Matrix()
                         matrix.postRotate(90F)
                         boardBitmap = Bitmap.createBitmap(boardBitmap, 0, 0, boardBitmap.width, boardBitmap.height, matrix, true)
                         imageBitmap.recycle()
                         //val resizedBitmap = Bitmap.createBitmap(rotatedImg, 0, 0, rotatedImg.width, rotatedImg.width)
 
-                        analyzer.analyze(boardBitmap, this)
+                        analyzer.analyze(boardBitmap)
                     }
                     else {
                         runOnUiThread {
@@ -212,14 +219,21 @@ class AnalyzerActivity : AppCompatActivity(), RecognitionCompletedListener, Anal
                         inputStream?.close()
 
                         thread {
-                            var boardBitmap = findBoard(imageBitmap)
-                            if (boardBitmap != null) {
+                            val board = findBoard(imageBitmap)!!
+
+                            if (board != null) {
+                                val cornersBitmap = board.first
+                                var boardBitmap = board.second
+                                runOnUiThread {
+                                    binding.ivCorners.setImageBitmap(cornersBitmap)
+                                    binding.ivCropped.setImageBitmap(boardBitmap)
+                                }
                                 if (imageBitmap.width > imageBitmap.height) {
                                     val matrix = Matrix()
                                     matrix.postRotate(90F)
                                     boardBitmap = Bitmap.createBitmap(boardBitmap!!, 0, 0, boardBitmap!!.width, boardBitmap!!.height, matrix, true)
                                 }
-                                analyzer.analyze(boardBitmap!!, this)
+                                analyzer.analyze(boardBitmap!!)
                                 /*val resizedBitmap: Bitmap
                                 if (imageBitmap.width > imageBitmap.height) {
                                     val matrix = Matrix()
@@ -443,21 +457,24 @@ class AnalyzerActivity : AppCompatActivity(), RecognitionCompletedListener, Anal
 
                 if (positionInfo.topGames.size > 0) {
                     if (positionInfo.topGames[0].month != null) {
-                        dialogBinding.tvDate.text = "(${positionInfo.topGames[0].month})"
+                        dialogBinding.tvDate.text = "(${positionInfo.topGames[0].month}"
                     }
                     else {
-                        dialogBinding.tvDate.text = "(Missing date)"
+                        dialogBinding.tvDate.text = "(Missing date"
                     }
                     dialogBinding.tvPlayerWhite.text = "⚪ ${positionInfo.topGames[0].white.name} (${positionInfo.topGames[0].white.rating})"
                     dialogBinding.tvPlayerBlack.text = "⚫ ${positionInfo.topGames[0].black.name} (${positionInfo.topGames[0].black.rating})"
                     when (positionInfo.topGames[0].winner) {
                         "white" -> {
                             dialogBinding.tvPlayerWhite.setTypeface(null, Typeface.BOLD)
-                            dialogBinding.tvPlayerWhite.text = dialogBinding.tvPlayerWhite.text.toString() + " (winner)"
+                            dialogBinding.tvDate.text = dialogBinding.tvDate.text.toString() + ", white won)"
                         }
                         "black" -> {
                             dialogBinding.tvPlayerBlack.setTypeface(null, Typeface.BOLD)
-                            dialogBinding.tvPlayerBlack.text = dialogBinding.tvPlayerBlack.text.toString() + " (winner)"
+                            dialogBinding.tvDate.text = dialogBinding.tvDate.text.toString() + ", black won)"
+                        }
+                        null -> {
+                            dialogBinding.tvDate.text = dialogBinding.tvDate.text.toString() + ", draw)"
                         }
                     }
                 }

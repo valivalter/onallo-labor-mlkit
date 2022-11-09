@@ -7,6 +7,7 @@
     android:background="@drawable/background"
     android:orientation="vertical">
 
+
     <TextView
         android:id="@+id/tvAppTitle"
         android:layout_width="wrap_content"
@@ -15,16 +16,16 @@
         android:text="@string/app_name"
         android:textAlignment="center"
         android:textSize="80sp"
-        app:layout_constraintBottom_toTopOf="@+id/glMainActivity"
+        app:layout_constraintBottom_toTopOf="@+id/glMainActivityHorizontal"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
     <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/glMainActivity"
+        android:id="@+id/glMainActivityHorizontal"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.43" />
+        app:layout_constraintGuide_percent="0.35" />
 
     <Button
         android:id="@+id/btnSandbox"
@@ -79,6 +80,37 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/btnAnalyzeImage" />
 
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/glMainActivityVertical"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.50" />
+
+    <ImageView
+        android:id="@+id/ivLogoBlack"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:scaleX="0.5"
+        android:scaleY="0.5"
+        android:src="@drawable/logo_black"
+        app:layout_constraintTop_toBottomOf="@id/glMainActivityHorizontal"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toEndOf="@id/glMainActivityVertical"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <ImageView
+        android:id="@+id/ivLogoWhite"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:adjustViewBounds="true"
+        android:scaleX="0.5"
+        android:scaleY="0.5"
+        android:src="@drawable/logo_white"
+        app:layout_constraintTop_toBottomOf="@id/glMainActivityHorizontal"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/glMainActivityVertical" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>
-
-

@@ -11,5 +11,5 @@
         android:strokeLineJoin="miter"
         android:strokeMiterLimit="4"
         android:strokeLineCap="round"
-        android:strokeColor="#000000" />
+        android:strokeColor="@color/almost_black" />
 </vector>

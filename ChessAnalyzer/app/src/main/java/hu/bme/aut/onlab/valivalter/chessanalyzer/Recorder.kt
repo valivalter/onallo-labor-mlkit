@@ -21,9 +21,9 @@ import hu.bme.aut.onlab.valivalter.chessanalyzer.stockfish.StockfishApplication
 
 class Recorder(private val activity: RecordActivity) : ImageAnalysis.Analyzer, RecognitionCompletedListener, AnalysisCompletedListener {
 
-    private val analyzer: Analyzer = Analyzer()
+    private val analyzer: Analyzer = Analyzer(this)
     private var currentChessboard: Chessboard? = null
-    private lateinit var game: Game
+    lateinit var game: Game
     private var stepCounter = 0
     private var fileName: String? = null
 
@@ -58,7 +58,7 @@ class Recorder(private val activity: RecordActivity) : ImageAnalysis.Analyzer, R
             7 -> bitmap = BitmapFactory.decodeResource(activity.resources, R.drawable.sakktabla07)
         }
         val resizedBitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.width)
-        analyzer.analyze(resizedBitmap, this)
+        analyzer.analyze(resizedBitmap)
 
         counter++
         this.imageProxy = imageProxy
@@ -89,15 +89,6 @@ class Recorder(private val activity: RecordActivity) : ImageAnalysis.Analyzer, R
         imageProxy.close()
     }
 
-    private fun writeFile(fileName: String, data: String) {
-        val file = File(activity.getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS), fileName)
-        try {
-            file.appendText(data)
-        } catch (e: IOException) {
-            e.printStackTrace()
-        }
-    }
-
     override fun onAnalysisCompleted(analysis: Analysis) {
         if (game.rounds.size <= stepCounter) {
             if (currentChessboard!!.nextPlayer == Player.BLACK) {
@@ -114,15 +105,13 @@ class Recorder(private val activity: RecordActivity) : ImageAnalysis.Analyzer, R
             stepCounter++
         }
 
-        Toast.makeText(activity.applicationContext, game.getLastStep(), Toast.LENGTH_LONG).show()
+        activity.binding.tvLastStep.text = game.getLastStep()
+        //Toast.makeText(activity.applicationContext, game.getLastStep(), Toast.LENGTH_LONG).show()
 
         ///////////////// TESZTELÉSRE /////////////////////
         if (stepCounter == 3) {
             val gameString = game.toString()
         }
-
-        //writeFile(fileName!!, "${currentChessboard!!.getLastMoveSan(board)}\n")
-        // drops the constant " w - - 0 1" string
     }
 
     override fun onInvalidFen() {
