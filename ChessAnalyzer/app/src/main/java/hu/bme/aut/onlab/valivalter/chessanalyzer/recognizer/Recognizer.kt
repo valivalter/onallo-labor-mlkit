@@ -1,4 +1,4 @@
-package hu.bme.aut.onlab.valivalter.chessanalyzer.analyzerlogic
+package hu.bme.aut.onlab.valivalter.chessanalyzer.recognizer
 
 import android.graphics.Bitmap
 import android.util.Log
@@ -9,7 +9,7 @@ import com.google.mlkit.vision.label.ImageLabeling
 import com.google.mlkit.vision.label.custom.CustomImageLabelerOptions
 import hu.bme.aut.onlab.valivalter.chessanalyzer.model.Chessboard
 
-class Analyzer(val listener: RecognitionCompletedListener) {
+class Recognizer(val listener: RecognitionCompletedListener) {
 // class Analyzer(private val activity: AnalyzerActivity) {
 // if you want to see the analyzed images on the tiles 2/3
 
@@ -27,7 +27,7 @@ class Analyzer(val listener: RecognitionCompletedListener) {
         imageLabeler = ImageLabeling.getClient(customImageLabelerOptions)
     }
 
-    fun analyze(bitmap: Bitmap) {
+    fun recognize(bitmap: Bitmap) {
         //val board = Chessboard()
         var board: Array<Array<MutableList<Pair<String, Float?>>>> = Array(8) { Array(8) { mutableListOf() } }
         val tileWidth = bitmap.width / 8
@@ -68,17 +68,18 @@ class Analyzer(val listener: RecognitionCompletedListener) {
     }
 
     private fun decide(board: Array<Array<MutableList<Pair<String, Float?>>>>) {
-        var newBoard = setKings(board)
-        newBoard = limitToLargestConfidences(newBoard, "wq", 1)
-        newBoard = limitToLargestConfidences(newBoard, "wr", 2)
-        newBoard = limitToLargestConfidences(newBoard, "wn", 2)
-        newBoard = limitToLargestConfidences(newBoard, "wb", 2)
-        newBoard = limitToLargestConfidences(newBoard, "wp", 8)
-        newBoard = limitToLargestConfidences(newBoard, "bq", 1)
-        newBoard = limitToLargestConfidences(newBoard, "br", 2)
-        newBoard = limitToLargestConfidences(newBoard, "bn", 2)
-        newBoard = limitToLargestConfidences(newBoard, "bb", 2)
-        newBoard = limitToLargestConfidences(newBoard, "bp", 8)
+        var newBoard = setMinMaxOccurrences(board, "wk", 1, 1)
+        newBoard = setMinMaxOccurrences(newBoard, "bk", 1, 1)
+        newBoard = setMinMaxOccurrences(newBoard, "wq", 0, 1)
+        newBoard = setMinMaxOccurrences(newBoard, "bq", 0, 1)
+        newBoard = setMinMaxOccurrences(newBoard, "wr", 0, 2)
+        newBoard = setMinMaxOccurrences(newBoard, "wn", 0, 2)
+        newBoard = setMinMaxOccurrences(newBoard, "wb", 0, 2)
+        newBoard = setMinMaxOccurrences(newBoard, "br", 0, 2)
+        newBoard = setMinMaxOccurrences(newBoard, "bn", 0, 2)
+        newBoard = setMinMaxOccurrences(newBoard, "bb", 0, 2)
+        newBoard = setMinMaxOccurrences(newBoard, "wp", 0, 8)
+        newBoard = setMinMaxOccurrences(newBoard, "bp", 0, 8)
 
         val chessboard = Chessboard()
         for (i in 0 until 8) {
@@ -89,55 +90,33 @@ class Analyzer(val listener: RecognitionCompletedListener) {
         listener.onRecognitionCompleted(chessboard)
     }
 
-    private fun setKings(board: Array<Array<MutableList<Pair<String, Float?>>>>):
-            Array<Array<MutableList<Pair<String, Float?>>>> {
-        var newBoard = setKing(board, "wk")
-        newBoard = setKing(board, "bk")
-        return newBoard
-    }
-
-    private fun setKing(board: Array<Array<MutableList<Pair<String, Float?>>>>, king: String):
-            Array<Array<MutableList<Pair<String, Float?>>>> {
-        var maxConfidence = 0F
-        var maxConfidencePosition = Pair(0, 0)
-        for (i in 0 until 8) {
-            for (j in 0 until 8) {
-                for (label in board[i][j]) {
-                    if (label.first == king && label.second != null && label.second!! > maxConfidence) {
-                        maxConfidence = label.second!!
-                        maxConfidencePosition = Pair(i, j)
-                    }
-                }
-            }
-        }
-        val i = maxConfidencePosition.first
-        val j = maxConfidencePosition.second
-
-        board[i][j] = mutableListOf(Pair(king, null))
-        for (i in 0 until 8) {
-            for (j in 0 until 8) {
-                board[i][j].removeIf {
-                    it.first == king && it.second != null
-                }
-            }
-        }
-        return board
-    }
-
-    private fun limitToLargestConfidences(board: Array<Array<MutableList<Pair<String, Float?>>>>, piece: String, maxOccurrence: Int):
+    private fun setMinMaxOccurrences(board: Array<Array<MutableList<Pair<String, Float?>>>>,
+                                     piece: String, minOccurrence: Int, maxOccurrence: Int):
             Array<Array<MutableList<Pair<String, Float?>>>> {
 
         var deleteRemainingOccurrences = false
+        var minOccurrence = minOccurrence
 
         for (n in 0 until maxOccurrence) {
             var maxConfidence = 0F
             var maxConfidencePosition: Pair<Int, Int>? = null
             for (i in 0 until 8) {
                 for (j in 0 until 8) {
-                    val label = board[i][j][0]
-                    if (label.first == piece && label.second != null && label.second!! > maxConfidence) {
-                        maxConfidence = label.second!!
-                        maxConfidencePosition = Pair(i, j)
+                    if (minOccurrence > 0) {
+                        for (label in board[i][j]) {
+                            if (label.first == piece && label.second != null && label.second!! > maxConfidence) {
+                                maxConfidence = label.second!!
+                                maxConfidencePosition = Pair(i, j)
+                            }
+                        }
+                        minOccurrence -= 1
+                    }
+                    else {
+                        val label = board[i][j][0]
+                        if (label.first == piece && label.second != null && label.second!! > maxConfidence) {
+                            maxConfidence = label.second!!
+                            maxConfidencePosition = Pair(i, j)
+                        }
                     }
                 }
             }

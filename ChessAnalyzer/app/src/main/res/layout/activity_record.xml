@@ -7,7 +7,7 @@
     android:layout_height="match_parent">
 
     <androidx.camera.view.PreviewView
-        android:id="@+id/viewFinder"
+        android:id="@+id/cameraView"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
@@ -22,7 +22,7 @@
             android:layout_height="wrap_content"
             android:fontFamily="@font/averia_serif_libre"
             android:text="No steps detected yet"
-            android:textColor="@color/almost_white"
+            android:textColor="@color/dark_white"
             android:textAllCaps="false"
             android:textSize="20sp"
             android:background="@drawable/rounded_corners"

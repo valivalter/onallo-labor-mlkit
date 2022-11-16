@@ -187,3 +187,11 @@ Elvégzett fejlesztések, hibajavítások:
 * A bábuk felismerésének javítása a sakk szabályainak felhasználsával: például maximum (gyakorlatilag) csak 2-2 bástya lehet mindkét játékosnál, vagy éppen minimum és maximum 1 királya van a fehér és a fekete játékosnak is.
 * A sakktábladetekció javítása, a nem a sakktáblához tatozó egyenesek kiszűrése dőlésszög és a többi egyenestől való távolság alapján, illetve a tábla sarkait előállító algoritmus javítása.
 * A főmenü és az alkalmazás színeinek minimális változtatása
+
+### 10. hét
+
+Elvégzett fejlesztések, hibajavítások:
+
+* Recorder mód manuális tesztelése, talált hibák javítása, hatékonyság növelése
+* A sakktábla-detekció paramétereinek finomhangolása
+* Refaktorálás

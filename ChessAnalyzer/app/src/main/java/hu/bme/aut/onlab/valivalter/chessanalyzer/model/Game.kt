@@ -10,8 +10,11 @@ data class Step(val chessboard: Chessboard, val analysis: Analysis)
 
 data class Round(var whiteStep: Step? = null, var blackStep: Step? = null)
 
-class Game(private val initialState: Chessboard) {
+class Game() {
     var rounds: MutableList<Round> = mutableListOf()
+    val initialState = Chessboard().also {
+        it.setDefaultPosition()
+    }
 
     fun getLastStep(): String {
         val lastRound = rounds.last()

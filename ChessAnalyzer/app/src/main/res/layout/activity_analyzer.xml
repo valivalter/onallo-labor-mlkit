@@ -66,7 +66,7 @@
                 android:id="@+id/dividerRotate"
                 android:layout_width="match_parent"
                 android:layout_height="2dp"
-                android:background="@color/almost_black"
+                android:background="@color/light_black"
                 android:layout_marginBottom="15dp"
                 android:layout_marginStart="35dp"
                 android:layout_marginEnd="35dp"
@@ -135,7 +135,7 @@
         android:layout_height="match_parent"
         android:clickable="true"
         android:alpha="0.8"
-        android:background="@color/almost_white"
+        android:background="@color/dark_white"
         android:gravity="center">
 
         <androidx.constraintlayout.widget.ConstraintLayout

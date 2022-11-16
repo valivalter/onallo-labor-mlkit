@@ -7,7 +7,6 @@ import android.graphics.BitmapFactory
 import android.graphics.Matrix
 import android.graphics.Typeface
 import android.net.Uri
-import android.opengl.Visibility
 import android.os.Bundle
 import android.os.Environment
 import android.provider.MediaStore
@@ -28,8 +27,8 @@ import com.github.mikephil.charting.data.PieDataSet
 import com.github.mikephil.charting.data.PieEntry
 import com.github.mikephil.charting.formatter.ValueFormatter
 import com.github.mikephil.charting.utils.ColorTemplate
-import hu.bme.aut.onlab.valivalter.chessanalyzer.analyzerlogic.Analyzer
-import hu.bme.aut.onlab.valivalter.chessanalyzer.analyzerlogic.RecognitionCompletedListener
+import hu.bme.aut.onlab.valivalter.chessanalyzer.recognizer.Recognizer
+import hu.bme.aut.onlab.valivalter.chessanalyzer.recognizer.RecognitionCompletedListener
 import hu.bme.aut.onlab.valivalter.chessanalyzer.chessboarddetector.findBoard
 import hu.bme.aut.onlab.valivalter.chessanalyzer.databinding.*
 import hu.bme.aut.onlab.valivalter.chessanalyzer.model.*
@@ -37,23 +36,18 @@ import hu.bme.aut.onlab.valivalter.chessanalyzer.network.LichessInteractor
 import hu.bme.aut.onlab.valivalter.chessanalyzer.stockfish.AnalysisCompletedListener
 import hu.bme.aut.onlab.valivalter.chessanalyzer.stockfish.MODE
 import hu.bme.aut.onlab.valivalter.chessanalyzer.stockfish.StockfishApplication
-import org.opencv.android.Utils
 import org.opencv.core.*
-import org.opencv.imgproc.Imgproc
 import java.io.*
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.concurrent.thread
-import kotlin.math.cos
-import kotlin.math.pow
-import kotlin.math.sin
 
 
 class AnalyzerActivity : AppCompatActivity(), RecognitionCompletedListener, AnalysisCompletedListener {
 
     private lateinit var binding: ActivityAnalyzerBinding
     //private val analyzer = Analyzer(this) // if you want to see the analyzed images on the tiles 1/3
-    private val analyzer = Analyzer(this)
+    private val recognizer = Recognizer(this)
     private var chessboard = Chessboard()
     private lateinit var analysis: Analysis
     private lateinit var positionInfo: PositionInfo
@@ -179,7 +173,7 @@ class AnalyzerActivity : AppCompatActivity(), RecognitionCompletedListener, Anal
                 inputStream?.close()
 
                 thread {
-                    val board = findBoard(imageBitmap)!!
+                    val board = findBoard(imageBitmap)
 
                     if (board != null) {
                         val cornersBitmap = board.first
@@ -194,7 +188,7 @@ class AnalyzerActivity : AppCompatActivity(), RecognitionCompletedListener, Anal
                         imageBitmap.recycle()
                         //val resizedBitmap = Bitmap.createBitmap(rotatedImg, 0, 0, rotatedImg.width, rotatedImg.width)
 
-                        analyzer.analyze(boardBitmap)
+                        recognizer.recognize(boardBitmap)
                     }
                     else {
                         runOnUiThread {
@@ -219,21 +213,21 @@ class AnalyzerActivity : AppCompatActivity(), RecognitionCompletedListener, Anal
                         inputStream?.close()
 
                         thread {
-                            val board = findBoard(imageBitmap)!!
+                            val board = findBoard(imageBitmap)
 
                             if (board != null) {
                                 val cornersBitmap = board.first
                                 var boardBitmap = board.second
                                 runOnUiThread {
-                                    binding.ivCorners.setImageBitmap(cornersBitmap)
-                                    binding.ivCropped.setImageBitmap(boardBitmap)
+                                    //binding.ivCorners.setImageBitmap(cornersBitmap)
+                                    //binding.ivCropped.setImageBitmap(boardBitmap)
                                 }
                                 if (imageBitmap.width > imageBitmap.height) {
                                     val matrix = Matrix()
                                     matrix.postRotate(90F)
                                     boardBitmap = Bitmap.createBitmap(boardBitmap!!, 0, 0, boardBitmap!!.width, boardBitmap!!.height, matrix, true)
                                 }
-                                analyzer.analyze(boardBitmap!!)
+                                recognizer.recognize(boardBitmap!!)
                                 /*val resizedBitmap: Bitmap
                                 if (imageBitmap.width > imageBitmap.height) {
                                     val matrix = Matrix()

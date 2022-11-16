@@ -46,14 +46,14 @@ fun toBlackAndWhite(coloredMat: Mat): Pair<Mat, Bitmap> {
 
 fun blur(mat: Mat): Pair<Mat, Bitmap> {
     val blurredMat = Mat(mat.size(), CvType.CV_8UC1)
-    Imgproc.blur(mat, blurredMat, Size(10.0, 10.0))
+    Imgproc.blur(mat, blurredMat, Size(12.0, 12.0))
     val blurredBitmap = matToBitmap(blurredMat)
     return Pair(blurredMat, blurredBitmap)
 }
 
 fun canny(mat: Mat): Pair<Mat, Bitmap> {
     val cannyEdgesMat = Mat(mat.size(), CvType.CV_8UC1)
-    Imgproc.Canny(mat, cannyEdgesMat, 50.0, 100.0)
+    Imgproc.Canny(mat, cannyEdgesMat, 40.0, 60.0)
     val cannyEdgesBitmap = matToBitmap(cannyEdgesMat)
     return Pair(cannyEdgesMat, cannyEdgesBitmap)
 }
@@ -124,7 +124,7 @@ fun removeWrongLines(lines: MutableList<Pair<Double, Double>>): MutableList<Pair
     }.eachCount().maxByOrNull { it.value }!!.key/100.0
 
     // branches because of the the fact that 0 radian == pi radian
-    if (anglesMode > 3.09) {
+    /*if (anglesMode > 3.09) {
         val diff = anglesMode - 3.09
         lines.removeIf {
             abs(it.second - anglesMode) > 0.05 && it.second > diff
@@ -135,12 +135,12 @@ fun removeWrongLines(lines: MutableList<Pair<Double, Double>>): MutableList<Pair
         lines.removeIf {
             abs(it.second - anglesMode) > 0.05 && it.second < 3.14 - diff
         }
-    }
-    else {
+    }*/
+    //else {
         lines.removeIf {
             abs(it.second - anglesMode) > 0.05
         }
-    }
+    //}
 
 
     lines.sortBy {
@@ -160,17 +160,20 @@ fun removeWrongLines(lines: MutableList<Pair<Double, Double>>): MutableList<Pair
         val tileLength = ((Line5 - Line4) + (Line6 - Line5))/2
 
         val largestDistance = lines.last().first
-        if ((lineClusterCenters[lineClusterCenters.size-1] - lineClusterCenters[lineClusterCenters.size-2]) > 1.5*tileLength) {
+
+        // túl távoli véletlen vonalak, vagy a tábla széle, ha sötét a háttér
+        if ((lineClusterCenters[lineClusterCenters.size-1] - lineClusterCenters[lineClusterCenters.size-2]) > 1.1*tileLength) {
             lines.removeIf {
-                abs(it.first - largestDistance) < tileLength
+                abs(it.first - largestDistance) < 0.09*tileLength
             }
             remainingOutliers = true
         }
 
+        // túl távoli véletlen vonalak, vagy a tábla széle, ha sötét a háttér
         val smallestDistance = lines[0].first
-        if ((lineClusterCenters[1] - lineClusterCenters[0]) > 1.5*tileLength) {
+        if ((lineClusterCenters[1] - lineClusterCenters[0]) > 1.15*tileLength) {
             lines.removeIf {
-                abs(it.first - smallestDistance) < tileLength
+                abs(it.first - smallestDistance) < 0.1*tileLength
             }
             remainingOutliers = true
         }

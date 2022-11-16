@@ -36,7 +36,7 @@ class RecordActivity : AppCompatActivity() {
             val shareIntent = Intent.createChooser(Intent().apply {
                 action = Intent.ACTION_SEND
                 type = "text/plain"
-                putExtra(Intent.EXTRA_TEXT, "Recorded game at $dateTime\n${recorder.game}")
+                putExtra(Intent.EXTRA_TEXT, "Recorded game ended at $dateTime\n${recorder.game}")
                 putExtra(Intent.EXTRA_TITLE, "Share the result")
             }, null)
             startActivity(shareIntent)
@@ -52,18 +52,19 @@ class RecordActivity : AppCompatActivity() {
 
         cameraProviderFuture.addListener({
             val imageAnalysis = ImageAnalysis.Builder()
-                .setTargetResolution(Size(1080, 1920))
+                .setTargetResolution(Size(2160, 3840))
                 .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
                 .build()
 
             imageAnalysis.setAnalyzer(ContextCompat.getMainExecutor(this), recorder)
 
-            val viewFinder = binding.viewFinder
+            val viewFinder = binding.cameraView
 
             val cameraProvider: ProcessCameraProvider = cameraProviderFuture.get()
 
             val preview = Preview.Builder()
-                .setTargetAspectRatio(AspectRatio.RATIO_4_3)
+                .setTargetResolution(Size(2160, 3840))
+                //.setTargetAspectRatio(AspectRatio.RATIO_16_9)
                 .build()
                 .also {
                     it.setSurfaceProvider(viewFinder.createSurfaceProvider())

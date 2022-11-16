@@ -13,8 +13,8 @@
         android:gravity="center"
         android:text="@string/network_error_title"
         android:textSize="35sp"
-        android:background="@color/almost_black"
-        android:textColor="@color/almost_white"
+        android:background="@color/light_black"
+        android:textColor="@color/dark_white"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />

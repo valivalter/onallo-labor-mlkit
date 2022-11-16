@@ -9,7 +9,7 @@ enum class Player {
 }
 
 class Chessboard {
-    private var board = Array(8) { Array(8) { "" } }
+    var board = Array(8) { Array(8) { "" } }
     var nextPlayer = Player.WHITE
 
     companion object {
@@ -59,6 +59,36 @@ class Chessboard {
         board[i][j] = piece
     }
 
+    fun setDefaultPosition() {
+        board[0][0] = "br"
+        board[0][1] = "bn"
+        board[0][2] = "bb"
+        board[0][3] = "bq"
+        board[0][4] = "bk"
+        board[0][5] = "bb"
+        board[0][6] = "bn"
+        board[0][7] = "br"
+        for (j in 0 until 8) {
+            board[1][j] = "bp"
+        }
+        for (i in 2 until 6) {
+            for (j in 0 until 8) {
+                board[i][j] = "em"
+            }
+        }
+        for (j in 0 until 8) {
+            board[6][j] = "wp"
+        }
+        board[7][0] = "wr"
+        board[7][1] = "wn"
+        board[7][2] = "wb"
+        board[7][3] = "wq"
+        board[7][4] = "wk"
+        board[7][5] = "wb"
+        board[7][6] = "wn"
+        board[7][7] = "wr"
+    }
+
     fun rotate() {
         val newBoard = Array(8) { Array(8) { "" } }
         for (i in 0..7) {
@@ -87,7 +117,7 @@ class Chessboard {
         Log.i("Chessboard", boardText)
     }
 
-    fun indicesToSquare(i: Int, j: Int): String {
+    fun indicesToTileNotation(i: Int, j: Int): String {
         return "abcdefgh"[j] + "${8-i}"
     }
 
@@ -179,6 +209,7 @@ class Chessboard {
         return fens
     }
 
+    // returns true if all the tiles have the same color (or empty) on both chessboards
     fun equals(other: Chessboard): Boolean {
         for (i in 0 until 8) {
             for (j in 0 until 8) {
@@ -189,16 +220,19 @@ class Chessboard {
         return true
     }
 
-    fun isDifferenceOneMove(other: Chessboard): Boolean {
-        var differences = 0
+    // difference here means 3 options: white in one, black in the other
+    //                                  white in one, empty in the other
+    //                                  black in one, empty in the other
+    fun getDifferentTiles(other: Chessboard): MutableList<Pair<Int, Int>> {
+        val differences = mutableListOf<Pair<Int, Int>>()
         for (i in 0 until 8) {
             for (j in 0 until 8) {
-                if (board[i][j] != other.getTile(i, j))
-                    differences++
+                if (board[i][j].first() != other.getTile(i, j).first())
+                    differences.add(Pair(i, j))
             }
         }
 
-        return differences == 2
+        return differences
     }
 
     fun getLastMoveSan(previous: Chessboard): String {
@@ -206,7 +240,7 @@ class Chessboard {
         var toTile: Pair<Int, Int>? = null
         for (i in 0 until 8) {
             for (j in 0 until 8) {
-                if (board[i][j] != previous.getTile(i, j)) {
+                if (board[i][j].first() != previous.getTile(i, j).first()) {
                     if (previous.getTile(i, j) != "em" && board[i][j] == "em")
                         fromTile = Pair(i, j)
                     else {
@@ -224,48 +258,14 @@ class Chessboard {
                 "wb", "bb" -> san += "B"
                 "wk", "bk" -> san += "K"
                 "wq", "bq" -> san += "Q"
-                // "wp", "bp" -> pgn += "P"  usually not used in PGN notation
+                // "wp", "bp" -> san += "P"  usually not used in PGN notation
             }
+            san += indicesToTileNotation(fromTile.first, fromTile.second)
             if (previous.getTile(toTile.first, toTile.second) != "em") {
-                if (previous.getTile(fromTile.first, fromTile.second) == "wp" ||
-                    previous.getTile(fromTile.first, fromTile.second) == "bp") {
-                    san += indicesToSquare(fromTile.first, fromTile.second)[0]
-                }
                 san += "x"
             }
-            san += indicesToSquare(toTile.first, toTile.second)
+            san += indicesToTileNotation(toTile.first, toTile.second)
         }
         return san
-    }
-
-    // for testing
-    fun setDefaultPosition() {
-        board[0][0] = "br"
-        board[0][1] = "bn"
-        board[0][2] = "bb"
-        board[0][3] = "bq"
-        board[0][4] = "bk"
-        board[0][5] = "bb"
-        board[0][6] = "bn"
-        board[0][7] = "br"
-        for (j in 0 until 8) {
-            board[1][j] = "bp"
-        }
-        for (i in 2 until 6) {
-            for (j in 0 until 8) {
-                board[i][j] = "em"
-            }
-        }
-        for (j in 0 until 8) {
-            board[6][j] = "wp"
-        }
-        board[7][0] = "wr"
-        board[7][1] = "wn"
-        board[7][2] = "wb"
-        board[7][3] = "wq"
-        board[7][4] = "wk"
-        board[7][5] = "wb"
-        board[7][6] = "wn"
-        board[7][7] = "wr"
     }
 }
