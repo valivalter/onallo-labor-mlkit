@@ -1,6 +1,6 @@
 package hu.bme.aut.onlab.valivalter.chessanalyzer.stockfish
 
-import hu.bme.aut.onlab.valivalter.chessanalyzer.model.Analysis
+data class Analysis(var result: String, var bestMove: String? = null, var expectedResponse: String? = null)
 
 interface AnalysisCompletedListener {
     fun onAnalysisCompleted(result: Analysis)

@@ -2,10 +2,8 @@ package hu.bme.aut.onlab.valivalter.chessanalyzer.stockfish
 
 import android.app.Application
 import android.os.Handler
-import hu.bme.aut.onlab.valivalter.chessanalyzer.model.Analysis
 import java.io.BufferedReader
 import java.io.File
-import java.io.IOException
 import java.io.InputStreamReader
 
 enum class MODE {
@@ -104,15 +102,15 @@ class StockfishApplication : Application() {
                                     if (analysis != null) {
                                         if (results.size > 2) {
                                             analysis!!.bestMove = results[1]
-                                            analysis!!.bestResponse = results[3]
+                                            analysis!!.expectedResponse = results[3]
                                         } else {
                                             if (results[1] == "(none)") {
                                                 analysis!!.result = "checkmate"
                                                 analysis!!.bestMove = "-"
-                                                analysis!!.bestResponse = "-"
+                                                analysis!!.expectedResponse = "-"
                                             } else {
                                                 analysis!!.bestMove = results[1]
-                                                analysis!!.bestResponse = "-"
+                                                analysis!!.expectedResponse = "-"
                                             }
                                         }
 

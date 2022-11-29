@@ -1,10 +1,6 @@
 package hu.bme.aut.onlab.valivalter.chessanalyzer.model
 
-import android.util.Log
-import java.util.HashMap
-import kotlin.math.round
-
-data class Analysis(var result: String, var bestMove: String? = null, var bestResponse: String? = null)
+import hu.bme.aut.onlab.valivalter.chessanalyzer.stockfish.Analysis
 
 data class Step(val chessboard: Chessboard, val analysis: Analysis)
 

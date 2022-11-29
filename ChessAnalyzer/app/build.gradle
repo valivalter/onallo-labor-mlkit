@@ -57,7 +57,7 @@ dependencies {
 
     implementation fileTree(dir: "libs", include: ["*.jar", "*.so"])
 
-    implementation 'org.tensorflow:tensorflow-lite:2.10.0'
+    //implementation 'org.tensorflow:tensorflow-lite:2.10.0'
     implementation project(path: ':opencv460')
 
     testImplementation 'junit:junit:4.+'

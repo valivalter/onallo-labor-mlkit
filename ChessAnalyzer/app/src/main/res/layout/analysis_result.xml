@@ -42,10 +42,10 @@
         app:layout_constraintTop_toBottomOf="@+id/tvStockfishResult" />
 
     <TextView
-        android:id="@+id/tvBestResponse"
+        android:id="@+id/tvExpectedResponse"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Best response:"
+        android:text="Expected response:"
         android:textSize="17sp"
         android:layout_marginTop="5dp"
         app:layout_constraintStart_toStartOf="@+id/glResult"
@@ -61,7 +61,7 @@
         android:layout_marginEnd="10dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tvBestResponse" />
+        app:layout_constraintTop_toBottomOf="@+id/tvExpectedResponse" />
 
     <TextView
         android:id="@+id/tvOutcomes"

@@ -27,12 +27,13 @@ import com.github.mikephil.charting.data.PieDataSet
 import com.github.mikephil.charting.data.PieEntry
 import com.github.mikephil.charting.formatter.ValueFormatter
 import com.github.mikephil.charting.utils.ColorTemplate
+import hu.bme.aut.onlab.valivalter.chessanalyzer.chessboarddetector.ChessboardDetector
 import hu.bme.aut.onlab.valivalter.chessanalyzer.recognizer.Recognizer
 import hu.bme.aut.onlab.valivalter.chessanalyzer.recognizer.RecognitionCompletedListener
-import hu.bme.aut.onlab.valivalter.chessanalyzer.chessboarddetector.findBoard
 import hu.bme.aut.onlab.valivalter.chessanalyzer.databinding.*
 import hu.bme.aut.onlab.valivalter.chessanalyzer.model.*
 import hu.bme.aut.onlab.valivalter.chessanalyzer.network.LichessInteractor
+import hu.bme.aut.onlab.valivalter.chessanalyzer.stockfish.Analysis
 import hu.bme.aut.onlab.valivalter.chessanalyzer.stockfish.AnalysisCompletedListener
 import hu.bme.aut.onlab.valivalter.chessanalyzer.stockfish.MODE
 import hu.bme.aut.onlab.valivalter.chessanalyzer.stockfish.StockfishApplication
@@ -173,7 +174,7 @@ class AnalyzerActivity : AppCompatActivity(), RecognitionCompletedListener, Anal
                 inputStream?.close()
 
                 thread {
-                    val board = findBoard(imageBitmap)
+                    val board = ChessboardDetector.findBoard(imageBitmap)
 
                     if (board != null) {
                         val cornersBitmap = board.first
@@ -213,7 +214,7 @@ class AnalyzerActivity : AppCompatActivity(), RecognitionCompletedListener, Anal
                         inputStream?.close()
 
                         thread {
-                            val board = findBoard(imageBitmap)
+                            val board = ChessboardDetector.findBoard(imageBitmap)
 
                             if (board != null) {
                                 val cornersBitmap = board.first
@@ -360,7 +361,7 @@ class AnalyzerActivity : AppCompatActivity(), RecognitionCompletedListener, Anal
             val checkmateDialogBinding = AnalysisResultNoInfoBinding.inflate(LayoutInflater.from(this))
             checkmateDialogBinding.tvStockfishResultNoInfo.text = "Stockfish result: checkmate"
             checkmateDialogBinding.tvBestMoveNoInfo.text = "Best move: -"
-            checkmateDialogBinding.tvBestResponseNoInfo.text = "Best response: -"
+            checkmateDialogBinding.tvExpectedResponseNoInfo.text = "Expected response: -"
 
             MaterialDialog(this).show {
                 customView(view = checkmateDialogBinding.root, scrollable = true)
@@ -377,8 +378,8 @@ class AnalyzerActivity : AppCompatActivity(), RecognitionCompletedListener, Anal
             val dialogBinding = AnalysisResultNoInfoBinding.inflate(LayoutInflater.from(this))
             dialogBinding.tvStockfishResultNoInfo.text = "Stockfish result: ${analysis.result}"
             dialogBinding.tvBestMoveNoInfo.text = "Best move: ${analysis.bestMove}"
-            dialogBinding.tvBestResponseNoInfo.text = "Best response: ${analysis.bestResponse}"
-            dialogBinding.tvNoInfo.text = "Connect to the internet for more infos!"
+            dialogBinding.tvExpectedResponseNoInfo.text = "Expected response: ${analysis.expectedResponse}"
+            dialogBinding.tvNoInfo.text = "Check your internet connection for more infos!"
 
             MaterialDialog(this).show {
                 customView(view = dialogBinding.root, scrollable = true)
@@ -398,7 +399,7 @@ class AnalyzerActivity : AppCompatActivity(), RecognitionCompletedListener, Anal
 
                 dialogBinding.tvStockfishResultNoInfo.text = "Stockfish result: ${analysis.result}"
                 dialogBinding.tvBestMoveNoInfo.text = "Best move: ${analysis.bestMove}"
-                dialogBinding.tvBestResponseNoInfo.text = "Best response: ${analysis.bestResponse}"
+                dialogBinding.tvExpectedResponseNoInfo.text = "Expected response: ${analysis.expectedResponse}"
 
                 MaterialDialog(this).show {
                     customView(view = dialogBinding.root, scrollable = true)
@@ -475,7 +476,7 @@ class AnalyzerActivity : AppCompatActivity(), RecognitionCompletedListener, Anal
 
                 dialogBinding.tvStockfishResult.text = "Stockfish result: ${analysis.result}"
                 dialogBinding.tvBestMove.text = "Best move: ${analysis.bestMove}"
-                dialogBinding.tvBestResponse.text = "Best response: ${analysis.bestResponse}"
+                dialogBinding.tvExpectedResponse.text = "Expected response: ${analysis.expectedResponse}"
 
                 MaterialDialog(this).show {
                     customView(view = dialogBinding.root, scrollable = true)

@@ -9,8 +9,9 @@ import hu.bme.aut.onlab.valivalter.chessanalyzer.recognizer.Recognizer
 import java.io.IOException
 import android.graphics.Matrix
 import androidx.camera.view.PreviewView
-import hu.bme.aut.onlab.valivalter.chessanalyzer.chessboarddetector.findBoard
+import hu.bme.aut.onlab.valivalter.chessanalyzer.chessboarddetector.ChessboardDetector
 import hu.bme.aut.onlab.valivalter.chessanalyzer.model.*
+import hu.bme.aut.onlab.valivalter.chessanalyzer.stockfish.Analysis
 import hu.bme.aut.onlab.valivalter.chessanalyzer.stockfish.AnalysisCompletedListener
 import hu.bme.aut.onlab.valivalter.chessanalyzer.stockfish.MODE
 import hu.bme.aut.onlab.valivalter.chessanalyzer.stockfish.StockfishApplication
@@ -42,7 +43,7 @@ class Recorder(private val activity: RecordActivity) : ImageAnalysis.Analyzer, R
             val imageBitmap = activity.findViewById<PreviewView>(R.id.cameraView).bitmap
             if (imageBitmap != null) {
                 //thread {
-                    val board = findBoard(imageBitmap)
+                    val board = ChessboardDetector.findBoard(imageBitmap)
                     if (board != null) {
                         var boardBitmap = board.second
                         if (imageBitmap.width > imageBitmap.height) {
