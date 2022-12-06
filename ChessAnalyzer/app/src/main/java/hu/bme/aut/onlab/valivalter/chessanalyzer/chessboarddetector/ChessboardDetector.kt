@@ -6,7 +6,6 @@ import org.opencv.core.*
 import org.opencv.imgproc.Imgproc
 import kotlin.math.*
 
-
 class ChessboardDetector {
     companion object {
         fun findBoard(originalBitmap: Bitmap): Pair<Bitmap, Bitmap>? {
@@ -48,14 +47,14 @@ class ChessboardDetector {
 
         fun blur(mat: Mat): Pair<Mat, Bitmap> {
             val blurredMat = Mat(mat.size(), CvType.CV_8UC1)
-            Imgproc.blur(mat, blurredMat, Size(12.0, 12.0))
+            Imgproc.blur(mat, blurredMat, Size(15.0, 15.0))
             val blurredBitmap = matToBitmap(blurredMat)
             return Pair(blurredMat, blurredBitmap)
         }
 
         fun canny(mat: Mat): Pair<Mat, Bitmap> {
             val cannyEdgesMat = Mat(mat.size(), CvType.CV_8UC1)
-            Imgproc.Canny(mat, cannyEdgesMat, 40.0, 60.0)
+            Imgproc.Canny(mat, cannyEdgesMat, 10.0, 40.0)
             val cannyEdgesBitmap = matToBitmap(cannyEdgesMat)
             return Pair(cannyEdgesMat, cannyEdgesBitmap)
         }
@@ -126,7 +125,7 @@ class ChessboardDetector {
             }.eachCount().maxByOrNull { it.value }!!.key/100.0
 
             // branches because of the the fact that 0 radian == pi radian
-            /*if (anglesMode > 3.09) {
+            if (anglesMode > 3.09) {
                 val diff = anglesMode - 3.09
                 lines.removeIf {
                     abs(it.second - anglesMode) > 0.05 && it.second > diff
@@ -137,13 +136,12 @@ class ChessboardDetector {
                 lines.removeIf {
                     abs(it.second - anglesMode) > 0.05 && it.second < 3.14 - diff
                 }
-            }*/
-            //else {
-            lines.removeIf {
-                abs(it.second - anglesMode) > 0.05
             }
-            //}
-
+            else {
+                lines.removeIf {
+                    abs(it.second - anglesMode) > 0.05
+                }
+            }
 
             lines.sortBy {
                 it.first
@@ -161,32 +159,76 @@ class ChessboardDetector {
                 // not the actual tile length, just a projection of it
                 val tileLength = ((Line5 - Line4) + (Line6 - Line5))/2
 
+                // túl távoli véletlen vonalak, vagy a tábla széle, ha sötét a háttér
+                if ((lineClusterCenters[lineClusterCenters.size-1] - lineClusterCenters[lineClusterCenters.size-2]) > 1.2*tileLength) {
+                    remainingOutliers = lines.removeIf {
+                        abs(it.first) > lineClusterCenters[lineClusterCenters.size-1] - 0.1*tileLength
+                        //abs(it.first - largestDistance) < 0.09*tileLength
+                    }
+                }
+            }
+
+            remainingOutliers = true
+            while (remainingOutliers) {
+                remainingOutliers = false
+
+                val lineClusterCenters = getLineClusters(lines)
+
+                val Line4 = lineClusterCenters[3]
+                val Line5 = lineClusterCenters[4]
+                val Line6 = lineClusterCenters[5]
+                // not the actual tile length, just a projection of it
+                val tileLength = ((Line5 - Line4) + (Line6 - Line5))/2
+
+                // túl távoli véletlen vonalak, vagy a tábla széle, ha sötét a háttér
+                if ((lineClusterCenters[1] - lineClusterCenters[0]) > 1.2*tileLength) {
+                    remainingOutliers = lines.removeIf {
+                        abs(it.first) < lineClusterCenters[0] + 0.1*tileLength
+                        //abs(it.first - smallestDistance) < 0.1*tileLength
+                    }
+                }
+            }
+
+            /*var remainingBiggerOutliers = true
+            var remainingSmallerOutliers = true
+            while (remainingBiggerOutliers || remainingSmallerOutliers) {
+                remainingBiggerOutliers = false
+                remainingSmallerOutliers = false
+
+                val lineClusterCenters = getLineClusters(lines)
+
+                val Line4 = lineClusterCenters[3]
+                val Line5 = lineClusterCenters[4]
+                val Line6 = lineClusterCenters[5]
+                // not the actual tile length, just a projection of it
+                val tileLength = ((Line5 - Line4) + (Line6 - Line5))/2
+
                 val largestDistance = lines.last().first
 
                 // túl távoli véletlen vonalak, vagy a tábla széle, ha sötét a háttér
-                if ((lineClusterCenters[lineClusterCenters.size-1] - lineClusterCenters[lineClusterCenters.size-2]) > 1.1*tileLength) {
-                    lines.removeIf {
-                        abs(it.first - largestDistance) < 0.09*tileLength
+                if ((lineClusterCenters[lineClusterCenters.size-1] - lineClusterCenters[lineClusterCenters.size-2]) > 1.12*tileLength) {
+                    remainingBiggerOutliers = lines.removeIf {
+                        it.first > lineClusterCenters[lineClusterCenters.size-1] - 0.1*tileLength
+                        //abs(it.first - largestDistance) < 0.09*tileLength
                     }
-                    remainingOutliers = true
                 }
 
                 // túl távoli véletlen vonalak, vagy a tábla széle, ha sötét a háttér
                 val smallestDistance = lines[0].first
-                if ((lineClusterCenters[1] - lineClusterCenters[0]) > 1.15*tileLength) {
-                    lines.removeIf {
-                        abs(it.first - smallestDistance) < 0.1*tileLength
+                if ((lineClusterCenters[1] - lineClusterCenters[0]) > 1.12*tileLength) {
+                    remainingSmallerOutliers = lines.removeIf {
+                        it.first < lineClusterCenters[0] + 0.1*tileLength
+                        //abs(it.first - smallestDistance) < 0.1*tileLength
                     }
-                    remainingOutliers = true
                 }
-            }
+            }*/
             return lines
         }
 
         fun getLineClusters(lines: MutableList<Pair<Double, Double>>): MutableList<Double> {
             val lineDistances = mutableListOf<Point>()
             for (line in lines) {
-                lineDistances.add(Point(line.first, 0.0))
+                lineDistances.add(Point(abs(line.first), 0.0))
             }
 
             val lineDistancesMat = org.opencv.utils.Converters.vector_Point_to_Mat(lineDistances, CvType.CV_32F)
@@ -289,8 +331,11 @@ class ChessboardDetector {
                 for (j in 0 until 4) {
                     val d1 = getDistance(boardCenter, cornerPoints[i])
                     val d2 = getDistance(boardCenter, cornerPoints[j])
-                    if (abs(d1 - d2) > 0.1 * d1) {
-                        throw Exception("Cannot detect chessboard!")
+                    if ((d1 + d2)/2.0 > 1.2 * d1 ||
+                        (d1 + d2)/2.0 < 0.8 * d1 ||
+                        (d1 + d2)/2.0 > 1.2 * d2 ||
+                        (d1 + d2)/2.0 < 0.8 * d2) {
+                        throw Exception("Could not detect chessboard!")
                     }
                 }
             }

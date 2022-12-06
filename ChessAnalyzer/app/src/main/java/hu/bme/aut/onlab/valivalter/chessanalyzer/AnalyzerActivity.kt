@@ -193,7 +193,7 @@ class AnalyzerActivity : AppCompatActivity(), RecognitionCompletedListener, Anal
                     }
                     else {
                         runOnUiThread {
-                            Toast.makeText(this, "Couldn't detect a chessboard", Toast.LENGTH_LONG).show()
+                            Toast.makeText(this, "Couldn't detect the chessboard", Toast.LENGTH_LONG).show()
                             finish()
                         }
                     }
@@ -244,7 +244,7 @@ class AnalyzerActivity : AppCompatActivity(), RecognitionCompletedListener, Anal
                             }
                             else {
                                 runOnUiThread {
-                                    Toast.makeText(this, "Couldn't detect a chessboard", Toast.LENGTH_LONG).show()
+                                    Toast.makeText(this, "Couldn't detect the chessboard", Toast.LENGTH_LONG).show()
                                     finish()
                                 }
                             }
@@ -379,7 +379,7 @@ class AnalyzerActivity : AppCompatActivity(), RecognitionCompletedListener, Anal
             dialogBinding.tvStockfishResultNoInfo.text = "Stockfish result: ${analysis.result}"
             dialogBinding.tvBestMoveNoInfo.text = "Best move: ${analysis.bestMove}"
             dialogBinding.tvExpectedResponseNoInfo.text = "Expected response: ${analysis.expectedResponse}"
-            dialogBinding.tvNoInfo.text = "Check your internet connection for more infos!"
+            dialogBinding.tvNoInfo.text = "Check your connection for more infos!"
 
             MaterialDialog(this).show {
                 customView(view = dialogBinding.root, scrollable = true)

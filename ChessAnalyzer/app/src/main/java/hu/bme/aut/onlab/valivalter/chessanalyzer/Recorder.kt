@@ -51,7 +51,7 @@ class Recorder(private val activity: RecordActivity) : ImageAnalysis.Analyzer, R
                             matrix.postRotate(90F)
                             boardBitmap = Bitmap.createBitmap(boardBitmap, 0, 0, boardBitmap.width, boardBitmap.height, matrix, true)
                         }
-                        recognizer.recognize(boardBitmap)
+                        recognizer.recognize(boardBitmap, withRulesOfChess = false)
                     }
                     else {
                         this.imageProxy.close()
@@ -69,36 +69,85 @@ class Recorder(private val activity: RecordActivity) : ImageAnalysis.Analyzer, R
 
     override fun onRecognitionCompleted(board: Chessboard) {
         val differences = currentChessboard.getDifferentTiles(board)
+
         if (differences.size == 2) {
-            when (currentChessboard.nextPlayer) {
-                Player.WHITE -> {
-                    previousChessboard.nextPlayer = Player.WHITE
-                    currentChessboard.nextPlayer = Player.BLACK
-                }
-                Player.BLACK -> {
-                    previousChessboard.nextPlayer = Player.BLACK
-                    currentChessboard.nextPlayer = Player.WHITE
-                }
-            }
-            for (i in 0 until 8) {
-                for (j in 0 until 8) {
-                    previousChessboard.setTile(i, j, currentChessboard.getTile(i, j))
-                }
-            }
+            val currentStateOne = currentChessboard.getTile(differences[0].first, differences[0].second)
+            var newStateOne = board.getTile(differences[0].first, differences[0].second)
+            val currentStateTwo = currentChessboard.getTile(differences[1].first, differences[1].second)
+            var newStateTwo = board.getTile(differences[1].first, differences[1].second)
 
+            if ((currentStateOne != "em" && newStateOne == "em" && newStateTwo.first() == currentStateOne.first()) ||
+                (currentStateTwo != "em" && newStateTwo == "em" && newStateOne.first() == currentStateTwo.first())) {
 
-            for ((i, j) in differences) {
-                // lehet hogy amúgy az kéne hogy arról a mezőről átrakja a bábut ami üres lett, és nem erről
-                // a kapottról másolja be
-                currentChessboard.setTile(i, j, board.getTile(i, j))
-            }
+                previousChessboard = currentChessboard.copy()
+                when (currentChessboard.nextPlayer) {
+                    Player.WHITE -> currentChessboard.nextPlayer = Player.BLACK
+                    Player.BLACK -> currentChessboard.nextPlayer = Player.WHITE
+                }
 
-            try {
-                val command = "position fen ${board.toFen()}\neval\nisready\ngo movetime 4000\n"
-                StockfishApplication.runCommandWithListener(command, MODE.RECORDER, this)
+                if (newStateOne == "em") {
+                    currentChessboard.setTile(differences[0].first, differences[0].second, newStateOne)
+                    currentChessboard.setTile(differences[1].first, differences[1].second, currentStateOne)
+
+                    // pawn promotion
+                    if ((differences[1].first == 0 || differences[1].first == 7) && currentStateOne.last() == 'p') {
+                        if (newStateTwo.last() == 'p' || newStateTwo.last() == 'k') {
+                            newStateTwo = newStateTwo.drop(1) + 'q'
+                        }
+                        currentChessboard.setTile(differences[1].first, differences[1].second, newStateTwo)
+                    }
+                }
+                else {
+                    currentChessboard.setTile(differences[0].first, differences[0].second, currentStateTwo)
+                    currentChessboard.setTile(differences[1].first, differences[1].second, newStateTwo)
+
+                    // pawn promotion
+                    if ((differences[0].first == 0 || differences[0].first == 7) && currentStateTwo.last() == 'p') {
+                        if (newStateOne.last() == 'p' || newStateOne.last() == 'k') {
+                            newStateOne = newStateOne.drop(1) + 'q'
+                        }
+                        currentChessboard.setTile(differences[0].first, differences[0].second, newStateOne)
+                    }
+                }
+
+                try {
+                    val command = "position fen ${currentChessboard.toFen()}\neval\nisready\ngo movetime 2000\n"
+                    StockfishApplication.runCommandWithListener(command, MODE.RECORDER, this)
+                }
+                catch (e: IOException) {
+                    e.printStackTrace()
+                }
             }
-            catch (e: IOException) {
-                e.printStackTrace()
+            else {
+                this.imageProxy.close()
+            }
+        }
+        else if (differences.size == 4) { // castling
+            if (Pair(0, 0) in differences && Pair(0, 2) in differences && Pair(0, 3) in differences && Pair(0, 4) in differences &&
+                currentChessboard.getTile(0, 0) == "br" && board.getTile(0, 0) == "em" &&
+                currentChessboard.getTile(0, 2) == "em" && board.getTile(0, 2).first() == 'b' &&
+                currentChessboard.getTile(0, 3) == "em" && board.getTile(0, 3).first() == 'b' &&
+                currentChessboard.getTile(0, 4) == "bk" && board.getTile(0, 4) == "em") {
+
+                previousChessboard = currentChessboard.copy()
+                when (currentChessboard.nextPlayer) {
+                    Player.WHITE -> currentChessboard.nextPlayer = Player.BLACK
+                    Player.BLACK -> currentChessboard.nextPlayer = Player.WHITE
+                }
+
+                currentChessboard.setTile(0, 0, "em")
+                currentChessboard.setTile(0, 2, "bk")
+                currentChessboard.setTile(0, 3, "bk")
+                currentChessboard.setTile(0, 4, "em")
+
+                try {
+                    val command = "position fen ${currentChessboard.toFen()}\neval\nisready\ngo movetime 2000\n"
+                    StockfishApplication.runCommandWithListener(command, MODE.RECORDER, this)
+                }
+                catch (e: IOException) {
+                    e.printStackTrace()
+                }
+
             }
         }
         else {
@@ -107,32 +156,13 @@ class Recorder(private val activity: RecordActivity) : ImageAnalysis.Analyzer, R
     }
 
     override fun onAnalysisCompleted(analysis: Analysis) {
+        val step = currentChessboard.copy()
         if (game.rounds.size <= stepCounter) {
             // mindenképp a fehér lépett, ha még nem megfelelő méretű a game.state lista
-            val step = Chessboard()
-            when (currentChessboard.nextPlayer) {
-                Player.WHITE -> step.nextPlayer = Player.WHITE
-                Player.BLACK -> step.nextPlayer = Player.BLACK
-            }
-            for (i in 0 until 8) {
-                for (j in 0 until 8) {
-                    step.setTile(i, j, currentChessboard.getTile(i, j))
-                }
-            }
             game.rounds.add(Round(whiteStep = Step(step, analysis)))
         }
         else {
             // mindenképp a fekete lépett, ha már megfelelő méretű volt a game.state lista
-            val step = Chessboard()
-            when (currentChessboard.nextPlayer) {
-                Player.WHITE -> step.nextPlayer = Player.WHITE
-                Player.BLACK -> step.nextPlayer = Player.BLACK
-            }
-            for (i in 0 until 8) {
-                for (j in 0 until 8) {
-                    step.setTile(i, j, currentChessboard.getTile(i, j))
-                }
-            }
             game.rounds[game.rounds.size-1].blackStep = Step(step, analysis)
             stepCounter++
         }
@@ -143,11 +173,8 @@ class Recorder(private val activity: RecordActivity) : ImageAnalysis.Analyzer, R
     }
 
     override fun onInvalidFen() {
-        activity.binding.tvLastStep.text = "Invalid position"
-
-        // ide is deep copy kéne am
-        currentChessboard = previousChessboard
-
+        activity.binding.tvLastStep.text = "Invalid step"
+        currentChessboard = previousChessboard.copy()
         this.imageProxy.close()
     }
 }

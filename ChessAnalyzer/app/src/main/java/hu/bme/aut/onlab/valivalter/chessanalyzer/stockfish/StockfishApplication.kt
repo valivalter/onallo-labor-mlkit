@@ -85,17 +85,17 @@ class StockfishApplication : Application() {
                                             result += "⚪"
                                         }
                                     } else {
-                                        result = "- (check)"
+                                        result = "check"
                                     }
 
                                     analysis = Analysis(result)
 
-                                    if (mode == MODE.RECORDER) {
+                                    /*if (mode == MODE.RECORDER) {
                                         val handler = Handler(mainLooper)
                                         handler.post {
                                             listener.onAnalysisCompleted(analysis!!)
                                         }
-                                    }
+                                    }*/
                                 } else if ("bestmove" in data!!) {
                                     val results = data!!.split(" ")
 
@@ -114,22 +114,18 @@ class StockfishApplication : Application() {
                                             }
                                         }
 
-                                        if (mode == MODE.ANALYZER) {
-                                            val handler = Handler(mainLooper)
-                                            handler.post {
-                                                listener.onAnalysisCompleted(analysis!!)
-                                            }
+                                        val handler = Handler(mainLooper)
+                                        handler.post {
+                                            listener.onAnalysisCompleted(analysis!!)
                                         }
                                     }
                                 }
                             }
                         }
                         // Stockfish crash, this happens when the user entered an invalid fen
-                        if (mode == MODE.ANALYZER) {
-                            val handler = Handler(mainLooper)
-                            handler.post {
-                                listener.onInvalidFen()
-                            }
+                        val handler = Handler(mainLooper)
+                        handler.post {
+                            listener.onInvalidFen()
                         }
 
                     } catch (e: Throwable) {

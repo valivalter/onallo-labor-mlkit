@@ -59,7 +59,22 @@ class Chessboard {
         board[i][j] = piece
     }
 
+    fun copy(): Chessboard {
+        val chessboard = Chessboard()
+        when (this.nextPlayer) {
+            Player.WHITE -> chessboard.nextPlayer = Player.WHITE
+            Player.BLACK -> chessboard.nextPlayer = Player.BLACK
+        }
+        for (i in 0 until 8) {
+            for (j in 0 until 8) {
+                chessboard.setTile(i, j, this.getTile(i, j))
+            }
+        }
+        return chessboard
+    }
+
     fun setDefaultPosition() {
+        nextPlayer = Player.WHITE
         board[0][0] = "br"
         board[0][1] = "bn"
         board[0][2] = "bb"
@@ -209,7 +224,6 @@ class Chessboard {
         return fens
     }
 
-    // returns true if all the tiles have the same color (or empty) on both chessboards
     fun equals(other: Chessboard): Boolean {
         for (i in 0 until 8) {
             for (j in 0 until 8) {
@@ -235,7 +249,16 @@ class Chessboard {
         return differences
     }
 
-    fun getLastMoveSan(previous: Chessboard): String {
+    fun checkStep(differences: MutableList<Pair<Int, Int>>) {
+
+    }
+
+    fun getLastMoveLan(previous: Chessboard): String {
+
+        if (previous.getDifferentTiles(this).size == 4) {
+            if
+        }
+
         var fromTile: Pair<Int, Int>? = null
         var toTile: Pair<Int, Int>? = null
         for (i in 0 until 8) {
@@ -250,22 +273,31 @@ class Chessboard {
             }
         }
 
-        var san = ""
+        var lan = ""
         if (fromTile != null && toTile != null) {
             when (previous.getTile(fromTile.first, fromTile.second)) {
-                "wr", "br" -> san += "R"
-                "wn", "bn" -> san += "N"
-                "wb", "bb" -> san += "B"
-                "wk", "bk" -> san += "K"
-                "wq", "bq" -> san += "Q"
-                // "wp", "bp" -> san += "P"  usually not used in PGN notation
+                "wr", "br" -> lan += "R"
+                "wn", "bn" -> lan += "N"
+                "wb", "bb" -> lan += "B"
+                "wk", "bk" -> lan += "K"
+                "wq", "bq" -> lan += "Q"
+                // "wp", "bp" -> lan += "P"  usually not used in PGN notation
             }
-            san += indicesToTileNotation(fromTile.first, fromTile.second)
+            lan += indicesToTileNotation(fromTile.first, fromTile.second)
             if (previous.getTile(toTile.first, toTile.second) != "em") {
-                san += "x"
+                lan += "x"
             }
-            san += indicesToTileNotation(toTile.first, toTile.second)
+            lan += indicesToTileNotation(toTile.first, toTile.second)
+
+            if ((toTile.first == 0 || toTile.first == 7) && previous.getTile(fromTile.first, fromTile.second).last() == 'p') {
+                when (board[toTile.first][toTile.second]) {
+                    "wr", "br" -> lan += "R"
+                    "wn", "bn" -> lan += "N"
+                    "wb", "bb" -> lan += "B"
+                    "wq", "bq" -> lan += "Q"
+                }
+            }
         }
-        return san
+        return lan
     }
 }

@@ -27,7 +27,7 @@ class Recognizer(val listener: RecognitionCompletedListener) {
         imageLabeler = ImageLabeling.getClient(customImageLabelerOptions)
     }
 
-    fun recognize(bitmap: Bitmap) {
+    fun recognize(bitmap: Bitmap, withRulesOfChess: Boolean = true) {
         //val board = Chessboard()
         var board: Array<Array<MutableList<Pair<String, Float?>>>> = Array(8) { Array(8) { mutableListOf() } }
         val tileWidth = bitmap.width / 8
@@ -57,7 +57,17 @@ class Recognizer(val listener: RecognitionCompletedListener) {
                         if (i == 7 && j == 7) {
                             //board.print()
                             //Log.i("FEN", board.toFen())
-                            decide(board)
+                            if (withRulesOfChess) {
+                                board = useRulesOfChess(board)
+                            }
+
+                            val chessboard = Chessboard()
+                            for (k in 0 until 8) {
+                                for (l in 0 until 8) {
+                                    chessboard.setTile(k, l, board[k][l][0].first)
+                                }
+                            }
+                            listener.onRecognitionCompleted(chessboard)
                         }
                     }
                     .addOnFailureListener { e ->
@@ -67,27 +77,37 @@ class Recognizer(val listener: RecognitionCompletedListener) {
         }
     }
 
-    private fun decide(board: Array<Array<MutableList<Pair<String, Float?>>>>) {
+    private fun useRulesOfChess(board: Array<Array<MutableList<Pair<String, Float?>>>>):
+            Array<Array<MutableList<Pair<String, Float?>>>> {
         var newBoard = setMinMaxOccurrences(board, "wk", 1, 1)
         newBoard = setMinMaxOccurrences(newBoard, "bk", 1, 1)
-        newBoard = setMinMaxOccurrences(newBoard, "wq", 0, 1)
-        newBoard = setMinMaxOccurrences(newBoard, "bq", 0, 1)
-        newBoard = setMinMaxOccurrences(newBoard, "wr", 0, 2)
-        newBoard = setMinMaxOccurrences(newBoard, "wn", 0, 2)
-        newBoard = setMinMaxOccurrences(newBoard, "wb", 0, 2)
-        newBoard = setMinMaxOccurrences(newBoard, "br", 0, 2)
-        newBoard = setMinMaxOccurrences(newBoard, "bn", 0, 2)
-        newBoard = setMinMaxOccurrences(newBoard, "bb", 0, 2)
-        newBoard = setMinMaxOccurrences(newBoard, "wp", 0, 8)
-        newBoard = setMinMaxOccurrences(newBoard, "bp", 0, 8)
 
-        val chessboard = Chessboard()
-        for (i in 0 until 8) {
-            for (j in 0 until 8) {
-                chessboard.setTile(i, j, newBoard[i][j][0].first)
+        do {
+            val chessboardOld = Chessboard()
+            for (i in 0 until 8) {
+                for (j in 0 until 8) {
+                    chessboardOld.setTile(i, j, newBoard[i][j][0].first)
+                }
             }
-        }
-        listener.onRecognitionCompleted(chessboard)
+            newBoard = setMinMaxOccurrences(newBoard, "wq", 0, 1)
+            newBoard = setMinMaxOccurrences(newBoard, "bq", 0, 1)
+            newBoard = setMinMaxOccurrences(newBoard, "wr", 0, 2)
+            newBoard = setMinMaxOccurrences(newBoard, "wn", 0, 2)
+            newBoard = setMinMaxOccurrences(newBoard, "wb", 0, 2)
+            newBoard = setMinMaxOccurrences(newBoard, "br", 0, 2)
+            newBoard = setMinMaxOccurrences(newBoard, "bn", 0, 2)
+            newBoard = setMinMaxOccurrences(newBoard, "bb", 0, 2)
+            newBoard = setMinMaxOccurrences(newBoard, "wp", 0, 8)
+            newBoard = setMinMaxOccurrences(newBoard, "bp", 0, 8)
+            val chessboardNew = Chessboard()
+            for (i in 0 until 8) {
+                for (j in 0 until 8) {
+                    chessboardNew.setTile(i, j, newBoard[i][j][0].first)
+                }
+            }
+        } while (!chessboardNew.equals(chessboardOld))
+
+        return newBoard
     }
 
     private fun setMinMaxOccurrences(board: Array<Array<MutableList<Pair<String, Float?>>>>,
