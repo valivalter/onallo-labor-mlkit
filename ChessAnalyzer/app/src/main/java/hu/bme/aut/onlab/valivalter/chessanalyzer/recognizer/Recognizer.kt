@@ -17,7 +17,7 @@ class Recognizer(val listener: RecognitionCompletedListener) {
 
     init {
         val localModel = LocalModel.Builder()
-            .setAssetFilePath("chess-pieces-public-dataset.tflite")
+            .setAssetFilePath("chess-pieces-recognizer.tflite")
             .build()
 
         val customImageLabelerOptions = CustomImageLabelerOptions.Builder(localModel)
@@ -132,10 +132,12 @@ class Recognizer(val listener: RecognitionCompletedListener) {
                         minOccurrence -= 1
                     }
                     else {
-                        val label = board[i][j][0]
-                        if (label.first == piece && label.second != null && label.second!! > maxConfidence) {
-                            maxConfidence = label.second!!
-                            maxConfidencePosition = Pair(i, j)
+                        if (board[i][j].size > 0) {
+                            val label = board[i][j][0]
+                            if (label.first == piece && label.second != null && label.second!! > maxConfidence) {
+                                maxConfidence = label.second!!
+                                maxConfidencePosition = Pair(i, j)
+                            }
                         }
                     }
                 }

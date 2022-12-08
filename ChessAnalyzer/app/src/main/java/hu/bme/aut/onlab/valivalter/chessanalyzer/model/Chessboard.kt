@@ -2,6 +2,9 @@ package hu.bme.aut.onlab.valivalter.chessanalyzer.model
 
 import android.util.Log
 import hu.bme.aut.onlab.valivalter.chessanalyzer.R
+import hu.bme.aut.onlab.valivalter.chessanalyzer.stockfish.MODE
+import hu.bme.aut.onlab.valivalter.chessanalyzer.stockfish.StockfishApplication
+import java.io.IOException
 import java.util.HashMap
 
 enum class Player {
@@ -49,6 +52,10 @@ class Chessboard {
             "Qkq", "Qk", "Qq", "Q",
             "kq", "k", "q", "-"
         )
+
+        fun indicesToTileNotation(i: Int, j: Int): String {
+            return "abcdefgh"[j] + "${8-i}"
+        }
     }
 
     fun getTile(i: Int, j: Int): String {
@@ -114,13 +121,6 @@ class Chessboard {
         board = newBoard
     }
 
-    /*fun setNextPlayer(color: Player) {
-        if (color == Player.WHITE)
-            nextPlayer = Player.WHITE
-        else
-            nextPlayer = Player.BLACK
-    }*/
-
     fun print() {
         var boardText = ""
         for (i in 0 until 8) {
@@ -130,10 +130,6 @@ class Chessboard {
             }
         }
         Log.i("Chessboard", boardText)
-    }
-
-    fun indicesToTileNotation(i: Int, j: Int): String {
-        return "abcdefgh"[j] + "${8-i}"
     }
 
     fun toFen(): String {
@@ -249,14 +245,14 @@ class Chessboard {
         return differences
     }
 
-    fun checkStep(differences: MutableList<Pair<Int, Int>>) {
-
-    }
-
     fun getLastMoveLan(previous: Chessboard): String {
 
-        if (previous.getDifferentTiles(this).size == 4) {
-            if
+        val castlingType = didCastle(previous)
+        if (castlingType == 'K' || castlingType == 'k') {
+            return "0-0"
+        }
+        else if (castlingType == 'Q' || castlingType == 'q') {
+            return "0-0-0"
         }
 
         var fromTile: Pair<Int, Int>? = null
@@ -283,11 +279,11 @@ class Chessboard {
                 "wq", "bq" -> lan += "Q"
                 // "wp", "bp" -> lan += "P"  usually not used in PGN notation
             }
-            lan += indicesToTileNotation(fromTile.first, fromTile.second)
+            lan += Chessboard.indicesToTileNotation(fromTile.first, fromTile.second)
             if (previous.getTile(toTile.first, toTile.second) != "em") {
                 lan += "x"
             }
-            lan += indicesToTileNotation(toTile.first, toTile.second)
+            lan += Chessboard.indicesToTileNotation(toTile.first, toTile.second)
 
             if ((toTile.first == 0 || toTile.first == 7) && previous.getTile(fromTile.first, fromTile.second).last() == 'p') {
                 when (board[toTile.first][toTile.second]) {
@@ -299,5 +295,69 @@ class Chessboard {
             }
         }
         return lan
+    }
+
+
+    // RECORDRHEZ CSAK
+    fun didCastle(previous: Chessboard): Char? {
+        val differences = this.getDifferentTiles(previous)
+        if (differences.size == 4) {
+            if (previous.getTile(0, 0) == "br" && this.getTile(0, 0) == "em" &&
+                previous.getTile(0, 2) == "em" && this.getTile(0, 2).first() == 'b' &&
+                previous.getTile(0, 3) == "em" && this.getTile(0, 3).first() == 'b' &&
+                previous.getTile(0, 4) == "bk" && this.getTile(0, 4) == "em") {
+                return 'q'
+            }
+            else if (previous.getTile(0, 4) == "bk" && this.getTile(0, 4) == "em" &&
+                previous.getTile(0, 5) == "em" && this.getTile(0, 5).first() == 'b' &&
+                previous.getTile(0, 6) == "em" && this.getTile(0, 6).first() == 'b' &&
+                previous.getTile(0, 7) == "br" && this.getTile(0, 7) == "em") {
+                return 'k'
+            }
+            else if (previous.getTile(7, 0) == "wr" && this.getTile(7, 0) == "em" &&
+                previous.getTile(7, 2) == "em" && this.getTile(7, 2).first() == 'w' &&
+                previous.getTile(7, 3) == "em" && this.getTile(7, 3).first() == 'w' &&
+                previous.getTile(7, 4) == "wk" && this.getTile(7, 4) == "em") {
+                return 'Q'
+            }
+            else if (previous.getTile(7, 4) == "wk" && this.getTile(7, 4) == "em" &&
+                previous.getTile(7, 5) == "em" && this.getTile(7, 5).first() == 'w' &&
+                previous.getTile(7, 6) == "em" && this.getTile(7, 6).first() == 'w' &&
+                previous.getTile(7, 7) == "wr" && this.getTile(7, 7) == "em") {
+                return 'K'
+            }
+        }
+        return null
+    }
+
+    fun castle(fenAvailabilityNotation: Char) {
+        when (fenAvailabilityNotation) {
+            'q' -> {
+                this.setTile(0, 0, "em")
+                this.setTile(0, 2, "bk")
+                this.setTile(0, 3, "br")
+                this.setTile(0, 4, "em")
+            }
+            'k' -> {
+                this.setTile(0, 4, "em")
+                this.setTile(0, 5, "br")
+                this.setTile(0, 6, "bk")
+                this.setTile(0, 7, "em")
+
+            }
+            'Q' -> {
+                this.setTile(7, 0, "em")
+                this.setTile(7, 2, "wk")
+                this.setTile(7, 3, "wr")
+                this.setTile(7, 4, "em")
+
+            }
+            'K' -> {
+                this.setTile(7, 4, "em")
+                this.setTile(7, 5, "wr")
+                this.setTile(7, 6, "wk")
+                this.setTile(7, 7, "em")
+            }
+        }
     }
 }

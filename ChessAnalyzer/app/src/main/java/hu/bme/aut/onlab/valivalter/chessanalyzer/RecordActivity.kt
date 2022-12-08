@@ -10,6 +10,7 @@ import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import android.util.Log
 import android.util.Size
+import android.view.WindowManager
 import androidx.camera.core.*
 import androidx.core.content.ContextCompat
 import java.time.LocalDateTime
@@ -29,6 +30,8 @@ class RecordActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityRecordBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+
 
         binding.btnStopRecording.setOnClickListener {
             val formatter = DateTimeFormatter.ofPattern("yyyy.MM.dd. HH:mm")
@@ -52,7 +55,7 @@ class RecordActivity : AppCompatActivity() {
 
         cameraProviderFuture.addListener({
             val imageAnalysis = ImageAnalysis.Builder()
-                .setTargetResolution(Size(2160, 3840))
+                //.setTargetResolution(Size(2160, 3840))
                 .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
                 .build()
 
@@ -63,7 +66,7 @@ class RecordActivity : AppCompatActivity() {
             val cameraProvider: ProcessCameraProvider = cameraProviderFuture.get()
 
             val preview = Preview.Builder()
-                .setTargetResolution(Size(2160, 3840))
+                //.setTargetResolution(Size(2160, 3840))
                 //.setTargetAspectRatio(AspectRatio.RATIO_16_9)
                 .build()
                 .also {

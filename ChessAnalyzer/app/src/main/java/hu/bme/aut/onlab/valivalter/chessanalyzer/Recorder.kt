@@ -104,14 +104,14 @@ class Recorder(private val activity: RecordActivity) : ImageAnalysis.Analyzer, R
                     // pawn promotion
                     if ((differences[0].first == 0 || differences[0].first == 7) && currentStateTwo.last() == 'p') {
                         if (newStateOne.last() == 'p' || newStateOne.last() == 'k') {
-                            newStateOne = newStateOne.drop(1) + 'q'
+                            newStateOne = newStateOne.dropLast(1) + 'q'
                         }
                         currentChessboard.setTile(differences[0].first, differences[0].second, newStateOne)
                     }
                 }
 
                 try {
-                    val command = "position fen ${currentChessboard.toFen()}\neval\nisready\ngo movetime 2000\n"
+                    val command = "position fen ${currentChessboard.toFen()}\neval\nisready\ngo movetime 500\n"
                     StockfishApplication.runCommandWithListener(command, MODE.RECORDER, this)
                 }
                 catch (e: IOException) {
@@ -123,31 +123,25 @@ class Recorder(private val activity: RecordActivity) : ImageAnalysis.Analyzer, R
             }
         }
         else if (differences.size == 4) { // castling
-            if (Pair(0, 0) in differences && Pair(0, 2) in differences && Pair(0, 3) in differences && Pair(0, 4) in differences &&
-                currentChessboard.getTile(0, 0) == "br" && board.getTile(0, 0) == "em" &&
-                currentChessboard.getTile(0, 2) == "em" && board.getTile(0, 2).first() == 'b' &&
-                currentChessboard.getTile(0, 3) == "em" && board.getTile(0, 3).first() == 'b' &&
-                currentChessboard.getTile(0, 4) == "bk" && board.getTile(0, 4) == "em") {
-
+            val castlingType = board.didCastle(currentChessboard)
+            if (castlingType != null) {
                 previousChessboard = currentChessboard.copy()
                 when (currentChessboard.nextPlayer) {
                     Player.WHITE -> currentChessboard.nextPlayer = Player.BLACK
                     Player.BLACK -> currentChessboard.nextPlayer = Player.WHITE
                 }
-
-                currentChessboard.setTile(0, 0, "em")
-                currentChessboard.setTile(0, 2, "bk")
-                currentChessboard.setTile(0, 3, "bk")
-                currentChessboard.setTile(0, 4, "em")
+                currentChessboard.castle(castlingType)
 
                 try {
-                    val command = "position fen ${currentChessboard.toFen()}\neval\nisready\ngo movetime 2000\n"
+                    val command = "position fen ${currentChessboard.toFen()}\neval\nisready\ngo movetime 500\n"
                     StockfishApplication.runCommandWithListener(command, MODE.RECORDER, this)
                 }
                 catch (e: IOException) {
                     e.printStackTrace()
                 }
-
+            }
+            else {
+                this.imageProxy.close()
             }
         }
         else {
@@ -173,7 +167,7 @@ class Recorder(private val activity: RecordActivity) : ImageAnalysis.Analyzer, R
     }
 
     override fun onInvalidFen() {
-        activity.binding.tvLastStep.text = "Invalid step"
+        activity.binding.tvLastStep.text = "Invalid step (in check)"
         currentChessboard = previousChessboard.copy()
         this.imageProxy.close()
     }

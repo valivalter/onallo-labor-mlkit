@@ -51,7 +51,7 @@ class LichessInteractor(val activity: Activity) {
                 } catch (e: Exception) {
                     e.printStackTrace()
                     if (!activity.isDestroyed && !activity.isFinishing) {
-                        activity.runOnUiThread { onError(e) }
+                        onError(e)
                     }
                 }
             }
@@ -59,7 +59,7 @@ class LichessInteractor(val activity: Activity) {
         else {
             val infos = resetPositionInfos()
             if (!activity.isDestroyed && !activity.isFinishing) {
-                activity.runOnUiThread { onSuccess(infos) }
+                onSuccess(infos)
             }
         }
     }

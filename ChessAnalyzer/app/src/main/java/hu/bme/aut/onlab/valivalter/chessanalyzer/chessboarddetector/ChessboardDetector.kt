@@ -54,7 +54,7 @@ class ChessboardDetector {
 
         fun canny(mat: Mat): Pair<Mat, Bitmap> {
             val cannyEdgesMat = Mat(mat.size(), CvType.CV_8UC1)
-            Imgproc.Canny(mat, cannyEdgesMat, 10.0, 40.0)
+            Imgproc.Canny(mat, cannyEdgesMat, 20.0, 50.0)
             val cannyEdgesBitmap = matToBitmap(cannyEdgesMat)
             return Pair(cannyEdgesMat, cannyEdgesBitmap)
         }
@@ -331,10 +331,10 @@ class ChessboardDetector {
                 for (j in 0 until 4) {
                     val d1 = getDistance(boardCenter, cornerPoints[i])
                     val d2 = getDistance(boardCenter, cornerPoints[j])
-                    if ((d1 + d2)/2.0 > 1.2 * d1 ||
-                        (d1 + d2)/2.0 < 0.8 * d1 ||
-                        (d1 + d2)/2.0 > 1.2 * d2 ||
-                        (d1 + d2)/2.0 < 0.8 * d2) {
+                    if ((d1 + d2)/2.0 > 1.1 * d1 ||
+                        (d1 + d2)/2.0 < 0.9 * d1 ||
+                        (d1 + d2)/2.0 > 1.1 * d2 ||
+                        (d1 + d2)/2.0 < 0.9 * d2) {
                         throw Exception("Could not detect chessboard!")
                     }
                 }
