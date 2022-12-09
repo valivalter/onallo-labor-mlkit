@@ -2,6 +2,7 @@ package hu.bme.aut.onlab.valivalter.chessanalyzer.model
 
 import android.util.Log
 import hu.bme.aut.onlab.valivalter.chessanalyzer.R
+import hu.bme.aut.onlab.valivalter.chessanalyzer.stockfish.Analysis
 import hu.bme.aut.onlab.valivalter.chessanalyzer.stockfish.MODE
 import hu.bme.aut.onlab.valivalter.chessanalyzer.stockfish.StockfishApplication
 import java.io.IOException
@@ -44,6 +45,9 @@ class Chessboard {
             it["bk"] = R.drawable.black_king
             it["bq"] = R.drawable.black_queen
             it["bp"] = R.drawable.black_pawn
+
+            it["wkwr"] = R.drawable.white_king_and_rook
+            it["bkbr"] = R.drawable.black_king_and_rook
         }
 
         val castlingAvailabilityPossibilities = listOf(
@@ -55,6 +59,31 @@ class Chessboard {
 
         fun indicesToTileNotation(i: Int, j: Int): String {
             return "abcdefgh"[j] + "${8-i}"
+        }
+
+        fun getPieceFromStepLan(step: String): String {
+            if ("White" in step) {
+                when (step[7]) {
+                    'K' -> return "wk"
+                    'Q' -> return "wq"
+                    'R' -> return "wr"
+                    'N' -> return "wn"
+                    'B' -> return "wb"
+                    '0' -> return "wkwr"
+                    else -> return "wp"
+                }
+            }
+            else {
+                when (step[7]) {
+                    'K' -> return "bk"
+                    'Q' -> return "bq"
+                    'R' -> return "br"
+                    'N' -> return "bn"
+                    'B' -> return "bb"
+                    '0' -> return "bkbr"
+                    else -> return "bp"
+                }
+            }
         }
     }
 
@@ -245,7 +274,7 @@ class Chessboard {
         return differences
     }
 
-    fun getLastMoveLan(previous: Chessboard): String {
+    fun getLastMoveLan(previous: Chessboard, analysis: Analysis? = null): String {
 
         val castlingType = didCastle(previous)
         if (castlingType == 'K' || castlingType == 'k') {
@@ -293,6 +322,13 @@ class Chessboard {
                     "wq", "bq" -> lan += "Q"
                 }
             }
+        }
+
+        if (analysis?.result == "check") {
+            lan += '+'
+        }
+        else if (analysis?.result == "checkmate") {
+            lan += '#'
         }
         return lan
     }

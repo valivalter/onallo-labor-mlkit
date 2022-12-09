@@ -2,39 +2,19 @@ package hu.bme.aut.onlab.valivalter.chessanalyzer
 
 import android.content.ActivityNotFoundException
 import android.content.Intent
-import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.graphics.Matrix
-import android.graphics.Typeface
 import android.net.Uri
 import android.os.Bundle
 import android.os.Environment
 import android.provider.MediaStore
 import android.util.Log
-import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageButton
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
-import com.afollestad.materialdialogs.MaterialDialog
-import com.afollestad.materialdialogs.customview.customView
-import com.github.mikephil.charting.data.PieData
-import com.github.mikephil.charting.data.PieDataSet
-import com.github.mikephil.charting.data.PieEntry
-import com.github.mikephil.charting.formatter.ValueFormatter
-import com.github.mikephil.charting.utils.ColorTemplate
-import hu.bme.aut.onlab.valivalter.chessanalyzer.chessboarddetector.ChessboardDetector
-import hu.bme.aut.onlab.valivalter.chessanalyzer.recognizer.Recognizer
-import hu.bme.aut.onlab.valivalter.chessanalyzer.recognizer.RecognitionCompletedListener
 import hu.bme.aut.onlab.valivalter.chessanalyzer.databinding.*
 import hu.bme.aut.onlab.valivalter.chessanalyzer.model.*
-import hu.bme.aut.onlab.valivalter.chessanalyzer.network.LichessInteractor
-import hu.bme.aut.onlab.valivalter.chessanalyzer.stockfish.Analysis
-import hu.bme.aut.onlab.valivalter.chessanalyzer.stockfish.AnalysisCompletedListener
 import hu.bme.aut.onlab.valivalter.chessanalyzer.stockfish.MODE
 import hu.bme.aut.onlab.valivalter.chessanalyzer.stockfish.StockfishApplication
 import org.opencv.core.*
@@ -145,12 +125,8 @@ class AnalyzerActivity : AppCompatActivity() {
     @Throws(IOException::class)
     private fun createImageFile(): File {
         val timeStamp: String = SimpleDateFormat("yyyyMMdd_HHmmss").format(Date())
-        val storageDir: File? = this.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
-        return File.createTempFile(
-            "JPEG_${timeStamp}_",
-            ".jpg",
-            storageDir
-        ).apply {
+        val storageDir: File? = this.cacheDir
+        return File.createTempFile("JPEG_${timeStamp}_", ".jpg", storageDir).apply {
             currentPhotoPath = absolutePath
         }
     }
@@ -163,6 +139,7 @@ class AnalyzerActivity : AppCompatActivity() {
                 val inputStream: InputStream? = contentResolver.openInputStream(photoURI)
                 val imageBitmap = BitmapFactory.decodeStream(inputStream)
                 inputStream?.close()
+                cacheDir.deleteRecursively()
 
                 thread {
                     analyzer.findBoardRecognizePieces(imageBitmap, false)

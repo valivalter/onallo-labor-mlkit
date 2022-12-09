@@ -17,7 +17,7 @@ class Recognizer(val listener: RecognitionCompletedListener) {
 
     init {
         val localModel = LocalModel.Builder()
-            .setAssetFilePath("chess-pieces-recognizer.tflite")
+            .setAssetFilePath("chess-pieces-recognize.tflite")
             .build()
 
         val customImageLabelerOptions = CustomImageLabelerOptions.Builder(localModel)

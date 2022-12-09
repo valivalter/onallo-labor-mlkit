@@ -15,7 +15,7 @@
         android:fontFamily="@font/averia_serif_libre"
         android:text="@string/app_name"
         android:textAlignment="center"
-        android:textSize="80sp"
+        android:textSize="75sp"
         app:layout_constraintBottom_toTopOf="@+id/glMainActivityHorizontal"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
