@@ -8,7 +8,7 @@ import kotlin.math.*
 
 class ChessboardDetector {
     companion object {
-        fun findBoard(originalBitmap: Bitmap): Pair<Bitmap, Bitmap>? {
+        fun findBoard(originalBitmap: Bitmap): Bitmap? {
             val originalMat = Mat()
             Utils.bitmapToMat(originalBitmap, originalMat)
             try {
@@ -25,42 +25,42 @@ class ChessboardDetector {
                 val tileCorners = getTileCorners(intersections.first, houghLines.third)
                 val chessboardCorners = getChessboardCorners(tileCorners.first, houghLines.third, originalBitmap, horizontalLineAnglesMode)
                 val chessboard = warpAndCropImage(chessboardCorners.first, originalMat)
-                return Pair(chessboardCorners.second, chessboard)
+                return chessboard
             }
             catch (throwable: Throwable) {
                 return null
             }
         }
 
-        fun matToBitmap(mat: Mat): Bitmap {
+        private fun matToBitmap(mat: Mat): Bitmap {
             val bitmap = Bitmap.createBitmap(mat.cols(), mat.rows(), Bitmap.Config.ARGB_8888)
             Utils.matToBitmap(mat, bitmap)
             return bitmap
         }
 
-        fun toBlackAndWhite(coloredMat: Mat): Pair<Mat, Bitmap> {
+        private fun toBlackAndWhite(coloredMat: Mat): Pair<Mat, Bitmap> {
             val blackAndWhiteMat = Mat(coloredMat.size(), CvType.CV_8UC1)
             Imgproc.cvtColor(coloredMat, blackAndWhiteMat, Imgproc.COLOR_RGB2GRAY, 4)
             val blackAndWhiteBitmap = matToBitmap(blackAndWhiteMat)
             return Pair(blackAndWhiteMat, blackAndWhiteBitmap)
         }
 
-        fun blur(mat: Mat): Pair<Mat, Bitmap> {
+        private fun blur(mat: Mat): Pair<Mat, Bitmap> {
             val blurredMat = Mat(mat.size(), CvType.CV_8UC1)
             Imgproc.blur(mat, blurredMat, Size(15.0, 15.0))
             val blurredBitmap = matToBitmap(blurredMat)
             return Pair(blurredMat, blurredBitmap)
         }
 
-        fun canny(mat: Mat): Pair<Mat, Bitmap> {
+        private fun canny(mat: Mat): Pair<Mat, Bitmap> {
             val cannyEdgesMat = Mat(mat.size(), CvType.CV_8UC1)
             Imgproc.Canny(mat, cannyEdgesMat, 20.0, 50.0)
             val cannyEdgesBitmap = matToBitmap(cannyEdgesMat)
             return Pair(cannyEdgesMat, cannyEdgesBitmap)
         }
 
-        fun getChessboardLines(mat: Mat): Triple<Pair<MutableList<Pair<Double, Double>>, MutableList<Pair<Double, Double>>>, Bitmap, Mat> {
-            // this will be used for the bitmap, it has to be converted to colored mat
+        private fun getChessboardLines(mat: Mat): Triple<Pair<MutableList<Pair<Double, Double>>, MutableList<Pair<Double, Double>>>, Bitmap, Mat> {
+            // Színessé kell konvertálni, mert a detektált vonalakat ábrázoló bitmaphez lesz rá szükség
             val houghLinesMat = Mat()
             Imgproc.cvtColor(mat, houghLinesMat, Imgproc.COLOR_GRAY2BGR)
 
@@ -80,8 +80,6 @@ class ChessboardDetector {
                 val pt1 = Point(Math.round(x0 + 10000 * -b).toDouble(), Math.round(y0 + 10000 * a).toDouble())
                 val pt2 = Point(Math.round(x0 - 10000 * -b).toDouble(), Math.round(y0 - 10000 * a).toDouble())
                 Imgproc.line(houghLinesMat, pt1, pt2, Scalar(0.0, 0.0, 255.0), 3, Imgproc.LINE_AA, 0)
-                //val l: DoubleArray = lines.get(x, 0)
-                //Imgproc.line(edgesmegminden, Point(l[0], l[1]), Point(l[2], l[3]), Scalar(0.0, 0.0, 255.0), 3, Imgproc.LINE_AA, 0)
             }
             for (line in verticalLines) {
                 val rho = line.first
@@ -93,15 +91,13 @@ class ChessboardDetector {
                 val pt1 = Point(Math.round(x0 + 10000 * -b).toDouble(), Math.round(y0 + 10000 * a).toDouble())
                 val pt2 = Point(Math.round(x0 - 10000 * -b).toDouble(), Math.round(y0 - 10000 * a).toDouble())
                 Imgproc.line(houghLinesMat, pt1, pt2, Scalar(0.0, 0.0, 255.0), 3, Imgproc.LINE_AA, 0)
-                //val l: DoubleArray = lines.get(x, 0)
-                //Imgproc.line(edgesmegminden, Point(l[0], l[1]), Point(l[2], l[3]), Scalar(0.0, 0.0, 255.0), 3, Imgproc.LINE_AA, 0)
             }
 
             val houghLinesBitmap = matToBitmap(houghLinesMat)
             return Triple(Pair(horizontalLines, verticalLines), houghLinesBitmap, houghLinesMat)
         }
 
-        fun getHorizontalAndVerticalLines(lines: Mat): Pair<MutableList<Pair<Double, Double>>, MutableList<Pair<Double, Double>>> {
+        private fun getHorizontalAndVerticalLines(lines: Mat): Pair<MutableList<Pair<Double, Double>>, MutableList<Pair<Double, Double>>> {
             val verticalLines: MutableList<Pair<Double, Double>> = mutableListOf()
             val horizontalLines: MutableList<Pair<Double, Double>> = mutableListOf()
 
@@ -119,12 +115,12 @@ class ChessboardDetector {
             return Pair(horizontalLines, verticalLines)
         }
 
-        fun removeWrongLines(lines: MutableList<Pair<Double, Double>>): MutableList<Pair<Double, Double>> {
+        private fun removeWrongLines(lines: MutableList<Pair<Double, Double>>): MutableList<Pair<Double, Double>> {
             val anglesMode = lines.groupingBy {
                 (it.second*100).toInt()
             }.eachCount().maxByOrNull { it.value }!!.key/100.0
 
-            // branches because of the the fact that 0 radian == pi radian
+            // 0 radián == pí radián miatti szükséges elágazások
             if (anglesMode > 3.09) {
                 val diff = anglesMode - 3.09
                 lines.removeIf {
@@ -156,14 +152,12 @@ class ChessboardDetector {
                 val Line4 = lineClusterCenters[3]
                 val Line5 = lineClusterCenters[4]
                 val Line6 = lineClusterCenters[5]
-                // not the actual tile length, just a projection of it
                 val tileLength = ((Line5 - Line4) + (Line6 - Line5))/2
 
-                // túl távoli véletlen vonalak, vagy a tábla széle, ha sötét a háttér
+                // túl távoli véletlen vonalak, vagy a tábla szélének eltávolítására, ha sötét a háttér
                 if ((lineClusterCenters[lineClusterCenters.size-1] - lineClusterCenters[lineClusterCenters.size-2]) > 1.2*tileLength) {
                     remainingOutliers = lines.removeIf {
                         abs(it.first) > lineClusterCenters[lineClusterCenters.size-1] - 0.1*tileLength
-                        //abs(it.first - largestDistance) < 0.09*tileLength
                     }
                 }
             }
@@ -177,55 +171,20 @@ class ChessboardDetector {
                 val Line4 = lineClusterCenters[3]
                 val Line5 = lineClusterCenters[4]
                 val Line6 = lineClusterCenters[5]
-                // not the actual tile length, just a projection of it
                 val tileLength = ((Line5 - Line4) + (Line6 - Line5))/2
 
-                // túl távoli véletlen vonalak, vagy a tábla széle, ha sötét a háttér
+                // túl távoli véletlen vonalak, vagy a tábla szélének eltávolítására, ha sötét a háttér
                 if ((lineClusterCenters[1] - lineClusterCenters[0]) > 1.2*tileLength) {
                     remainingOutliers = lines.removeIf {
                         abs(it.first) < lineClusterCenters[0] + 0.1*tileLength
-                        //abs(it.first - smallestDistance) < 0.1*tileLength
                     }
                 }
             }
 
-            /*var remainingBiggerOutliers = true
-            var remainingSmallerOutliers = true
-            while (remainingBiggerOutliers || remainingSmallerOutliers) {
-                remainingBiggerOutliers = false
-                remainingSmallerOutliers = false
-
-                val lineClusterCenters = getLineClusters(lines)
-
-                val Line4 = lineClusterCenters[3]
-                val Line5 = lineClusterCenters[4]
-                val Line6 = lineClusterCenters[5]
-                // not the actual tile length, just a projection of it
-                val tileLength = ((Line5 - Line4) + (Line6 - Line5))/2
-
-                val largestDistance = lines.last().first
-
-                // túl távoli véletlen vonalak, vagy a tábla széle, ha sötét a háttér
-                if ((lineClusterCenters[lineClusterCenters.size-1] - lineClusterCenters[lineClusterCenters.size-2]) > 1.12*tileLength) {
-                    remainingBiggerOutliers = lines.removeIf {
-                        it.first > lineClusterCenters[lineClusterCenters.size-1] - 0.1*tileLength
-                        //abs(it.first - largestDistance) < 0.09*tileLength
-                    }
-                }
-
-                // túl távoli véletlen vonalak, vagy a tábla széle, ha sötét a háttér
-                val smallestDistance = lines[0].first
-                if ((lineClusterCenters[1] - lineClusterCenters[0]) > 1.12*tileLength) {
-                    remainingSmallerOutliers = lines.removeIf {
-                        it.first < lineClusterCenters[0] + 0.1*tileLength
-                        //abs(it.first - smallestDistance) < 0.1*tileLength
-                    }
-                }
-            }*/
             return lines
         }
 
-        fun getLineClusters(lines: MutableList<Pair<Double, Double>>): MutableList<Double> {
+        private fun getLineClusters(lines: MutableList<Pair<Double, Double>>): MutableList<Double> {
             val lineDistances = mutableListOf<Point>()
             for (line in lines) {
                 lineDistances.add(Point(abs(line.first), 0.0))
@@ -245,9 +204,9 @@ class ChessboardDetector {
         }
 
 
-        fun getIntersections(horizontalLines: MutableList<Pair<Double, Double>>,
-                             verticalLines: MutableList<Pair<Double, Double>>,
-                             linesImageMat: Mat): Pair<MutableList<Point>, Bitmap> {
+        private fun getIntersections(horizontalLines: MutableList<Pair<Double, Double>>,
+                                     verticalLines: MutableList<Pair<Double, Double>>,
+                                     linesImageMat: Mat): Pair<MutableList<Point>, Bitmap> {
             val intersectionsImageMat = linesImageMat.clone()
 
             val points = mutableListOf<Point>()
@@ -258,7 +217,7 @@ class ChessboardDetector {
                     val d2 = verticalLines[j].first
                     val a2 = verticalLines[j].second
 
-                    // lineáris egyenletrendszer, papíron ez jött ki
+                    // lineáris egyenletrendszer megoldása
                     val y = (d2 - (d1 * cos(a2)) / cos(a1)) / (sin(a2) - (sin(a1) * cos(a2)) / cos(a1))
                     val x = d1 / cos(a1) - y * (sin(a1) / cos(a1))
                     val point = Point(x, y)
@@ -270,7 +229,7 @@ class ChessboardDetector {
             return Pair(points, intersectionsBitmap)
         }
 
-        fun getTileCorners(points: MutableList<Point>, linesImageMat: Mat): Pair<Mat, Bitmap> {
+        private fun getTileCorners(points: MutableList<Point>, linesImageMat: Mat): Pair<Mat, Bitmap> {
             val clustersImageMat = linesImageMat.clone()
 
             val pointsMat = org.opencv.utils.Converters.vector_Point_to_Mat(points, CvType.CV_32F)
@@ -286,12 +245,12 @@ class ChessboardDetector {
             return Pair(centers, clustersBitmap)
         }
 
-        fun getChessboardCorners(tileCorners: Mat, linesImageMat: Mat, originalBitmap: Bitmap, horizontalLineAnglesMode: Double): Pair<MutableList<Point>, Bitmap> {
+        private fun getChessboardCorners(tileCorners: Mat, linesImageMat: Mat, originalBitmap: Bitmap, horizontalLineAnglesMode: Double): Pair<MutableList<Point>, Bitmap> {
             val cornersImageMat = linesImageMat.clone()
 
             val cornerPoints = mutableListOf<Point>()
 
-            // if the board is tilted enough
+            // Ha eléggé ferde a sakktábla a képen
             if (horizontalLineAnglesMode < (7.0/16.0) * Math.PI || horizontalLineAnglesMode > (9.0/16.0) * Math.PI) {
                 var minXPoint = Point(tileCorners[0, 0][0], tileCorners[0, 1][0])
                 var maxXPoint = Point(tileCorners[0, 0][0], tileCorners[0, 1][0])
@@ -305,12 +264,6 @@ class ChessboardDetector {
                     if (y < minYPoint.y) { minYPoint = Point(x, y) }
                     if (y > maxYPoint.y) { maxYPoint = Point(x, y) }
                 }
-                /*if (minYPoint.x == maxXPoint.x && minYPoint.y == maxXPoint.y) {
-                minYPoint.x = minXPoint.x
-                }
-                if (minXPoint.x == maxYPoint.x && minXPoint.y == maxYPoint.y) {
-                    maxYPoint.x = maxXPoint.x
-                }*/
                 cornerPoints.add(minYPoint)
                 cornerPoints.add(maxXPoint)
                 cornerPoints.add(minXPoint)
@@ -322,8 +275,6 @@ class ChessboardDetector {
                 cornerPoints.add(getClosestPoint(Point(originalBitmap.width.toDouble(), 0.0), tileCorners))
                 cornerPoints.add(getClosestPoint(Point(originalBitmap.width.toDouble(), originalBitmap.height.toDouble()), tileCorners))
             }
-
-
 
             val boardCenter = Point((cornerPoints[0].x + cornerPoints[1].x + cornerPoints[2].x + cornerPoints[3].x)/4,
                 (cornerPoints[0].y + cornerPoints[1].y + cornerPoints[2].y + cornerPoints[3].y)/4)
@@ -340,7 +291,6 @@ class ChessboardDetector {
                 }
             }
 
-
             cornerPoints.forEach {
                 Imgproc.line(cornersImageMat, it, it, Scalar(255.0, 0.0, 0.0), 20, Imgproc.LINE_AA, 0)
             }
@@ -348,11 +298,11 @@ class ChessboardDetector {
             return Pair(cornerPoints, cornersBitmap)
         }
 
-        fun getDistance(p1: Point, p2: Point): Double {
+        private fun getDistance(p1: Point, p2: Point): Double {
             return sqrt((p1.x - p2.x).pow(2) + (p1.y - p2.y).pow(2))
         }
 
-        fun getClosestPoint(point: Point, points: Mat): Point {
+        private fun getClosestPoint(point: Point, points: Mat): Point {
             var minPoint = Point(points[0, 0][0], points[0, 1][0])
             var minDist = (point.x - minPoint.x).pow(2) + (point.y - minPoint.y).pow(2)
             for (x in 0 until points.rows()) {
@@ -367,7 +317,7 @@ class ChessboardDetector {
             return minPoint
         }
 
-        fun warpAndCropImage(cornerPoints: MutableList<Point>, originalMat: Mat): Bitmap {
+        private fun warpAndCropImage(cornerPoints: MutableList<Point>, originalMat: Mat): Bitmap {
             val boardLength = 1000.0
             val goalPoints = listOf(
                 Point(0.0, 0.0),

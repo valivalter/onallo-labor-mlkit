@@ -4,10 +4,31 @@
     <string name="next_player">Next player</string>
     <string name="white">White</string>
     <string name="black">Black</string>
-    <string name="analyzing">Recognizing pieces</string>
+    <string name="recognizing">Recognizing pieces</string>
     <string name="analyze_photo">Analyze image</string>
     <string name="record_game">Record game</string>
-
     <string name="network_error_title">Network error</string>
-    <string name="network_error_message">Check your connection!</string>
+    <string name="network_error_message">Check your connection for more infos!</string>
+    <string name="stockfish_checkmate">Stockfish result: checkmate</string>
+    <string name="analyzing">Analyzing</string>
+    <string name="invalid_step_check">Invalid step (in check)</string>
+    <string name="rotate_if">Rotate if white player is not at the bottom</string>
+    <string name="rotating_arrow">Rotating arrow</string>
+    <string name="sandbox">Sandbox</string>
+    <string name="take_photo">Take photo</string>
+    <string name="no_steps_detected">No steps detected yet</string>
+    <string name="stop_recording">Stop recording</string>
+    <string name="analysis">Analysis</string>
+    <string name="stockfish_result">Stockfish result:</string>
+    <string name="best_move">Best move:</string>
+    <string name="expected_response">Expected response:</string>
+    <string name="outcomes">Outcomes of this position:</string>
+    <string name="top_game">Top game with this position:</string>
+    <string name="date">Date</string>
+    <string name="not_in_lichess_database">This position is not present in the Masters database</string>
+    <string name="invalid_position">Invalid position</string>
+    <string name="share_results">Share results</string>
+    <string name="no_best_move">Best move: -</string>
+    <string name="no_expected_response">Expected response: -</string>
+    <string name="no_date">(Missing date)</string>
 </resources>

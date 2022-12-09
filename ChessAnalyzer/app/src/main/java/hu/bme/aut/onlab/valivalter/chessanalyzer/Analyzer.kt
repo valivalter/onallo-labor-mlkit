@@ -38,28 +38,18 @@ class Analyzer(private val activity: AnalyzerActivity) : RecognitionCompletedLis
     private lateinit var positionInfo: PositionInfo
     private val lichessInteractor = LichessInteractor(activity)
 
-    fun findBoardRecognizePieces(imageBitmap: Bitmap, debug: Boolean) {
-        val board = ChessboardDetector.findBoard(imageBitmap)
+    fun findBoardRecognizePieces(imageBitmap: Bitmap) {
+        var boardBitmap = ChessboardDetector.findBoard(imageBitmap)
 
-        if (board != null) {
-            val cornersBitmap = board.first
-            var boardBitmap = board.second
+        if (boardBitmap != null) {
 
-            if (debug) {
-                activity.runOnUiThread {
-                    activity.binding.ivCorners.setImageBitmap(cornersBitmap)
-                    activity.binding.ivCropped.setImageBitmap(boardBitmap)
-                }
-            }
             if (imageBitmap.width > imageBitmap.height) {
                 val matrix = Matrix()
                 matrix.postRotate(90F)
                 boardBitmap = Bitmap.createBitmap(boardBitmap, 0, 0, boardBitmap.width, boardBitmap.height, matrix, true)
             }
             imageBitmap.recycle()
-            //val resizedBitmap = Bitmap.createBitmap(rotatedImg, 0, 0, rotatedImg.width, rotatedImg.width)
-
-            recognizer.recognize(boardBitmap)
+            recognizer.recognize(boardBitmap!!)
         }
         else {
             activity.runOnUiThread {
@@ -107,16 +97,6 @@ class Analyzer(private val activity: AnalyzerActivity) : RecognitionCompletedLis
                     piecePickerDialog.show {
                         customView(view = piecePickerBinding.root, scrollable = true)
                     }
-
-                    /*val actualPiece = board.getTile(i, j)
-                    var newIndex = Chessboard.pieces.indexOf(actualPiece) + 1
-                    if (newIndex == Chessboard.pieces.size) {
-                        newIndex = 0
-                    }
-                    val newPiece = Chessboard.pieces[newIndex]
-                    board.setTile(i, j, newPiece)
-                    tile.setImageResource(Chessboard.mapStringsToResources[newPiece]!!)
-                    board.print()*/
                 }
                 tile.setImageResource(Chessboard.mapStringsToResources[piece]!!)
             }
@@ -126,8 +106,6 @@ class Analyzer(private val activity: AnalyzerActivity) : RecognitionCompletedLis
 
     override fun onAnalysisCompleted(analysis: Analysis) {
         this.analysis = analysis
-        //stockfishAnalysisReady = true
-
         val allFens = chessboard.getAllPossibleFens()
         lichessInteractor.getInfos(allFens, this::onGetPositionInfo, this::showError)
     }
@@ -158,7 +136,6 @@ class Analyzer(private val activity: AnalyzerActivity) : RecognitionCompletedLis
         }
 
         positionInfo = PositionInfo(white, draws, black, topgames, opening)
-        //positionInfoReady = true
 
         activity.runOnUiThread {
             openResultDialog()
@@ -167,31 +144,24 @@ class Analyzer(private val activity: AnalyzerActivity) : RecognitionCompletedLis
 
     private fun showError(e: Throwable) {
         activity.runOnUiThread {
-            // kamu, hiányzó királyra is ez van
-            // This happens when the player set to next player has already won the game
             if (e is NullPointerException) {
+                // Akkor fordul elő ez a hiba a Lichess API-nál, ha a soron következőnek megadott játékos már nyert
                 val checkmateDialogBinding = AnalysisResultNoInfoBinding.inflate(LayoutInflater.from(activity))
-                checkmateDialogBinding.tvStockfishResultNoInfo.text = "Stockfish result: checkmate"
-                checkmateDialogBinding.tvBestMoveNoInfo.text = "Best move: -"
-                checkmateDialogBinding.tvExpectedResponseNoInfo.text = "Expected response: -"
+                checkmateDialogBinding.tvStockfishResultNoInfo.text = activity.getString(R.string.stockfish_checkmate)
+                checkmateDialogBinding.tvBestMoveNoInfo.text = activity.getString(R.string.no_best_move)
+                checkmateDialogBinding.tvExpectedResponseNoInfo.text = activity.getString(R.string.no_expected_response)
 
                 MaterialDialog(activity).show {
                     customView(view = checkmateDialogBinding.root, scrollable = true)
                 }
             }
             else {
-                //val networkErrorBinding = NetworkErrorBinding.inflate(LayoutInflater.from(this))
-                //runOnUiThread {
-                //    MaterialDialog(this).show {
-                //        customView(view = networkErrorBinding.root, scrollable = true)
-                //    }
-                //}
-
+                // Nem megfelelő internetelérés
                 val dialogBinding = AnalysisResultNoInfoBinding.inflate(LayoutInflater.from(activity))
                 dialogBinding.tvStockfishResultNoInfo.text = "Stockfish result: ${analysis.result}"
                 dialogBinding.tvBestMoveNoInfo.text = "Best move: ${analysis.bestMove}"
                 dialogBinding.tvExpectedResponseNoInfo.text = "Expected response: ${analysis.expectedResponse}"
-                dialogBinding.tvNoInfo.text = "Check your connection for more infos!"
+                dialogBinding.tvNoInfo.text = activity.getString(R.string.network_error_message)
 
                 MaterialDialog(activity).show {
                     customView(view = dialogBinding.root, scrollable = true)
@@ -202,11 +172,8 @@ class Analyzer(private val activity: AnalyzerActivity) : RecognitionCompletedLis
     }
 
     private fun openResultDialog() {
-        //if (positionInfoReady && stockfishAnalysisReady) {
-
         activity.binding.loadingPanel.visibility = View.INVISIBLE
 
-        // then there aren't any matches in the Lichess database
         if (positionInfo.white == 0 && positionInfo.black == 0 && positionInfo.draws == 0) {
             val dialogBinding = AnalysisResultNoInfoBinding.inflate(LayoutInflater.from(activity))
 
@@ -247,18 +214,12 @@ class Analyzer(private val activity: AnalyzerActivity) : RecognitionCompletedLis
                 }
             }
 
-            dataSet.colors = ColorTemplate.LIBERTY_COLORS.toList()//listOf(
-            //ContextCompat.getColor(this, R.color.white),
-            //ContextCompat.getColor(this, R.color.black),
-            //ContextCompat.getColor(this, R.color.brown_light))
+            dataSet.colors = ColorTemplate.LIBERTY_COLORS.toList()
             val data = PieData(dataSet)
             data.setValueTextSize(15F)
             data.setValueFormatter(formatter)
-            //data.setValueTextColor(ContextCompat.getColor(this, R.color.teal_700))
             dialogBinding.pieMatches.data = data
             dialogBinding.pieMatches.description.isEnabled = false
-            //dialogBinding.pieMatches.legend.isWordWrapEnabled = true
-            //dialogBinding.pieMatches.legend.textSize = 15F
             dialogBinding.pieMatches.legend.isEnabled = false
             dialogBinding.pieMatches.setEntryLabelColor(ContextCompat.getColor(activity, R.color.black))
             dialogBinding.pieMatches.invalidate()
@@ -268,7 +229,7 @@ class Analyzer(private val activity: AnalyzerActivity) : RecognitionCompletedLis
                     dialogBinding.tvDate.text = "(${positionInfo.topGames[0].month}"
                 }
                 else {
-                    dialogBinding.tvDate.text = "(Missing date)"
+                    dialogBinding.tvDate.text = activity.getString(R.string.no_date)
                 }
                 dialogBinding.tvPlayerWhite.text = "⚪ ${positionInfo.topGames[0].white.name} (${positionInfo.topGames[0].white.rating})"
                 dialogBinding.tvPlayerBlack.text = "⚫ ${positionInfo.topGames[0].black.name} (${positionInfo.topGames[0].black.rating})"
@@ -295,9 +256,5 @@ class Analyzer(private val activity: AnalyzerActivity) : RecognitionCompletedLis
                 customView(view = dialogBinding.root, scrollable = true)
             }
         }
-
-        //positionInfoReady = false
-        //stockfishAnalysisReady = false
-        //}
     }
 }

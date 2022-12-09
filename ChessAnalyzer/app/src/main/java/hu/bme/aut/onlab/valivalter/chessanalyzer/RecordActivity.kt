@@ -9,7 +9,6 @@ import hu.bme.aut.onlab.valivalter.chessanalyzer.databinding.ActivityRecordBindi
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import android.util.Log
-import android.util.Size
 import android.view.WindowManager
 import androidx.camera.core.*
 import androidx.core.content.ContextCompat
@@ -31,7 +30,6 @@ class RecordActivity : AppCompatActivity() {
         binding = ActivityRecordBinding.inflate(layoutInflater)
         setContentView(binding.root)
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-
 
         binding.btnStopRecording.setOnClickListener {
             val formatter = DateTimeFormatter.ofPattern("yyyy.MM.dd. HH:mm")
@@ -55,7 +53,6 @@ class RecordActivity : AppCompatActivity() {
 
         cameraProviderFuture.addListener({
             val imageAnalysis = ImageAnalysis.Builder()
-                //.setTargetResolution(Size(2160, 3840))
                 .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
                 .build()
 
@@ -66,8 +63,6 @@ class RecordActivity : AppCompatActivity() {
             val cameraProvider: ProcessCameraProvider = cameraProviderFuture.get()
 
             val preview = Preview.Builder()
-                //.setTargetResolution(Size(2160, 3840))
-                //.setTargetAspectRatio(AspectRatio.RATIO_16_9)
                 .build()
                 .also {
                     it.setSurfaceProvider(viewFinder.createSurfaceProvider())
@@ -82,7 +77,7 @@ class RecordActivity : AppCompatActivity() {
                 Log.e(TAG, "Use case binding failed", exc)
             }
 
-        }, /*cameraExecutor*/ ContextCompat.getMainExecutor(this))
+        }, ContextCompat.getMainExecutor(this))
     }
 
     override fun onDestroy() {

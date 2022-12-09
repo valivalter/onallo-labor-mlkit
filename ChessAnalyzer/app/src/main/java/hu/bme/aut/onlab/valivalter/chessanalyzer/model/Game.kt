@@ -6,9 +6,9 @@ data class Step(val chessboard: Chessboard, val analysis: Analysis)
 
 data class Round(var whiteStep: Step? = null, var blackStep: Step? = null)
 
-class Game() {
+class Game {
     var rounds: MutableList<Round> = mutableListOf()
-    val initialState = Chessboard().also {
+    private val initialState = Chessboard().also {
         it.setDefaultPosition()
     }
 
@@ -18,14 +18,14 @@ class Game() {
             if (rounds.size == 1) {
                 val lastStep = lastRound.whiteStep!!
                 val analysis = lastStep.analysis
-                var lan = lastStep.chessboard.getLastMoveLan(initialState, analysis)
+                val lan = lastStep.chessboard.getLastMoveLan(initialState, analysis)
                 return "White: $lan (${analysis.result})"
             }
             else {
                 val lastStep = lastRound.whiteStep!!
                 val analysis = lastStep.analysis
                 val secondToLastStep = rounds[rounds.size - 2].blackStep!!
-                var lan = lastStep.chessboard.getLastMoveLan(secondToLastStep.chessboard, analysis)
+                val lan = lastStep.chessboard.getLastMoveLan(secondToLastStep.chessboard, analysis)
                 return "White: $lan (${analysis.result})"
             }
         }
@@ -33,7 +33,7 @@ class Game() {
             val lastStep = lastRound.blackStep!!
             val secondToLastStep = lastRound.whiteStep!!
             val analysis = lastStep.analysis
-            var lan = lastStep.chessboard.getLastMoveLan(secondToLastStep.chessboard, analysis)
+            val lan = lastStep.chessboard.getLastMoveLan(secondToLastStep.chessboard, analysis)
             return "Black: $lan (${analysis.result})"
         }
     }

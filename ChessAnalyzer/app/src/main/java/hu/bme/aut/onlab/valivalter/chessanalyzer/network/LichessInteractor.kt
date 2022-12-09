@@ -4,7 +4,6 @@ import android.app.Activity
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import hu.bme.aut.onlab.valivalter.chessanalyzer.model.PositionInfo
-import retrofit2.Call
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
 import kotlin.concurrent.thread
@@ -26,7 +25,7 @@ class LichessInteractor(val activity: Activity) {
         this.lichessApi = retrofit.create(LichessApi::class.java)
     }
 
-    fun resetPositionInfos(): List<PositionInfo> {
+    private fun resetPositionInfos(): List<PositionInfo> {
         val temp = positionInfos
         positionInfos = mutableListOf()
         return temp

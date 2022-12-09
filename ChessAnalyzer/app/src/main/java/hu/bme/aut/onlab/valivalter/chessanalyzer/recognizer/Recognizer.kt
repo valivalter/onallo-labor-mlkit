@@ -10,14 +10,11 @@ import com.google.mlkit.vision.label.custom.CustomImageLabelerOptions
 import hu.bme.aut.onlab.valivalter.chessanalyzer.model.Chessboard
 
 class Recognizer(val listener: RecognitionCompletedListener) {
-// class Analyzer(private val activity: AnalyzerActivity) {
-// if you want to see the analyzed images on the tiles 2/3
-
     private val imageLabeler: ImageLabeler
 
     init {
         val localModel = LocalModel.Builder()
-            .setAssetFilePath("chess-pieces-recognize.tflite")
+            .setAssetFilePath("chess-piece-recognizer.tflite")
             .build()
 
         val customImageLabelerOptions = CustomImageLabelerOptions.Builder(localModel)
@@ -28,7 +25,6 @@ class Recognizer(val listener: RecognitionCompletedListener) {
     }
 
     fun recognize(bitmap: Bitmap, withRulesOfChess: Boolean = true) {
-        //val board = Chessboard()
         var board: Array<Array<MutableList<Pair<String, Float?>>>> = Array(8) { Array(8) { mutableListOf() } }
         val tileWidth = bitmap.width / 8
 
@@ -43,7 +39,6 @@ class Recognizer(val listener: RecognitionCompletedListener) {
                 imageLabeler.process(tileImage)
                     .addOnSuccessListener { results ->
                         Log.i("Analysis", "Analyzing tile: ($i $j)")
-                        //board.setTile(i, j, results[0].text.substring(0, 2))
 
                         val resultPairs = mutableListOf<Pair<String, Float?>>()
                         for (result in results) {
@@ -51,12 +46,7 @@ class Recognizer(val listener: RecognitionCompletedListener) {
                         }
                         board[i][j] = resultPairs
 
-                        // if you want to see the analyzed images on the tiles 3/3
-                        //activity.findViewById<ImageButton>(Chessboard.boardRIDs[i][j]).setImageBitmap(tile)
-
                         if (i == 7 && j == 7) {
-                            //board.print()
-                            //Log.i("FEN", board.toFen())
                             if (withRulesOfChess) {
                                 board = useRulesOfChess(board)
                             }
@@ -115,7 +105,7 @@ class Recognizer(val listener: RecognitionCompletedListener) {
             Array<Array<MutableList<Pair<String, Float?>>>> {
 
         var deleteRemainingOccurrences = false
-        var minOccurrence = minOccurrence
+        val minOccurrence = minOccurrence
 
         for (n in 0 until maxOccurrence) {
             var maxConfidence = 0F
@@ -129,7 +119,6 @@ class Recognizer(val listener: RecognitionCompletedListener) {
                                 maxConfidencePosition = Pair(i, j)
                             }
                         }
-                        minOccurrence -= 1
                     }
                     else {
                         if (board[i][j].size > 0) {

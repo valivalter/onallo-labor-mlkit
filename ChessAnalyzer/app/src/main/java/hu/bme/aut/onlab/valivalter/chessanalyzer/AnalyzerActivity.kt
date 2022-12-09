@@ -5,7 +5,6 @@ import android.content.Intent
 import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Bundle
-import android.os.Environment
 import android.provider.MediaStore
 import android.util.Log
 import android.view.LayoutInflater
@@ -23,13 +22,9 @@ import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.concurrent.thread
 
-
 class AnalyzerActivity : AppCompatActivity() {
     lateinit var binding: ActivityAnalyzerBinding
-    private val analyzer = Analyzer(this) // if you want to see the analyzed images on the tiles 1/3
-
-    private var positionInfoReady = false
-    private var stockfishAnalysisReady = false
+    private val analyzer = Analyzer(this)
 
     companion object {
         const val REQUEST_IMAGE_CAPTURE = 1
@@ -42,7 +37,7 @@ class AnalyzerActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         binding.btnAnalyze.setOnClickListener {
-            binding.tvAnalyzing.text = "Analyzing"
+            binding.tvAnalyzing.text = getString(R.string.analyzing)
             binding.loadingPanel.visibility = View.VISIBLE
 
             try {
@@ -142,23 +137,22 @@ class AnalyzerActivity : AppCompatActivity() {
                 cacheDir.deleteRecursively()
 
                 thread {
-                    analyzer.findBoardRecognizePieces(imageBitmap, false)
+                    analyzer.findBoardRecognizePieces(imageBitmap)
                 }
             } catch (e: IOException) {
                 e.printStackTrace()
             }
         }
         else if (requestCode == REQUEST_IMAGE_GET && resultCode == RESULT_OK) {
-            //val thumbnail: Bitmap = data.getParcelableExtra("data")
             data?.data.let {
                 if (it != null) {
                     try {
                         val contentResolver = applicationContext.contentResolver
                         val inputStream: InputStream? = contentResolver.openInputStream(it)
-                        var imageBitmap = BitmapFactory.decodeStream(inputStream)
+                        val imageBitmap = BitmapFactory.decodeStream(inputStream)
                         inputStream?.close()
                         thread {
-                            analyzer.findBoardRecognizePieces(imageBitmap, false)
+                            analyzer.findBoardRecognizePieces(imageBitmap)
                         }
                     } catch (e: IOException) {
                         e.printStackTrace()

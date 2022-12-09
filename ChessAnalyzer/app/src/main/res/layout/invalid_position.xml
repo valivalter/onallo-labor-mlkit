@@ -11,7 +11,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center"
-        android:text="Invalid position"
+        android:text="@string/invalid_position"
         android:textSize="35sp"
         android:background="@color/light_black"
         android:textColor="@color/dark_white"

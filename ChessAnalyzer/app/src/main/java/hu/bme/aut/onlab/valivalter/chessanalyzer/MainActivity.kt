@@ -20,9 +20,7 @@ class MainActivity : AppCompatActivity() {
     private var ocvLoader: BaseLoaderCallback = object : BaseLoaderCallback(this) {
         override fun onManagerConnected(status: Int) {
             when (status) {
-                LoaderCallbackInterface.SUCCESS -> {
-                    // we are happy
-                }
+                LoaderCallbackInterface.SUCCESS -> { }
                 else -> {
                     binding.btnTakePhoto.isEnabled = false
                     binding.btnAnalyzeImage.isEnabled = false
@@ -36,14 +34,11 @@ class MainActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         if (!OpenCVLoader.initDebug()) {
-            // OpenCv has some problems while loading ... so inicializálom a managerrel
             OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION_3_3_0, this, ocvLoader)
         } else {
-            // Success OpenCV loading
             ocvLoader.onManagerConnected(LoaderCallbackInterface.SUCCESS)
         }
     }
-
 
     companion object {
         private const val REQUEST_CODE_PERMISSIONS = 11
@@ -85,12 +80,8 @@ class MainActivity : AppCompatActivity() {
             startActivity(Intent(this, RecordActivity::class.java))
         }
 
-        if (allPermissionsGranted()) {
-
-        } else {
-            ActivityCompat.requestPermissions(
-                this, REQUIRED_PERMISSIONS, REQUEST_CODE_PERMISSIONS
-            )
+        if (!allPermissionsGranted()) {
+            ActivityCompat.requestPermissions(this, REQUIRED_PERMISSIONS, REQUEST_CODE_PERMISSIONS)
         }
     }
 
@@ -101,14 +92,8 @@ class MainActivity : AppCompatActivity() {
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == REQUEST_CODE_PERMISSIONS) {
-            if (allPermissionsGranted()) {
-
-            } else {
-                Toast.makeText(
-                    this,
-                    "Required permissions not granted",
-                    Toast.LENGTH_SHORT
-                ).show()
+            if (!allPermissionsGranted()) {
+                Toast.makeText(this, "Required permissions not granted", Toast.LENGTH_SHORT).show()
                 finish()
             }
         }

@@ -1,11 +1,7 @@
 package hu.bme.aut.onlab.valivalter.chessanalyzer.model
 
-import android.util.Log
 import hu.bme.aut.onlab.valivalter.chessanalyzer.R
 import hu.bme.aut.onlab.valivalter.chessanalyzer.stockfish.Analysis
-import hu.bme.aut.onlab.valivalter.chessanalyzer.stockfish.MODE
-import hu.bme.aut.onlab.valivalter.chessanalyzer.stockfish.StockfishApplication
-import java.io.IOException
 import java.util.HashMap
 
 enum class Player {
@@ -28,8 +24,6 @@ class Chessboard {
             intArrayOf(R.id.row6col0, R.id.row6col1, R.id.row6col2, R.id.row6col3, R.id.row6col4, R.id.row6col5, R.id.row6col6, R.id.row6col7),
             intArrayOf(R.id.row7col0, R.id.row7col1, R.id.row7col2, R.id.row7col3, R.id.row7col4, R.id.row7col5, R.id.row7col6, R.id.row7col7)
         )
-
-        val pieces = arrayListOf("em", "wr", "wn", "wb", "wk", "wq", "wp", "br", "bn", "bb", "bk", "bq", "bp")
 
         var mapStringsToResources: HashMap<String, Int> = HashMap<String, Int>().also {
             it["em"] = android.R.color.transparent
@@ -150,17 +144,6 @@ class Chessboard {
         board = newBoard
     }
 
-    fun print() {
-        var boardText = ""
-        for (i in 0 until 8) {
-            boardText += "\n"
-            for (j in 0 until 8) {
-                boardText += "[${board[i][j]}] "
-            }
-        }
-        Log.i("Chessboard", boardText)
-    }
-
     fun toFen(): String {
         var fen = ""
         for (i in 0 until 8) {
@@ -202,11 +185,7 @@ class Chessboard {
         }
         fen = fen.dropLast(1)
 
-        // a sima egy fotó alapján analizálás esetén
-        // castling availability cannot be determined, because we can never be sure that the rook was not moved before
-        // (még az alaphelyzetben sem, hiszen mi van, ha már lépett egyet a huszár kifele, aztán a bástya, aztán fordított sorrendben visszaléptek és újra alaphelyzet)
-        // en passant target square cannot be determined as well
-        // halfmove and fullmove number cannot be determined as well
+        // Egy fotó alapján lehetetlen meghatározni a FEN utolsó négy összetevőjét, ezért "- - 0 1" lesz mindig
         if (nextPlayer == Player.WHITE)
             fen += " w - - 0 1"
         else
@@ -216,7 +195,7 @@ class Chessboard {
     }
 
     fun getAllPossibleFens(): MutableList<String> {
-        var castlingAvailabilities = Chessboard.castlingAvailabilityPossibilities
+        var castlingAvailabilities = castlingAvailabilityPossibilities
         if (board[0][4] != "bk") {
             castlingAvailabilities = castlingAvailabilities.filter { "k" !in it && "q" !in it }
         }
@@ -259,9 +238,10 @@ class Chessboard {
         return true
     }
 
-    // difference here means 3 options: white in one, black in the other
-    //                                  white in one, empty in the other
-    //                                  black in one, empty in the other
+    // Itt a különbség az alábbi három lehetőségből jelenti valamelyiket:
+    // az egyik világos, a másik sötét
+    // az egyik világos, a másik üres
+    // az egyik sötét, a másik üres
     fun getDifferentTiles(other: Chessboard): MutableList<Pair<Int, Int>> {
         val differences = mutableListOf<Pair<Int, Int>>()
         for (i in 0 until 8) {
@@ -275,7 +255,6 @@ class Chessboard {
     }
 
     fun getLastMoveLan(previous: Chessboard, analysis: Analysis? = null): String {
-
         val castlingType = didCastle(previous)
         if (castlingType == 'K' || castlingType == 'k') {
             return "0-0"
@@ -306,13 +285,12 @@ class Chessboard {
                 "wb", "bb" -> lan += "B"
                 "wk", "bk" -> lan += "K"
                 "wq", "bq" -> lan += "Q"
-                // "wp", "bp" -> lan += "P"  usually not used in PGN notation
             }
-            lan += Chessboard.indicesToTileNotation(fromTile.first, fromTile.second)
+            lan += indicesToTileNotation(fromTile.first, fromTile.second)
             if (previous.getTile(toTile.first, toTile.second) != "em") {
                 lan += "x"
             }
-            lan += Chessboard.indicesToTileNotation(toTile.first, toTile.second)
+            lan += indicesToTileNotation(toTile.first, toTile.second)
 
             if ((toTile.first == 0 || toTile.first == 7) && previous.getTile(fromTile.first, fromTile.second).last() == 'p') {
                 when (board[toTile.first][toTile.second]) {
@@ -334,7 +312,7 @@ class Chessboard {
     }
 
 
-    // RECORDRHEZ CSAK
+
     fun didCastle(previous: Chessboard): Char? {
         val differences = this.getDifferentTiles(previous)
         if (differences.size == 4) {

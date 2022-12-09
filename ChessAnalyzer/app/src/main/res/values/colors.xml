@@ -7,10 +7,7 @@
     <color name="teal_700">#FF018786</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
-    <!--<color name="almost_black">#141414</color>-->
-    <!--<color name="almost_black">#272727</color>-->
     <color name="light_black">#272727</color>
-    <!--<color name="almost_white">#EBEBEB</color>-->
     <color name="dark_white">#EBEBEB</color>
 
     <color name="green_light">#768543</color>

@@ -15,7 +15,7 @@ import hu.bme.aut.onlab.valivalter.chessanalyzer.stockfish.Analysis
 import hu.bme.aut.onlab.valivalter.chessanalyzer.stockfish.AnalysisCompletedListener
 import hu.bme.aut.onlab.valivalter.chessanalyzer.stockfish.MODE
 import hu.bme.aut.onlab.valivalter.chessanalyzer.stockfish.StockfishApplication
-
+import kotlin.math.abs
 
 class Recorder(private val activity: RecordActivity) : ImageAnalysis.Analyzer, RecognitionCompletedListener, AnalysisCompletedListener {
 
@@ -31,8 +31,6 @@ class Recorder(private val activity: RecordActivity) : ImageAnalysis.Analyzer, R
 
     private lateinit var imageProxy: ImageProxy
 
-    private var counter = 1
-
     @androidx.camera.core.ExperimentalGetImage
     override fun analyze(imageProxy: ImageProxy) {
         this.imageProxy = imageProxy
@@ -42,21 +40,18 @@ class Recorder(private val activity: RecordActivity) : ImageAnalysis.Analyzer, R
 
             val imageBitmap = activity.findViewById<PreviewView>(R.id.cameraView).bitmap
             if (imageBitmap != null) {
-                //thread {
-                    val board = ChessboardDetector.findBoard(imageBitmap)
-                    if (board != null) {
-                        var boardBitmap = board.second
-                        if (imageBitmap.width > imageBitmap.height) {
-                            val matrix = Matrix()
-                            matrix.postRotate(90F)
-                            boardBitmap = Bitmap.createBitmap(boardBitmap, 0, 0, boardBitmap.width, boardBitmap.height, matrix, true)
-                        }
-                        recognizer.recognize(boardBitmap, withRulesOfChess = false)
+                var boardBitmap = ChessboardDetector.findBoard(imageBitmap)
+                if (boardBitmap != null) {
+                    if (imageBitmap.width > imageBitmap.height) {
+                        val matrix = Matrix()
+                        matrix.postRotate(90F)
+                        boardBitmap = Bitmap.createBitmap(boardBitmap, 0, 0, boardBitmap.width, boardBitmap.height, matrix, true)
                     }
-                    else {
-                        this.imageProxy.close()
-                    }
-                //}
+                    recognizer.recognize(boardBitmap!!, withRulesOfChess = false)
+                }
+                else {
+                    this.imageProxy.close()
+                }
             }
             else {
                 this.imageProxy.close()
@@ -69,68 +64,121 @@ class Recorder(private val activity: RecordActivity) : ImageAnalysis.Analyzer, R
 
     override fun onRecognitionCompleted(board: Chessboard) {
         val differences = currentChessboard.getDifferentTiles(board)
+        when (differences.size) {
+            2 -> { checkNormalStep(differences, board) }
+            4 -> { checkCastling(board) }
+            3 -> { checkEnPassant(differences, board) }
+            else -> { this.imageProxy.close() }
+        }
+    }
 
-        if (differences.size == 2) {
-            val currentStateOne = currentChessboard.getTile(differences[0].first, differences[0].second)
-            var newStateOne = board.getTile(differences[0].first, differences[0].second)
-            val currentStateTwo = currentChessboard.getTile(differences[1].first, differences[1].second)
-            var newStateTwo = board.getTile(differences[1].first, differences[1].second)
+    private fun checkNormalStep(differences: MutableList<Pair<Int, Int>>, board: Chessboard) {
+        val currentStateOne = currentChessboard.getTile(differences[0].first, differences[0].second)
+        var newStateOne = board.getTile(differences[0].first, differences[0].second)
+        val currentStateTwo = currentChessboard.getTile(differences[1].first, differences[1].second)
+        var newStateTwo = board.getTile(differences[1].first, differences[1].second)
 
-            if ((currentStateOne != "em" && newStateOne == "em" && newStateTwo.first() == currentStateOne.first()) ||
-                (currentStateTwo != "em" && newStateTwo == "em" && newStateOne.first() == currentStateTwo.first())) {
+        if ((currentStateOne != "em" && newStateOne == "em" && newStateTwo.first() == currentStateOne.first()) ||
+            (currentStateTwo != "em" && newStateTwo == "em" && newStateOne.first() == currentStateTwo.first())) {
 
-                previousChessboard = currentChessboard.copy()
-                when (currentChessboard.nextPlayer) {
-                    Player.WHITE -> currentChessboard.nextPlayer = Player.BLACK
-                    Player.BLACK -> currentChessboard.nextPlayer = Player.WHITE
-                }
+            previousChessboard = currentChessboard.copy()
+            when (currentChessboard.nextPlayer) {
+                Player.WHITE -> currentChessboard.nextPlayer = Player.BLACK
+                Player.BLACK -> currentChessboard.nextPlayer = Player.WHITE
+            }
 
-                if (newStateOne == "em") {
-                    currentChessboard.setTile(differences[0].first, differences[0].second, newStateOne)
-                    currentChessboard.setTile(differences[1].first, differences[1].second, currentStateOne)
+            if (newStateOne == "em") {
+                currentChessboard.setTile(differences[0].first, differences[0].second, newStateOne)
+                currentChessboard.setTile(differences[1].first, differences[1].second, currentStateOne)
 
-                    // pawn promotion
-                    if ((differences[1].first == 0 || differences[1].first == 7) && currentStateOne.last() == 'p') {
-                        if (newStateTwo.last() == 'p' || newStateTwo.last() == 'k') {
-                            newStateTwo = newStateTwo.drop(1) + 'q'
-                        }
-                        currentChessboard.setTile(differences[1].first, differences[1].second, newStateTwo)
+                // gyalog átalakulása
+                if ((differences[1].first == 0 || differences[1].first == 7) && currentStateOne.last() == 'p') {
+                    if (newStateTwo.last() == 'p' || newStateTwo.last() == 'k') {
+                        newStateTwo = newStateTwo.dropLast(1) + 'q'
                     }
-                }
-                else {
-                    currentChessboard.setTile(differences[0].first, differences[0].second, currentStateTwo)
                     currentChessboard.setTile(differences[1].first, differences[1].second, newStateTwo)
-
-                    // pawn promotion
-                    if ((differences[0].first == 0 || differences[0].first == 7) && currentStateTwo.last() == 'p') {
-                        if (newStateOne.last() == 'p' || newStateOne.last() == 'k') {
-                            newStateOne = newStateOne.dropLast(1) + 'q'
-                        }
-                        currentChessboard.setTile(differences[0].first, differences[0].second, newStateOne)
-                    }
-                }
-
-                try {
-                    val command = "position fen ${currentChessboard.toFen()}\neval\nisready\ngo movetime 500\n"
-                    StockfishApplication.runCommandWithListener(command, MODE.RECORDER, this)
-                }
-                catch (e: IOException) {
-                    e.printStackTrace()
                 }
             }
             else {
-                this.imageProxy.close()
+                currentChessboard.setTile(differences[0].first, differences[0].second, currentStateTwo)
+                currentChessboard.setTile(differences[1].first, differences[1].second, newStateTwo)
+
+                // gyalog átalakulása
+                if ((differences[0].first == 0 || differences[0].first == 7) && currentStateTwo.last() == 'p') {
+                    if (newStateOne.last() == 'p' || newStateOne.last() == 'k') {
+                        newStateOne = newStateOne.dropLast(1) + 'q'
+                    }
+                    currentChessboard.setTile(differences[0].first, differences[0].second, newStateOne)
+                }
+            }
+
+            try {
+                val command = "position fen ${currentChessboard.toFen()}\neval\nisready\ngo movetime 500\n"
+                StockfishApplication.runCommandWithListener(command, MODE.RECORDER, this)
+            }
+            catch (e: IOException) {
+                e.printStackTrace()
             }
         }
-        else if (differences.size == 4) { // castling
-            val castlingType = board.didCastle(currentChessboard)
-            if (castlingType != null) {
+        else {
+            this.imageProxy.close()
+        }
+    }
+
+    private fun checkCastling(board: Chessboard) {
+        val castlingType = board.didCastle(currentChessboard)
+        if (castlingType != null) {
+            previousChessboard = currentChessboard.copy()
+            when (currentChessboard.nextPlayer) {
+                Player.WHITE -> currentChessboard.nextPlayer = Player.BLACK
+                Player.BLACK -> currentChessboard.nextPlayer = Player.WHITE
+            }
+            currentChessboard.castle(castlingType)
+
+            try {
+                val command = "position fen ${currentChessboard.toFen()}\neval\nisready\ngo movetime 500\n"
+                StockfishApplication.runCommandWithListener(command, MODE.RECORDER, this)
+            }
+            catch (e: IOException) {
+                e.printStackTrace()
+            }
+        }
+        else {
+            this.imageProxy.close()
+        }
+    }
+
+    private fun checkEnPassant(differences: MutableList<Pair<Int, Int>>, board: Chessboard) {
+        val blackPawnTile = differences.find { currentChessboard.getTile(it.first, it.second).first() == 'b' }
+        val whitePawnTile = differences.find { currentChessboard.getTile(it.first, it.second).first() == 'w' }
+        val emptyTile = differences.find { currentChessboard.getTile(it.first, it.second) == "em" }
+
+        if (blackPawnTile != null && whitePawnTile != null && emptyTile != null) {
+            var movingpiece: String? = null
+            if (blackPawnTile.first == 3 && whitePawnTile.first == 3 && emptyTile.first == 2 &&
+                abs(whitePawnTile.second-blackPawnTile.second) < 2 && emptyTile.second == blackPawnTile.second &&
+                board.getTile(blackPawnTile.first, blackPawnTile.second) == "em" &&
+                board.getTile(whitePawnTile.first, whitePawnTile.second) == "em" &&
+                board.getTile(emptyTile.first, emptyTile.second).first() == 'w') {
+                movingpiece = "wp"
+            }
+            else if (blackPawnTile.first == 4 && whitePawnTile.first == 4 && emptyTile.first == 5 &&
+                abs(whitePawnTile.second-blackPawnTile.second) < 2 && emptyTile.second == whitePawnTile.second &&
+                board.getTile(blackPawnTile.first, blackPawnTile.second) == "em" &&
+                board.getTile(whitePawnTile.first, whitePawnTile.second) == "em" &&
+                board.getTile(emptyTile.first, emptyTile.second).first() == 'b') {
+                movingpiece = "bp"
+            }
+
+            if (movingpiece != null) {
                 previousChessboard = currentChessboard.copy()
                 when (currentChessboard.nextPlayer) {
                     Player.WHITE -> currentChessboard.nextPlayer = Player.BLACK
                     Player.BLACK -> currentChessboard.nextPlayer = Player.WHITE
                 }
-                currentChessboard.castle(castlingType)
+                currentChessboard.setTile(blackPawnTile.first, blackPawnTile.second, "em")
+                currentChessboard.setTile(whitePawnTile.first, whitePawnTile.second, "em")
+                currentChessboard.setTile(emptyTile.first, emptyTile.second, movingpiece)
 
                 try {
                     val command = "position fen ${currentChessboard.toFen()}\neval\nisready\ngo movetime 500\n"
@@ -152,22 +200,30 @@ class Recorder(private val activity: RecordActivity) : ImageAnalysis.Analyzer, R
     override fun onAnalysisCompleted(analysis: Analysis) {
         val step = currentChessboard.copy()
         if (game.rounds.size <= stepCounter) {
-            // mindenképp a fehér lépett, ha még nem megfelelő méretű a game.state lista
+            // mindenképp a fehér lépett, ha még nem megfelelő méretű a game.rounds lista
             game.rounds.add(Round(whiteStep = Step(step, analysis)))
         }
         else {
-            // mindenképp a fekete lépett, ha már megfelelő méretű volt a game.state lista
+            // mindenképp a fekete lépett, ha már megfelelő méretű a game.rounds lista
             game.rounds[game.rounds.size-1].blackStep = Step(step, analysis)
             stepCounter++
         }
 
-        activity.binding.tvLastStep.text = game.getLastStep()
+        val lastStep = game.getLastStep()
+        val lastMovingPiece = Chessboard.getPieceFromStepLan(lastStep)
+        activity.binding.tvLastStep.text = lastStep
+        activity.binding.ivLastMovingPiece.setImageResource(Chessboard.mapStringsToResources[lastMovingPiece]!!)
 
-        this.imageProxy.close()
+        if ('#' !in lastStep) {
+            this.imageProxy.close()
+        }
+        else {
+            activity.binding.btnStopRecording.text = activity.getString(R.string.share_results)
+        }
     }
 
     override fun onInvalidFen() {
-        activity.binding.tvLastStep.text = "Invalid step (in check)"
+        activity.binding.tvLastStep.text = activity.getString(R.string.invalid_step_check)
         currentChessboard = previousChessboard.copy()
         this.imageProxy.close()
     }
