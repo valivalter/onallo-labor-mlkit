@@ -1,0 +1,4 @@
+1. e4 d5
+2. Nf3 dxe4
+3. Bd3 Kd7
+4. Bxe4

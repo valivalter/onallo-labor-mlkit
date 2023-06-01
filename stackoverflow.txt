@@ -1,0 +1,2 @@
+https://stackoverflow.com/questions/60301296/how-to-use-camerax-with-previewview
+https://stackoverflow.com/questions/63090795/how-to-draw-on-previewview
